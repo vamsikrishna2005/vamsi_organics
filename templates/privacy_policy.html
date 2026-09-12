@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 py-12 sm:px-6 lg:px-8">
+    <div class="bg-white rounded-3xl shadow-sm border border-gray-100 p-8 sm:p-12">
+        <div class="border-b border-gray-100 pb-6 mb-8">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 text-xs font-black uppercase tracking-wider mb-3">
+                <i class="fa-solid fa-shield-halved"></i> Legal Compliance & Trust
+            </div>
+            <h1 class="text-3xl sm:text-4xl font-black text-gray-900 tracking-tight">Privacy Policy</h1>
+            <p class="text-sm text-gray-500 mt-2">Effective Date: September 2026 • Vamsi Organic Farms</p>
+        </div>
+
+        <div class="space-y-8 text-sm text-gray-700 leading-relaxed">
+            <section>
+                <h2 class="text-lg font-bold text-gray-900 mb-2 flex items-center gap-2">
+                    <span class="w-6 h-6 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center text-xs">1</span>
+                    Introduction
+                </h2>
+                <p>
+                    Welcome to <strong>Vamsi Organic Farms</strong> ("we", "our", or "us"). We are dedicated to protecting your personal privacy and ensuring that your farm-to-table shopping experience is transparent, secure, and respectful of your data. This Privacy Policy explains how our mobile application and web portal collect, use, and safeguard your information.
+                </p>
+            </section>
+
+            <section>
+                <h2 class="text-lg font-bold text-gray-900 mb-2 flex items-center gap-2">
+                    <span class="w-6 h-6 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center text-xs">2</span>
+                    Information We Collect
+                </h2>
+                <p class="mb-3">To process and deliver your fresh organic harvest orders, we collect the following minimal necessary information:</p>
+                <ul class="list-disc pl-5 space-y-1.5 text-gray-600">
+                    <li><strong>Account Credentials:</strong> Full name and unique 10-digit mobile phone number for account login and SMS OTP verification.</li>
+                    <li><strong>Delivery Details:</strong> Physical delivery addresses (street name, apartment, landmarks) to dispatch fresh produce to your doorstep.</li>
+                    <li><strong>Order Transactions:</strong> Produce items purchased, order totals, Cash on Delivery (COD) status, and reward coin redemptions.</li>
+                    <li><strong>Support Interactions:</strong> Queries sent through the 24/7 Kisan AI assistant or our WhatsApp support line (+91 76759 60440).</li>
+                </ul>
+            </section>
+
+            <section>
+                <h2 class="text-lg font-bold text-gray-900 mb-2 flex items-center gap-2">
+                    <span class="w-6 h-6 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center text-xs">3</span>
+                    How We Use Your Data
+                </h2>
+                <p class="mb-3">We use the collected information strictly for legitimate commercial and operational purposes:</p>
+                <ul class="list-disc pl-5 space-y-1.5 text-gray-600">
+                    <li>Dispatching and delivering farm-fresh vegetables to your selected location.</li>
+                    <li>Verifying cash-on-delivery payments upon parcel handover.</li>
+                    <li>Sending real-time order status updates and dispatch notifications.</li>
+                    <li>Calculating personalized produce recommendations and restock alerts.</li>
+                    <li>Managing loyalty cashback coins and customer support requests.</li>
+                </ul>
+            </section>
+
+            <section>
+                <h2 class="text-lg font-bold text-gray-900 mb-2 flex items-center gap-2">
+                    <span class="w-6 h-6 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center text-xs">4</span>
+                    Data Sharing & Third Parties
+                </h2>
+                <p>
+                    <strong>We never sell, rent, or trade your personal data to advertisers or third parties.</strong> Data is shared only with direct logistics delivery personnel strictly to complete the physical delivery of your order.
+                </p>
+            </section>
+
+            <section>
+                <h2 class="text-lg font-bold text-gray-900 mb-2 flex items-center gap-2">
+                    <span class="w-6 h-6 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center text-xs">5</span>
+                    Your Rights & Data Deletion
+                </h2>
+                <p>
+                    You have complete control over your information. You can view, add, or delete saved delivery addresses at any time through your dashboard. If you wish to delete your account and associated order records, you can contact us at any time via WhatsApp or phone at <strong>+91 76759 60440</strong>.
+                </p>
+            </section>
+
+            <section class="border-t border-gray-100 pt-6">
+                <h2 class="text-lg font-bold text-gray-900 mb-2 flex items-center gap-2">
+                    <span class="w-6 h-6 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center text-xs">6</span>
+                    Contact & Grievance Officer
+                </h2>
+                <div class="bg-emerald-50/60 border border-emerald-100 rounded-2xl p-4 text-xs space-y-1.5 text-emerald-900">
+                    <p class="font-bold text-sm">Vamsi Organic Farms Support Desk</p>
+                    <p><strong>Support Helpline:</strong> <a href="tel:+917675960440" class="font-bold underline">+91 76759 60440</a></p>
+                    <p><strong>WhatsApp Support:</strong> <a href="https://wa.me/917675960440" target="_blank" class="font-bold underline">+91 76759 60440</a></p>
+                    <p><strong>Address:</strong> Farm Operations Center, Andhra Pradesh, India</p>
+                </div>
+            </section>
+        </div>
+
+        <div class="mt-8 text-center">
+            <a href="/dashboard" class="inline-flex items-center gap-2 px-6 py-2.5 rounded-2xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs transition shadow-sm">
+                <i class="fa-solid fa-arrow-left"></i> Return to Fresh Produce Market
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

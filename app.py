@@ -71,6 +71,11 @@ def index():
     # Landing page is always the Login page as requested
     return redirect(url_for('login'))
 
+@app.route('/privacy-policy')
+def privacy_policy():
+    """Official Google Play and Customer Privacy Policy"""
+    return render_template('privacy_policy.html')
+
 @app.route('/shop')
 def shop():
     uid = session.get('user_id')
