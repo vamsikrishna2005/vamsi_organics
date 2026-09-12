@@ -195,7 +195,7 @@ def init_db():
         ("Pranav Ghee", "pranav@example.com", "7777777777", "customer", None),
         ("Sita Sweet", "sita@example.com", "6666666666", "customer", None),
         ("General Shopper", "shopper@example.com", "5555555555", "customer", None),
-        ("Store Manager (Admin)", "admin@vamsiorganicfarms.com", "9999999999", "admin", admin_hashed_pw)
+        ("Store Manager (Admin)", "admin@vamsiorganicfarms.com", "7675960440", "admin", admin_hashed_pw)
     ]
     cursor.executemany("""
         INSERT INTO users (name, email, phone, role, password)
@@ -451,6 +451,13 @@ def check_and_migrate_db():
         )
     """)
     cursor.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_user_addresses_unique ON user_addresses(user_id, LOWER(TRIM(address)))")
+
+    # 12. Ensure Store Manager phone is set to 7675960440
+    cursor.execute("""
+        UPDATE users 
+        SET phone = '7675960440' 
+        WHERE role = 'admin'
+    """)
 
     conn.commit()
     conn.close()

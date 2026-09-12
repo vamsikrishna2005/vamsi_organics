@@ -530,8 +530,8 @@ def login():
             
             if user:
                 if user['role'] == 'admin':
-                    flash("This number belongs to an Administrator. Please use the Admin Login tab with username & password.", "error")
-                    return redirect(url_for('login'))
+                    flash("Welcome Store Manager! Please enter your manager password to continue.", "info")
+                    return redirect(url_for('admin_login', username=phone))
                     
                 session['user_id'] = user['id']
                 session['role'] = user['role']
@@ -809,7 +809,7 @@ def admin_login():
         conn = get_db_connection()
         admin_user = conn.execute("""
             SELECT * FROM users 
-            WHERE role = 'admin' AND (email = ? OR phone = ? OR LOWER(name) LIKE ? OR ? IN ('admin', 'vamsi'))
+            WHERE role = 'admin' AND (email = ? OR phone = ? OR LOWER(name) LIKE ? OR ? IN ('admin', 'vamsi', '7675960440', '9999999999'))
         """, (username, username, f"%{username.lower()}%", username.lower())).fetchone()
         conn.close()
         
