@@ -1,0 +1,1486 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="space-y-6">
+
+    <!-- ========================================================= -->
+    <!-- 1. Unified App Shell Header: Greeting & Quick Live Stats  -->
+    <!-- ========================================================= -->
+    <div class="bg-gradient-to-r from-emerald-900 via-emerald-800 to-teal-900 rounded-3xl p-6 sm:p-8 text-white shadow-xl relative overflow-hidden">
+        <div class="absolute -right-10 -bottom-10 opacity-10 pointer-events-none">
+            <svg class="w-64 h-64 text-white" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
+            </svg>
+        </div>
+
+        <div class="relative z-10 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+            <div class="space-y-2">
+                <div class="inline-flex items-center gap-2 bg-white/15 backdrop-blur-md border border-white/20 px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider text-emerald-200">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                    <span>100% Farm Fresh Mandi Harvest • Daily 5 AM</span>
+                </div>
+                <h1 class="text-2xl sm:text-3xl font-black tracking-tight text-white flex items-center gap-2">
+                    <span>Namaste,</span>
+                    <span class="text-emerald-300">{{ current_user.name }}</span>
+                    <span>🌱</span>
+                </h1>
+                <p class="text-xs sm:text-sm text-emerald-100/90 font-medium max-w-xl">
+                    Welcome to your unified organic vegetable market. Browse today's harvest, manage your basket, track doorstep deliveries, and redeem your cashback coins — all in one place.
+                </p>
+            </div>
+
+            <!-- Quick Action Stat Chips -->
+            <div class="flex flex-wrap gap-2.5 sm:gap-3">
+                <!-- Farm Wallet Pill -->
+                <button onclick="switchDashboardTab('wallet')" class="bg-black/30 hover:bg-black/40 backdrop-blur-md border border-white/15 px-4 py-2.5 rounded-2xl flex items-center gap-2.5 transition active:scale-95 group text-left">
+                    <span class="text-2xl">🪙</span>
+                    <div>
+                        <p class="text-[10px] text-emerald-200 font-bold uppercase tracking-wider">Farm Coins</p>
+                        <p class="text-sm font-black text-amber-300">₹{{ "%.2f" | format(wallet_balance or 100.0) }}</p>
+                    </div>
+                </button>
+
+                <!-- Basket Pill -->
+                <button onclick="switchDashboardTab('basket')" class="bg-black/30 hover:bg-black/40 backdrop-blur-md border border-white/15 px-4 py-2.5 rounded-2xl flex items-center gap-2.5 transition active:scale-95 group text-left">
+                    <span class="text-2xl">🧺</span>
+                    <div>
+                        <p class="text-[10px] text-emerald-200 font-bold uppercase tracking-wider">My Basket</p>
+                        <p class="text-sm font-black text-white flex items-center gap-1">
+                            <span id="quick-bar-basket-count">0</span> Items
+                        </p>
+                    </div>
+                </button>
+
+                <!-- Orders Pill -->
+                <button onclick="switchDashboardTab('orders')" class="bg-black/30 hover:bg-black/40 backdrop-blur-md border border-white/15 px-4 py-2.5 rounded-2xl flex items-center gap-2.5 transition active:scale-95 group text-left">
+                    <span class="text-2xl">📦</span>
+                    <div>
+                        <p class="text-[10px] text-emerald-200 font-bold uppercase tracking-wider">Order History</p>
+                        <p class="text-sm font-black text-white">{{ purchases | length }} Records</p>
+                    </div>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- 2. Unified Application Navigation Bar (Instant Tab Switch) -->
+    <!-- ========================================================= -->
+    <div class="bg-white rounded-2xl p-2 shadow-xs border border-gray-100 flex items-center overflow-x-auto gap-1.5 sticky top-16 z-30">
+        <button id="nav-tab-market" onclick="switchDashboardTab('market')" 
+                class="app-tab-btn flex-1 min-w-[130px] py-3 px-3 rounded-xl font-black text-xs transition-all duration-200 flex items-center justify-center gap-2 bg-emerald-600 text-white shadow-sm active:scale-98">
+            <span class="text-sm">🥬</span>
+            <span>Fresh Market</span>
+        </button>
+
+        <button id="nav-tab-basket" onclick="switchDashboardTab('basket')" 
+                class="app-tab-btn flex-1 min-w-[150px] py-3 px-3 rounded-xl font-bold text-xs transition-all duration-200 flex items-center justify-center gap-2 text-gray-600 hover:text-gray-900 active:scale-98">
+            <span class="text-sm">🧺</span>
+            <span>Farm Basket</span>
+            <span id="tab-basket-count-badge" class="ml-1 bg-amber-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full hidden">0</span>
+        </button>
+
+        <button id="nav-tab-orders" onclick="switchDashboardTab('orders')" 
+                class="app-tab-btn flex-1 min-w-[140px] py-3 px-3 rounded-xl font-bold text-xs transition-all duration-200 flex items-center justify-center gap-2 text-gray-600 hover:text-gray-900 active:scale-98">
+            <span class="text-sm">📦</span>
+            <span>Orders & Tracking</span>
+            <span class="text-[10px] font-extrabold text-emerald-800 bg-emerald-100 px-1.5 py-0.5 rounded-full">{{ purchases | length }}</span>
+        </button>
+
+        <button id="nav-tab-wallet" onclick="switchDashboardTab('wallet')" 
+                class="app-tab-btn flex-1 min-w-[130px] py-3 px-3 rounded-xl font-bold text-xs transition-all duration-200 flex items-center justify-center gap-2 text-gray-600 hover:text-gray-900 active:scale-98">
+            <span class="text-sm">🪙</span>
+            <span>Farm Wallet</span>
+        </button>
+
+        <button id="nav-tab-pantry" onclick="switchDashboardTab('pantry')" 
+                class="app-tab-btn flex-1 min-w-[130px] py-3 px-3 rounded-xl font-bold text-xs transition-all duration-200 flex items-center justify-center gap-2 text-gray-600 hover:text-gray-900 active:scale-98">
+            <span class="text-sm">🤖</span>
+            <span>AI Smart Pantry</span>
+            {% if predictive_alerts %}
+                <span class="w-2 h-2 rounded-full bg-amber-500 animate-ping"></span>
+            {% endif %}
+        </button>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- TAB 1: 🥬 FRESH MANDI PRODUCE CATALOG                     -->
+    <!-- ========================================================= -->
+    <div id="tab-panel-market" class="app-tab-panel space-y-6">
+        
+        <!-- Search & Voice Recognition Bar -->
+        <div class="bg-white p-4 sm:p-5 rounded-3xl border border-gray-100 shadow-xs flex flex-col md:flex-row gap-3 items-center justify-between">
+            <!-- Search Input with Voice Button -->
+            <div class="relative flex-grow w-full">
+                <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-gray-400">
+                    <i class="fa-solid fa-magnifying-glass text-sm"></i>
+                </span>
+                <input type="text" id="search-input" onkeyup="searchProducts()" placeholder="Search vegetables by English or Telugu names (e.g. Tomato, Palak, టమోటా)..."
+                       class="pl-11 pr-24 w-full py-3 border border-gray-200 rounded-2xl font-bold text-xs sm:text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-gray-50/60 transition">
+                
+                <!-- Pulsing Voice Search Mic Button -->
+                <button type="button" id="voice-search-btn" onclick="startVoiceSearch()" title="Search using voice (English or Telugu)"
+                        class="absolute inset-y-1.5 right-1.5 px-3 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-extrabold text-xs rounded-xl border border-emerald-200 transition flex items-center gap-1.5 active:scale-95">
+                    <i class="fa-solid fa-microphone text-emerald-600" id="voice-mic-icon"></i>
+                    <span class="hidden sm:inline">Speak</span>
+                </button>
+            </div>
+
+            <!-- Total Available Counter -->
+            <div class="flex items-center gap-2 text-xs font-bold text-gray-500 flex-shrink-0">
+                <span>🥬</span>
+                <span><strong>{{ products | length }}</strong> Farm Vegetables in Stock</span>
+            </div>
+        </div>
+
+        <!-- Voice Search Live Listening Indicator Banner -->
+        <div id="voice-status-banner" class="hidden bg-emerald-50 border border-emerald-200 p-3.5 rounded-2xl flex items-center justify-between text-xs font-bold text-emerald-900 animate-in fade-in">
+            <div class="flex items-center gap-2.5">
+                <span class="w-3 h-3 rounded-full bg-red-500 animate-ping"></span>
+                <span id="voice-status-text">Listening... Speak now (e.g. "Tomato", "Palak", "ఉల్లిపాయ")</span>
+            </div>
+            <button type="button" onclick="stopVoiceSearch()" class="text-emerald-700 hover:text-emerald-950 font-black">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <!-- Category Filter Pills -->
+        <div class="flex items-center space-x-2 overflow-x-auto pb-1 no-scrollbar">
+            <button onclick="filterCategory('All')" class="category-tab-btn px-4 py-2 rounded-xl text-xs font-black transition whitespace-nowrap bg-emerald-600 text-white shadow-sm">
+                All Produce
+            </button>
+            {% for cat in categories %}
+                <button onclick="filterCategory('{{ cat }}')" class="category-tab-btn px-4 py-2 rounded-xl text-xs font-bold transition whitespace-nowrap bg-white text-gray-600 hover:bg-gray-50 border border-gray-200">
+                    {{ cat }}
+                </button>
+            {% endfor %}
+        </div>
+
+        <!-- Produce 20 Vegetables Grid -->
+        <div class="grid grid-cols-1 min-[480px]:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 items-stretch">
+            {% for prod in products %}
+                <div class="product-card bg-white rounded-3xl p-4 sm:p-5 border border-gray-100 shadow-xs hover:shadow-md transition duration-200 flex flex-col justify-between group h-full"
+                     data-id="{{ prod.id }}" 
+                     data-name="{{ prod.name }}" 
+                     data-category="{{ prod.category }}" 
+                     data-tags="{{ prod.tags or '' }}" 
+                     data-price="{{ prod.price }}">
+                    
+                    <div class="flex-grow flex flex-col">
+                        <!-- Vegetable Header Icon & Stock Badge -->
+                        <div class="flex items-start justify-between mb-3">
+                            <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gray-50 border border-gray-100 flex items-center justify-center text-4xl sm:text-5xl group-hover:scale-105 transition duration-200 shadow-inner flex-shrink-0">
+                                {{ prod.image_url }}
+                            </div>
+                            <div class="flex flex-col items-end gap-1">
+                                {% if prod.stock > 0 %}
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-black bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1 animate-pulse"></span>
+                                        {{ prod.stock }} In Stock
+                                    </span>
+                                {% else %}
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-black bg-red-50 text-red-700 border border-red-200">
+                                        Sold Out
+                                    </span>
+                                {% endif %}
+                                <span class="text-[9px] font-bold text-gray-400 uppercase tracking-wider">
+                                    {{ prod.category }}
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Vegetable English & Telugu Names -->
+                        <h3 class="font-extrabold text-sm sm:text-base text-gray-900 leading-tight line-clamp-1" title="{{ prod.name.split('[')[0].strip() }}">
+                            {{ prod.name.split('[')[0].strip() }}
+                        </h3>
+
+                        <div class="mt-1 min-h-[26px] flex items-center">
+                            {% if '[' in prod.name %}
+                                <span class="inline-block text-[10px] font-extrabold text-emerald-800 bg-emerald-100/80 px-2 py-0.5 rounded-md border border-emerald-200/60 truncate max-w-full">
+                                    తెలుగు: [ {{ prod.name.split('[')[1].replace(']', '').strip() }} ]
+                                </span>
+                            {% endif %}
+                        </div>
+
+                        <!-- Star Rating & Benefits Factsheet Link -->
+                        <div class="flex items-center justify-between mt-2 pt-2 border-t border-gray-50 text-xs">
+                            <div class="flex items-center gap-1">
+                                <span class="text-amber-500 font-black text-[11px]">★</span>
+                                <span class="font-bold text-gray-800 text-[11px]">{{ "%.1f" | format(prod.rating or 4.8) }}</span>
+                                <span class="text-gray-400 text-[10px]">({{ prod.reviews_count or 12 }})</span>
+                            </div>
+                            <button type="button" onclick="openProduceDetails({{ prod.id }})" 
+                                    class="text-[10px] font-black text-emerald-700 hover:text-emerald-800 bg-emerald-50 hover:bg-emerald-100 px-2 py-1 rounded-lg transition active:scale-95">
+                                ℹ️ Factsheet
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Price & Realtime Counter Add Button Slot (Pinned to bottom) -->
+                    <div class="pt-3 mt-auto border-t border-gray-50 flex items-center justify-between">
+                        <div>
+                            <span class="text-[9px] text-gray-400 block font-bold uppercase tracking-wider">{{ prod.unit }}</span>
+                            <span class="text-base sm:text-lg font-black text-gray-900">₹{{ "%.2f" | format(prod.price) }}</span>
+                        </div>
+
+                        <!-- Real-Time Counter / Add Button Slot -->
+                        <div class="product-card-action" data-id="{{ prod.id }}" data-name="{{ prod.name }}" data-price="{{ prod.price }}" data-unit="{{ prod.unit }}" data-icon="{{ prod.image_url }}" data-stock="{{ prod.stock }}">
+                            {% if prod.stock == 0 %}
+                                <button disabled class="bg-gray-100 text-gray-400 font-bold text-xs px-3 py-1.5 rounded-xl cursor-not-allowed">
+                                    Sold Out
+                                </button>
+                            {% else %}
+                                <div class="cart-btn-wrapper" id="cart-btn-wrapper-{{ prod.id }}">
+                                    <button onclick="addToCartRealtime({{ prod.id }})" class="bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs px-3.5 py-2 rounded-xl transition duration-150 inline-flex items-center space-x-1 shadow-md shadow-emerald-600/20 active:scale-95">
+                                        <i class="fa-solid fa-plus text-[10px]"></i>
+                                        <span>ADD</span>
+                                    </button>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                </div>
+            {% endfor %}
+        </div>
+
+        <!-- Trust & Benefits Section -->
+        <div class="mt-8 bg-white p-6 sm:p-8 rounded-3xl border border-gray-100 shadow-xs">
+            <h3 class="text-base sm:text-lg font-black text-gray-900 text-center mb-6">Why Indian Families Trust Vamsi Organic Farms</h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+                <div class="text-center space-y-1.5 p-3 rounded-2xl bg-gray-50/60 border border-gray-100">
+                    <span class="text-3xl">🚜</span>
+                    <h4 class="font-extrabold text-xs text-gray-900">Direct From Farm</h4>
+                    <p class="text-[11px] text-gray-500">Zero middlemen. Straight from Andhra & Telangana rich organic soils.</p>
+                </div>
+                <div class="text-center space-y-1.5 p-3 rounded-2xl bg-gray-50/60 border border-gray-100">
+                    <span class="text-3xl">🌱</span>
+                    <h4 class="font-extrabold text-xs text-gray-900">100% Pesticide Free</h4>
+                    <p class="text-[11px] text-gray-500">Nourished with natural compost, jeevamrutham, and clean well water.</p>
+                </div>
+                <div class="text-center space-y-1.5 p-3 rounded-2xl bg-gray-50/60 border border-gray-100">
+                    <span class="text-3xl">⚡</span>
+                    <h4 class="font-extrabold text-xs text-gray-900">Morning Express</h4>
+                    <p class="text-[11px] text-gray-500">Harvested at 5 AM and delivered fresh before your morning cooking.</p>
+                </div>
+                <div class="text-center space-y-1.5 p-3 rounded-2xl bg-gray-50/60 border border-gray-100">
+                    <span class="text-3xl">🪙</span>
+                    <h4 class="font-extrabold text-xs text-gray-900">5% Cashback Coins</h4>
+                    <p class="text-[11px] text-gray-500">Earn coins on every rupee spent and redeem instantly on your next order.</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- TAB 2: 🧺 FARM BASKET & EXPRESS CHECKOUT                  -->
+    <!-- ========================================================= -->
+    <div id="tab-panel-basket" class="app-tab-panel space-y-6 hidden">
+        
+        <!-- Empty Cart State -->
+        <div id="cart-empty-view" class="bg-white rounded-3xl p-12 text-center border border-gray-100 shadow-xs max-w-lg mx-auto hidden space-y-4">
+            <span class="text-6xl block animate-bounce">🧺</span>
+            <h3 class="text-xl font-black text-gray-900">Your Farm Basket is Empty</h3>
+            <p class="text-xs text-gray-500 font-medium leading-relaxed">
+                You haven't added any fresh organic harvest to your basket yet. Explore today's 20 daily vegetables and enjoy pure farm-to-table goodness!
+            </p>
+            <div class="pt-2">
+                <button onclick="switchDashboardTab('market')" class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs px-6 py-3 rounded-2xl shadow-lg shadow-emerald-600/20 transition active:scale-95">
+                    <i class="fa-solid fa-store text-xs"></i>
+                    <span>Browse Fresh Vegetables</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Populated Cart Content Grid -->
+        <div id="cart-content-view" class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            
+            <!-- Left Column: Cart Items List (7 cols) -->
+            <div class="lg:col-span-7 space-y-5">
+                
+                <!-- Basket Items Card -->
+                <div id="cart-page-items-container" class="bg-white rounded-3xl border border-gray-100 shadow-xs overflow-hidden">
+                    <div class="px-6 py-4 bg-emerald-50/70 border-b border-emerald-100/80 flex items-center justify-between">
+                        <span class="text-xs font-black text-emerald-950 uppercase tracking-wider flex items-center gap-2">
+                            <i class="fa-solid fa-carrot text-emerald-700"></i> Fresh Produce in Basket
+                        </span>
+                        <button onclick="clearFullCart()" class="text-[11px] font-bold text-red-600 hover:text-red-700 hover:underline">
+                            Clear Basket
+                        </button>
+                    </div>
+
+                    <!-- Dynamic Cart Rows Rendered by store.js -->
+                    <div class="divide-y divide-gray-100" id="cart-page-items-list">
+                    </div>
+                </div>
+
+                <!-- Smart Recipe Combos (1-Click Add) -->
+                <div class="bg-white p-6 rounded-3xl border border-gray-100 shadow-xs space-y-4">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="text-sm sm:text-base font-black text-gray-900 flex items-center gap-2">
+                                <span class="text-xl">✨</span> Smart Recipe Combos (1-Click Add)
+                            </h3>
+                            <p class="text-xs text-gray-400 font-semibold mt-0.5">Complement your basket with handpicked daily culinary packs.</p>
+                        </div>
+                        <span class="text-[10px] font-black text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-full">Save 10%</span>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
+                        <!-- Daily Tadka Pack -->
+                        <div class="bg-gradient-to-br from-amber-50/50 to-orange-50/30 p-3.5 rounded-2xl border border-amber-200/70 flex flex-col justify-between space-y-3">
+                            <div class="flex items-start gap-2.5">
+                                <span class="text-2xl">🌶️</span>
+                                <div>
+                                    <h4 class="text-xs font-black text-gray-900">Daily Tadka Pack</h4>
+                                    <p class="text-[10px] text-gray-500 font-medium mt-0.5">Mirchi + Adrak + Lahsun + Dhania</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-between pt-2 border-t border-amber-200/50">
+                                <span class="text-xs font-black text-emerald-700">₹80.00</span>
+                                <button onclick="addRecipeBundle('tadka')" class="text-[10px] font-black bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1 rounded-xl shadow-xs transition active:scale-95">
+                                    + ADD
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Sambar & Curry Pack -->
+                        <div class="bg-gradient-to-br from-emerald-50/50 to-green-50/30 p-3.5 rounded-2xl border border-emerald-200/70 flex flex-col justify-between space-y-3">
+                            <div class="flex items-start gap-2.5">
+                                <span class="text-2xl">🍲</span>
+                                <div>
+                                    <h4 class="text-xs font-black text-gray-900">Sambar Pack</h4>
+                                    <p class="text-[10px] text-gray-500 font-medium mt-0.5">Tamatar + Lauki + Dhania</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-between pt-2 border-t border-emerald-200/50">
+                                <span class="text-xs font-black text-emerald-700">₹80.00</span>
+                                <button onclick="addRecipeBundle('sambar')" class="text-[10px] font-black bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1 rounded-xl shadow-xs transition active:scale-95">
+                                    + ADD
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Iron Greens Duo -->
+                        <div class="bg-gradient-to-br from-teal-50/50 to-emerald-50/30 p-3.5 rounded-2xl border border-teal-200/70 flex flex-col justify-between space-y-3">
+                            <div class="flex items-start gap-2.5">
+                                <span class="text-2xl">🥬</span>
+                                <div>
+                                    <h4 class="text-xs font-black text-gray-900">Iron Greens Duo</h4>
+                                    <p class="text-[10px] text-gray-500 font-medium mt-0.5">Palak + Methi Bunches</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-between pt-2 border-t border-teal-200/50">
+                                <span class="text-xs font-black text-emerald-700">₹50.00</span>
+                                <button onclick="addRecipeBundle('greens')" class="text-[10px] font-black bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1 rounded-xl shadow-xs transition active:scale-95">
+                                    + ADD
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Right Column: Address, Schedule, Coupon, Wallet & Checkout (5 cols) -->
+            <div class="lg:col-span-5 space-y-5 lg:sticky lg:top-32">
+                <div class="bg-white p-6 rounded-3xl border border-gray-100 shadow-md space-y-5">
+                    
+                    <!-- 1. Delivery Destination Address -->
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-xs font-black text-gray-700 uppercase tracking-wider flex items-center gap-1.5">
+                                <i class="fa-solid fa-location-dot text-emerald-600"></i> Delivery Address
+                            </span>
+                            <button type="button" onclick="openAddressModal()" class="text-xs font-black text-emerald-700 hover:text-emerald-800 bg-emerald-50 px-2.5 py-1 rounded-xl border border-emerald-200 transition active:scale-95">
+                                Change / Add
+                            </button>
+                        </div>
+
+                        <!-- Address Preview Card -->
+                        <div onclick="openAddressModal()" class="bg-gray-50 hover:bg-emerald-50/50 p-3 rounded-2xl border border-gray-200 hover:border-emerald-500 cursor-pointer transition group">
+                            <div class="flex items-start gap-2.5">
+                                <span class="text-base text-emerald-600 mt-0.5">📍</span>
+                                <div class="flex-grow min-w-0">
+                                    <div class="flex items-center justify-between">
+                                        <span id="cart-selected-address-label" class="text-[10px] font-black uppercase text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-md">
+                                            {% if addresses and addresses|length > 0 %}{{ addresses[0].label }} (Default){% else %}Home (Default){% endif %}
+                                        </span>
+                                        <span class="text-[10px] font-bold text-gray-400 group-hover:text-emerald-600">Edit ❯</span>
+                                    </div>
+                                    <p id="cart-selected-address-text" class="text-xs font-bold text-gray-800 mt-1 line-clamp-2 leading-relaxed">
+                                        {% if addresses and addresses|length > 0 %}{{ addresses[0].address }}{% else %}Loading your saved delivery address...{% endif %}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <input type="hidden" id="delivery-address" value="{% if addresses and addresses|length > 0 %}{{ addresses[0].address }}{% endif %}">
+                    </div>
+
+                    <!-- 2. Delivery Date & Time Slot -->
+                    <div class="space-y-2">
+                        <span class="text-xs font-black text-gray-700 uppercase tracking-wider flex items-center gap-1.5">
+                            <i class="fa-solid fa-clock text-emerald-600"></i> Delivery Schedule
+                        </span>
+                        <div class="grid grid-cols-2 gap-2 text-xs">
+                            <div>
+                                <label for="delivery-date" class="block text-[10px] text-gray-400 font-bold uppercase mb-1">Harvest Date</label>
+                                <input type="date" id="delivery-date" required class="w-full px-3 py-2 border border-gray-200 rounded-xl font-bold text-gray-800 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 text-xs">
+                            </div>
+                            <div>
+                                <label for="delivery-slot" class="block text-[10px] text-gray-400 font-bold uppercase mb-1">Delivery Slot</label>
+                                <select id="delivery-slot" class="w-full px-2.5 py-2 border border-gray-200 rounded-xl font-bold text-gray-800 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer text-xs">
+                                    <option value="Morning (8:00 AM - 11:00 AM)">Morning (8-11 AM)</option>
+                                    <option value="Afternoon (12:00 PM - 3:00 PM)">Afternoon (12-3 PM)</option>
+                                    <option value="Evening (5:00 PM - 8:00 PM)">Evening (5-8 PM)</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 3. Promo Code / Coupons -->
+                    <div class="pt-3 border-t border-gray-100">
+                        <div class="flex items-center justify-between mb-1.5">
+                            <label for="coupon-input" class="text-xs font-black text-gray-700 uppercase tracking-wider flex items-center gap-1.5">
+                                <i class="fa-solid fa-tag text-emerald-600"></i> Promo Coupon
+                            </label>
+                            <span id="coupon-applied-badge" class="hidden text-[9px] font-black uppercase text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-md">
+                                Applied
+                            </span>
+                        </div>
+
+                        <div class="flex gap-2">
+                            <input type="text" id="coupon-input" placeholder="FARM50 or VAMSI10" 
+                                   class="flex-grow px-3 py-2 border border-gray-200 rounded-xl font-black text-xs uppercase text-gray-800 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                            <button type="button" id="apply-coupon-btn" onclick="applyPromoCoupon()" 
+                                    class="bg-emerald-600 hover:bg-emerald-700 text-white font-black px-4 py-2 rounded-xl text-xs transition active:scale-95">
+                                Apply
+                            </button>
+                            <button type="button" id="remove-coupon-btn" onclick="removePromoCoupon()" 
+                                    class="hidden bg-red-50 hover:bg-red-100 text-red-600 font-bold px-3 py-2 rounded-xl text-xs transition active:scale-95 border border-red-200" title="Remove coupon">
+                                <i class="fa-solid fa-xmark"></i>
+                            </button>
+                        </div>
+
+                        <div class="flex flex-wrap gap-1.5 mt-2">
+                            <button type="button" onclick="quickApplyCoupon('FARM50')" class="text-[10px] font-bold bg-gray-50 hover:bg-emerald-50 text-gray-600 hover:text-emerald-700 px-2.5 py-1 rounded-lg border border-dashed border-gray-300 hover:border-emerald-500 transition">
+                                🏷️ FARM50 (₹50 OFF)
+                            </button>
+                            <button type="button" onclick="quickApplyCoupon('VAMSI10')" class="text-[10px] font-bold bg-gray-50 hover:bg-emerald-50 text-gray-600 hover:text-emerald-700 px-2.5 py-1 rounded-lg border border-dashed border-gray-300 hover:border-emerald-500 transition">
+                                🏷️ VAMSI10 (10% OFF)
+                            </button>
+                        </div>
+
+                        <div id="coupon-message" class="text-[11px] font-bold text-emerald-700 mt-2 hidden"></div>
+                    </div>
+
+                    <!-- 4. Farm Wallet Coins -->
+                    <div class="bg-emerald-50/70 p-3.5 rounded-2xl border border-emerald-100/90 space-y-2">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-2.5">
+                                <span class="text-2xl">🪙</span>
+                                <div>
+                                    <span class="text-xs font-black text-gray-900">Redeem Farm Wallet Coins</span>
+                                    <p class="text-[10px] text-emerald-700 font-extrabold">
+                                        Balance: <span id="cart-wallet-balance">₹{{ "%.2f" | format(wallet_balance or 100.0) }}</span>
+                                    </p>
+                                </div>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" id="use-wallet-toggle" onchange="toggleWalletRedemption()" class="sr-only peer">
+                                <div class="w-10 h-5 bg-gray-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-600"></div>
+                            </label>
+                        </div>
+
+                        <div id="wallet-deduction-info" class="text-[10px] text-emerald-900 font-black hidden flex items-center justify-between bg-emerald-100/80 px-2.5 py-1.5 rounded-xl">
+                            <span>Coins discount applied:</span>
+                            <span id="wallet-deduction-amount" class="text-emerald-700 font-black">-₹0.00</span>
+                        </div>
+
+                        <p class="text-[10px] text-gray-500 font-semibold flex items-center gap-1.5">
+                            <i class="fa-solid fa-sparkles text-amber-500"></i>
+                            <span>Earn <strong>5% automatic cashback coins</strong> on this order!</span>
+                        </p>
+                    </div>
+
+                    <!-- 5. Transparent Price Breakdown -->
+                    <div class="space-y-2 pt-2 border-t border-gray-100 text-xs">
+                        <div class="flex items-center justify-between text-gray-500 font-bold">
+                            <span>Items Subtotal</span>
+                            <span id="cart-subtotal">₹0.00</span>
+                        </div>
+                        <div id="cart-discount-row" class="hidden flex items-center justify-between text-emerald-600 font-black">
+                            <span>Coupon Discount (<span id="applied-coupon-name"></span>)</span>
+                            <span id="cart-discount-val">-₹0.00</span>
+                        </div>
+                        <div id="cart-wallet-row" class="hidden flex items-center justify-between text-amber-700 font-black">
+                            <span>🪙 Wallet Coins Redeemed</span>
+                            <span id="cart-wallet-val">-₹0.00</span>
+                        </div>
+                        <div class="flex items-center justify-between text-gray-500 font-bold">
+                            <span>Delivery Fee</span>
+                            <span class="text-emerald-700 font-black">FREE (Zero Charge)</span>
+                        </div>
+                        <div class="flex items-center justify-between pt-2 border-t border-gray-200 text-base font-black text-gray-900">
+                            <span>Total Payable</span>
+                            <span id="cart-final-total" class="text-lg text-emerald-800 font-black">₹0.00</span>
+                        </div>
+                    </div>
+
+                    <!-- Checkout Action Button -->
+                    <button id="checkout-btn" onclick="checkoutCart()" class="w-full bg-emerald-600 hover:bg-emerald-700 disabled:bg-gray-200 disabled:text-gray-400 text-white font-black py-4 px-4 rounded-2xl shadow-lg shadow-emerald-600/25 transition duration-200 focus:outline-none flex items-center justify-center space-x-2 text-sm active:scale-98" disabled>
+                        <i class="fa-solid fa-lock text-xs"></i>
+                        <span>Proceed to Express Checkout</span>
+                    </button>
+
+                    <div class="flex items-center justify-center space-x-4 text-[10px] text-gray-400 font-semibold">
+                        <span>🔒 100% Secure Checkout</span>
+                        <span>⚡ 15-30 Min Delivery</span>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- TAB 3: 📦 MY ORDERS & LIVE TRACKING                       -->
+    <!-- ========================================================= -->
+    <div id="tab-panel-orders" class="app-tab-panel space-y-6 hidden">
+        <div class="bg-white p-6 sm:p-8 rounded-3xl border border-gray-100 shadow-xs">
+            <div class="flex items-center justify-between pb-4 border-b border-gray-100 mb-6">
+                <div>
+                    <h3 class="font-black text-gray-900 text-lg flex items-center gap-2">
+                        <i class="fa-solid fa-clock-rotate-left text-emerald-600"></i> My Orders & Live Tracking
+                    </h3>
+                    <p class="text-xs text-gray-400 font-medium mt-0.5">Real-time status, digital invoices, and quality ratings for your farm harvests.</p>
+                </div>
+                <button onclick="switchDashboardTab('market')" class="text-xs font-black text-emerald-700 hover:text-emerald-800 bg-emerald-50 px-3.5 py-2 rounded-xl border border-emerald-200 transition active:scale-95">
+                    + Order More
+                </button>
+            </div>
+
+            {% if not purchases %}
+                <div class="py-12 text-center text-gray-400 space-y-3">
+                    <span class="text-5xl block">🛍️</span>
+                    <h4 class="text-base font-bold text-gray-800">No Orders Found</h4>
+                    <p class="text-xs text-gray-400 max-w-sm mx-auto">You haven't placed any vegetable orders yet. Browse the Fresh Market tab to get started!</p>
+                    <button onclick="switchDashboardTab('market')" class="text-xs font-black bg-emerald-600 text-white px-5 py-2.5 rounded-xl shadow-md transition active:scale-95">
+                        Explore Produce Catalog
+                    </button>
+                </div>
+            {% else %}
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead>
+                            <tr>
+                                <th class="px-5 py-3 bg-gray-50 text-left text-[10px] font-extrabold text-gray-400 uppercase tracking-wider">Order ID & Harvest</th>
+                                <th class="px-5 py-3 bg-gray-50 text-left text-[10px] font-extrabold text-gray-400 uppercase tracking-wider">Status & Schedule</th>
+                                <th class="px-5 py-3 bg-gray-50 text-left text-[10px] font-extrabold text-gray-400 uppercase tracking-wider">Destination</th>
+                                <th class="px-5 py-3 bg-gray-50 text-center text-[10px] font-extrabold text-gray-400 uppercase tracking-wider">Qty</th>
+                                <th class="px-5 py-3 bg-gray-50 text-right text-[10px] font-extrabold text-gray-400 uppercase tracking-wider">Total</th>
+                                <th class="px-5 py-3 bg-gray-50 text-center text-[10px] font-extrabold text-gray-400 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-100 text-sm font-medium">
+                            {% for p in purchases %}
+                                <tr class="hover:bg-gray-50/50 transition">
+                                    <td class="px-5 py-4 whitespace-nowrap">
+                                        <div class="flex items-center space-x-3">
+                                            <div class="w-11 h-11 rounded-xl bg-gray-50 border border-gray-100 flex items-center justify-center text-2xl flex-shrink-0 shadow-xs">
+                                                {{ p.image_url }}
+                                            </div>
+                                            <div>
+                                                <span class="text-[9px] font-extrabold font-mono text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-100">
+                                                    {{ p.order_id or 'VOF-HISTORIC' }}
+                                                </span>
+                                                <p class="font-extrabold text-gray-900 leading-tight mt-1">{{ p.name.split('[')[0].strip() }}</p>
+                                                {% if '[' in p.name %}
+                                                    <span class="inline-block text-[9px] font-extrabold text-emerald-800 bg-emerald-100 px-1 py-0.5 rounded my-0.5">
+                                                        తెలుగు: [ {{ p.name.split('[')[1].replace(']', '').strip() }} ]
+                                                    </span>
+                                                {% endif %}
+                                                <p class="text-[10px] text-gray-400 font-semibold">{{ p.unit }} • ₹{{ "%.2f" | format(p.price) }}</p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-5 py-4 whitespace-nowrap">
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-extrabold {% if p.status == 'Delivered' %}bg-green-100 text-green-800{% elif p.status == 'Cancelled' %}bg-red-100 text-red-800{% else %}bg-amber-100 text-amber-800 animate-pulse{% endif %}">
+                                            {{ p.status or 'Order Confirmed' }}
+                                        </span>
+                                        <p class="text-[10px] text-gray-500 font-bold mt-1">📅 {{ p.delivery_date or p.purchase_date.split(' ')[0] }}</p>
+                                        <p class="text-[9px] text-gray-400">{{ p.delivery_slot or 'Morning (8:00 AM - 11:00 AM)' }}</p>
+                                    </td>
+                                    <td class="px-5 py-4">
+                                        <p class="text-xs text-gray-700 font-bold line-clamp-2 max-w-[200px]">
+                                            {{ p.delivery_address or 'Default Customer Address' }}
+                                        </p>
+                                    </td>
+                                    <td class="px-5 py-4 text-center font-black text-gray-900">
+                                        {{ p.quantity }}
+                                    </td>
+                                    <td class="px-5 py-4 text-right font-black text-emerald-700">
+                                        ₹{{ "%.2f" | format(p.total_price) }}
+                                    </td>
+                                    <td class="px-5 py-4 text-center whitespace-nowrap space-x-1.5">
+                                        <button onclick="viewInvoice('{{ p.order_id or ('VOF-LEGACY-' ~ p.id) }}')" 
+                                                class="text-[11px] font-black bg-gray-100 hover:bg-emerald-50 text-gray-700 hover:text-emerald-800 px-3 py-1.5 rounded-xl border border-gray-200 transition active:scale-95">
+                                            <i class="fa-solid fa-file-invoice text-emerald-600"></i> Invoice
+                                        </button>
+                                        {% if p.status == 'Delivered' %}
+                                            <button onclick="openReviewModal({{ p.product_id }}, '{{ p.name }}')" 
+                                                    class="text-[11px] font-black bg-amber-50 hover:bg-amber-100 text-amber-800 px-3 py-1.5 rounded-xl border border-amber-200 transition active:scale-95">
+                                                ★ Rate
+                                            </button>
+                                        {% elif p.status != 'Cancelled' %}
+                                            <button onclick="cancelOrder('{{ p.order_id }}', {{ p.id }})" 
+                                                    class="text-[11px] font-bold bg-red-50 hover:bg-red-100 text-red-600 px-2.5 py-1.5 rounded-xl border border-red-200 transition active:scale-95">
+                                                Cancel
+                                            </button>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- TAB 4: 🪙 FARM WALLET & CASHBACK REWARDS PASSBOOK         -->
+    <!-- ========================================================= -->
+    <div id="tab-panel-wallet" class="app-tab-panel space-y-6 hidden">
+        
+        <!-- Large Showcase Rewards Card -->
+        <div class="bg-gradient-to-br from-emerald-950 via-emerald-800 to-teal-800 text-white rounded-3xl p-6 sm:p-8 shadow-xl relative overflow-hidden">
+            <div class="relative z-10 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+                <div class="space-y-3 max-w-xl">
+                    <div class="inline-flex items-center gap-2 bg-white/15 backdrop-blur-md border border-white/20 px-3.5 py-1 rounded-full text-xs font-black uppercase tracking-wider text-emerald-200">
+                        <span>🪙 Vamsi Farm Loyalty Coins</span>
+                        <span>•</span>
+                        <span>5% Cashback on Every Order</span>
+                    </div>
+                    <div class="flex items-baseline gap-3">
+                        <span class="text-5xl sm:text-6xl font-black text-amber-300">
+                            ₹{{ "%.2f" | format(wallet_balance or 100.0) }}
+                        </span>
+                        <span class="text-sm font-bold text-emerald-200">Coins Available to Spend</span>
+                    </div>
+                    <p class="text-xs sm:text-sm text-emerald-100/90 font-medium leading-relaxed">
+                        Your farm coins can be redeemed directly in your basket for instant rupee-for-rupee discounts. Every order you place automatically earns <strong>5% cashback coins</strong> credited straight back to this passbook!
+                    </p>
+                    <div class="pt-2">
+                        <button onclick="switchDashboardTab('market')" class="inline-flex items-center gap-2 bg-amber-400 hover:bg-amber-300 text-amber-950 font-black text-xs sm:text-sm px-6 py-3 rounded-2xl shadow-lg transition active:scale-95">
+                            <i class="fa-solid fa-basket-shopping"></i>
+                            <span>Shop Produce & Earn Cashback</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 3 Quick Perk Badges -->
+                <div class="space-y-2.5 sm:w-80">
+                    <div class="bg-black/25 backdrop-blur-md p-3.5 rounded-2xl border border-white/10 flex items-center gap-3">
+                        <span class="text-2xl">🎁</span>
+                        <div>
+                            <h4 class="text-xs font-black text-white">₹100 Welcome Gift</h4>
+                            <p class="text-[10px] text-emerald-200">Credited automatically upon registration.</p>
+                        </div>
+                    </div>
+                    <div class="bg-black/25 backdrop-blur-md p-3.5 rounded-2xl border border-white/10 flex items-center gap-3">
+                        <span class="text-2xl">⚡</span>
+                        <div>
+                            <h4 class="text-xs font-black text-white">5% Auto-Cashback</h4>
+                            <p class="text-[10px] text-emerald-200">Deposited into wallet after every completed order.</p>
+                        </div>
+                    </div>
+                    <div class="bg-black/25 backdrop-blur-md p-3.5 rounded-2xl border border-white/10 flex items-center gap-3">
+                        <span class="text-2xl">🏷️</span>
+                        <div>
+                            <h4 class="text-xs font-black text-white">Zero Expiry</h4>
+                            <p class="text-[10px] text-emerald-200">Use your coins anytime with no hidden expiry.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Full Coin Passbook Activity Table -->
+        <div class="bg-white p-6 sm:p-8 rounded-3xl border border-gray-100 shadow-xs">
+            <div class="flex items-center justify-between pb-4 border-b border-gray-100 mb-6">
+                <div>
+                    <h3 class="font-black text-gray-900 text-lg flex items-center gap-2">
+                        <i class="fa-solid fa-receipt text-amber-500"></i> Farm Coin Passbook
+                    </h3>
+                    <p class="text-xs text-gray-400 font-medium mt-0.5">Itemized statement of all credits, welcome bonuses, and redemption deductions.</p>
+                </div>
+                <span class="text-xs font-bold text-emerald-800 bg-emerald-50 px-3 py-1.5 rounded-xl border border-emerald-200">
+                    {{ wallet_transactions | length }} Transactions
+                </span>
+            </div>
+
+            {% if not wallet_transactions %}
+                <div class="py-12 text-center text-gray-400 space-y-2">
+                    <span class="text-4xl block">🪙</span>
+                    <p class="text-sm font-bold text-gray-800">No Coin Transactions Yet</p>
+                    <p class="text-xs text-gray-400">Complete an order to see your 5% cashback coin credits here.</p>
+                </div>
+            {% else %}
+                <div class="divide-y divide-gray-100">
+                    {% for tx in wallet_transactions %}
+                        <div class="py-3.5 flex items-center justify-between hover:bg-gray-50/60 px-2 rounded-xl transition">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-xl {% if tx.type == 'credit' %}bg-emerald-50 text-emerald-600 border border-emerald-100{% else %}bg-amber-50 text-amber-600 border border-amber-100{% endif %} flex items-center justify-center text-base font-bold">
+                                    {% if tx.type == 'credit' %}↓{% else %}↑{% endif %}
+                                </div>
+                                <div>
+                                    <p class="text-xs sm:text-sm font-extrabold text-gray-900">{{ tx.description }}</p>
+                                    <p class="text-[10px] text-gray-400 font-medium mt-0.5">{{ tx.created_at }}</p>
+                                </div>
+                            </div>
+                            <span class="text-sm sm:text-base font-black {% if tx.type == 'credit' %}text-emerald-700{% else %}text-amber-700{% endif %}">
+                                {% if tx.type == 'credit' %}+₹{{ "%.2f" | format(tx.amount) }}{% else %}-₹{{ "%.2f" | format(tx.amount) }}{% endif %}
+                            </span>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- TAB 5: 🤖 AI SMART PANTRY & PREDICTIVE ALERTS            -->
+    <!-- ========================================================= -->
+    <div id="tab-panel-pantry" class="app-tab-panel space-y-6 hidden">
+        
+        <!-- Smart Pantry Header with Simulate Button -->
+        <div class="bg-white p-6 rounded-3xl border border-gray-100 shadow-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+                <h3 class="font-black text-gray-900 text-lg flex items-center gap-2">
+                    <i class="fa-solid fa-brain text-emerald-600"></i> AI Intelligent Pantry & Predictive Replenishment
+                </h3>
+                <p class="text-xs text-gray-400 font-medium mt-0.5">Automated stockout forecasting and customized vegetable recommendations based on your kitchen habits.</p>
+            </div>
+            <div class="flex items-center gap-2">
+                <button onclick="runPredictiveAI()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-black px-4 py-2.5 rounded-xl shadow-xs transition text-xs flex items-center gap-1.5 active:scale-95">
+                    <i class="fa-solid fa-wand-magic-sparkles text-amber-300"></i>
+                    <span>Run Replenishment Check</span>
+                </button>
+                {% if notifications %}
+                    <button onclick="dismissAllNotifications()" class="border border-gray-200 hover:bg-gray-100 text-gray-600 font-bold px-3 py-2.5 rounded-xl transition text-xs">
+                        Clear Alerts
+                    </button>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            
+            <!-- Left: Predictive Warnings & Notification Center (1 col) -->
+            <div class="lg:col-span-1 bg-white p-6 rounded-3xl border border-gray-100 shadow-xs space-y-4">
+                <div class="flex items-center justify-between pb-3 border-b border-gray-100">
+                    <h4 class="font-black text-gray-900 text-sm flex items-center gap-2">
+                        <i class="fa-solid fa-bell text-amber-500"></i> Pantry Warnings
+                    </h4>
+                    <span class="bg-amber-100 text-amber-800 font-extrabold text-[10px] px-2 py-0.5 rounded-full">
+                        {{ predictive_alerts | length }} alerts
+                    </span>
+                </div>
+
+                <div id="notifications-list" class="space-y-3 max-h-[420px] overflow-y-auto pr-1">
+                    {% if not predictive_alerts and not notifications %}
+                        <div class="py-12 text-center text-gray-400 space-y-2">
+                            <span class="text-3xl block">🌿</span>
+                            <p class="text-xs font-bold text-gray-700">Kitchen Fully Stocked!</p>
+                            <p class="text-[10px] text-gray-400">Run the replenishment check anytime to analyze your vegetable consumption.</p>
+                        </div>
+                    {% else %}
+                        <!-- Predictive Alerts -->
+                        {% for alert in predictive_alerts %}
+                            <div class="bg-amber-50/80 border border-amber-200 p-3.5 rounded-2xl shadow-xs space-y-2">
+                                <div class="flex items-start gap-2.5">
+                                    <span class="text-xl">⚠️</span>
+                                    <div class="flex-grow">
+                                        <div class="flex items-center justify-between">
+                                            <span class="text-[9px] font-black uppercase text-amber-800 bg-amber-200/80 px-1.5 py-0.5 rounded">
+                                                AI Restock Alert
+                                            </span>
+                                            <span class="text-[9px] text-amber-600 font-bold">{{ alert.days_since }} days ago</span>
+                                        </div>
+                                        <p class="text-xs font-bold text-amber-950 mt-1 leading-snug">{{ alert.message }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+
+                        <!-- Database Notifications -->
+                        {% for notif in notifications %}
+                            <div id="notif-{{ notif.id }}" class="bg-gray-50 border border-gray-200 p-3.5 rounded-2xl shadow-xs space-y-1">
+                                <div class="flex items-start justify-between">
+                                    <p class="text-xs font-bold text-gray-800">{{ notif.message }}</p>
+                                    <button onclick="dismissNotification({{ notif.id }}, 'notif-{{ notif.id }}')" class="text-gray-400 hover:text-gray-600 text-xs">
+                                        <i class="fa-solid fa-xmark"></i>
+                                    </button>
+                                </div>
+                                <p class="text-[9px] text-gray-400 font-medium">{{ notif.timestamp }}</p>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Right: AI Personalized Recommendations (2 cols) -->
+            <div class="lg:col-span-2 bg-white p-6 rounded-3xl border border-gray-100 shadow-xs space-y-4">
+                <div class="flex items-center justify-between pb-3 border-b border-gray-100">
+                    <h4 class="font-black text-gray-900 text-sm flex items-center gap-2">
+                        <i class="fa-solid fa-sparkles text-emerald-600"></i> Suggested for Your Kitchen
+                    </h4>
+                    <span class="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-100">
+                        Hybrid AI Scoring
+                    </span>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {% for rec in recommendations %}
+                        {% set prod = rec.product %}
+                        <div class="border border-gray-100 rounded-2xl p-4 flex gap-3.5 bg-gray-50/60 hover:bg-white hover:shadow-md hover:border-gray-200 transition">
+                            <div class="w-16 h-16 rounded-2xl bg-white border border-gray-100 shadow-xs flex items-center justify-center text-3xl flex-shrink-0">
+                                {{ prod.image_url }}
+                            </div>
+                            <div class="flex flex-col justify-between flex-grow">
+                                <div>
+                                    <span class="inline-block bg-emerald-100 text-emerald-800 font-black text-[9px] px-2 py-0.5 rounded-full mb-1">
+                                        {{ rec.reason }}
+                                    </span>
+                                    <h5 class="font-black text-gray-900 text-xs sm:text-sm leading-tight">{{ prod.name.split('[')[0].strip() }}</h5>
+                                    {% if '[' in prod.name %}
+                                        <span class="inline-block text-[9px] font-extrabold text-emerald-800 bg-emerald-50 px-1 py-0.5 rounded my-0.5">
+                                            తెలుగు: [ {{ prod.name.split('[')[1].replace(']', '').strip() }} ]
+                                        </span>
+                                    {% endif %}
+                                    <p class="text-[10px] text-gray-400 font-bold mt-0.5">{{ prod.unit }} • ₹{{ "%.2f" | format(prod.price) }}</p>
+                                </div>
+                                
+                                <div class="flex items-center justify-between mt-2 pt-2 border-t border-gray-100">
+                                    <span class="text-xs font-black text-gray-900">₹{{ "%.2f" | format(prod.price) }}</span>
+                                    <button onclick="addToCartRealtime({{ prod.id }})" 
+                                            class="bg-emerald-600 hover:bg-emerald-700 text-white font-black text-[10px] px-3 py-1.5 rounded-xl transition inline-flex items-center gap-1 active:scale-95 shadow-xs">
+                                        <i class="fa-solid fa-plus text-[9px]"></i>
+                                        <span>Add to Basket</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- ========================================================= -->
+<!-- MODALS (Address Manager, New Address, Payment, Factsheet, Invoice, Review) -->
+<!-- ========================================================= -->
+
+<!-- 1. Address Manager Modal -->
+<div id="address-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs hidden p-4" style="overscroll-behavior: contain;">
+    <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-gray-100 flex flex-col space-y-4 animate-in fade-in zoom-in duration-200">
+        <div class="flex items-center justify-between pb-3 border-b border-gray-100">
+            <div>
+                <h3 class="text-base sm:text-lg font-black text-gray-900 flex items-center gap-2">
+                    <i class="fa-solid fa-map-location-dot text-emerald-600"></i> Select Delivery Destination
+                </h3>
+                <span id="saved-addr-count" class="text-[11px] font-bold text-gray-400"></span>
+            </div>
+            <button onclick="closeAddressModal()" class="p-1 text-gray-400 hover:text-gray-600 rounded-full">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+        </div>
+
+        <div id="saved-addresses-list" class="space-y-2.5 max-h-60 overflow-y-auto pr-1">
+        </div>
+
+        <button onclick="openNewAddressModal()" class="w-full bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-black py-3 rounded-2xl border border-emerald-200/80 text-xs transition flex items-center justify-center gap-2 active:scale-98">
+            <i class="fa-solid fa-plus text-xs"></i>
+            <span>Add New Delivery Address</span>
+        </button>
+    </div>
+</div>
+
+<!-- 2. Add New Address Modal -->
+<div id="new-address-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs hidden p-4" style="overscroll-behavior: contain;">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-gray-100 flex flex-col space-y-4 animate-in fade-in zoom-in duration-200">
+        <div class="flex items-center justify-between pb-3 border-b border-gray-100">
+            <h3 class="text-base font-black text-gray-900">Add New Delivery Location</h3>
+            <button onclick="closeNewAddressModal()" class="p-1 text-gray-400 hover:text-gray-600 rounded-full">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+        </div>
+
+        <form onsubmit="handleSaveNewAddress(event)" class="space-y-3.5">
+            <div>
+                <label for="new-addr-label" class="block text-[11px] font-black text-gray-700 uppercase mb-1">Address Type</label>
+                <div class="flex gap-2">
+                    <label class="flex-1 text-center py-2 px-3 border border-gray-200 rounded-xl cursor-pointer text-xs font-bold has-[:checked]:bg-emerald-600 has-[:checked]:text-white has-[:checked]:border-emerald-600 transition">
+                        <input type="radio" name="addr_label" value="Home" checked class="hidden"> 🏠 Home
+                    </label>
+                    <label class="flex-1 text-center py-2 px-3 border border-gray-200 rounded-xl cursor-pointer text-xs font-bold has-[:checked]:bg-emerald-600 has-[:checked]:text-white has-[:checked]:border-emerald-600 transition">
+                        <input type="radio" name="addr_label" value="Work" class="hidden"> 🏢 Work
+                    </label>
+                    <label class="flex-1 text-center py-2 px-3 border border-gray-200 rounded-xl cursor-pointer text-xs font-bold has-[:checked]:bg-emerald-600 has-[:checked]:text-white has-[:checked]:border-emerald-600 transition">
+                        <input type="radio" name="addr_label" value="Other" class="hidden"> 📍 Other
+                    </label>
+                </div>
+            </div>
+
+            <div>
+                <label for="new-addr-text" class="block text-[11px] font-black text-gray-700 uppercase mb-1">Complete Street Address</label>
+                <textarea id="new-addr-text" required rows="3" placeholder="Flat / House No, Apartment Name, Street, Landmark, City & Pincode"
+                          class="w-full px-3 py-2.5 border border-gray-200 rounded-2xl font-bold text-xs text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-gray-50/50"></textarea>
+            </div>
+
+            <div class="flex items-center space-x-2">
+                <input type="checkbox" id="new-addr-default" checked class="w-4 h-4 text-emerald-600 rounded border-gray-300 focus:ring-emerald-500">
+                <label for="new-addr-default" class="text-xs font-bold text-gray-700 cursor-pointer">Save as default delivery address</label>
+            </div>
+
+            <div class="flex gap-2 pt-2">
+                <button type="button" onclick="closeNewAddressModal()" class="w-1/2 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold rounded-xl text-xs transition">
+                    Cancel
+                </button>
+                <button type="submit" class="w-1/2 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-black rounded-xl shadow-lg shadow-emerald-600/20 text-xs transition active:scale-95">
+                    Save Address
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- 3. Payment Gateway Simulation Modal -->
+<div id="payment-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs hidden p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-gray-100 flex flex-col relative overflow-hidden animate-in zoom-in duration-200">
+        <div class="flex items-center justify-between pb-3 border-b border-gray-100">
+            <div class="flex items-center gap-2">
+                <span class="text-xl">🚚</span>
+                <div>
+                    <h3 class="font-black text-gray-900 text-base leading-tight">Cash on Delivery Order Confirmation</h3>
+                    <p class="text-[10px] text-emerald-700 font-bold">100% Farm-Direct • Pay Upon Doorstep Inspection</p>
+                </div>
+            </div>
+            <button onclick="closePaymentModal()" class="p-1 text-gray-400 hover:text-gray-600 rounded-full">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+        </div>
+
+        <div class="my-4 space-y-4">
+            <!-- Exclusive Cash on Delivery Notice -->
+            <div class="text-center py-5 px-4 bg-emerald-50/80 rounded-2xl border border-emerald-200/80 space-y-2">
+                <span class="text-4xl block">💵</span>
+                <h4 class="font-black text-gray-900 text-sm">Cash on Doorstep Delivery (COD)</h4>
+                <p class="text-xs text-gray-600 font-medium max-w-sm mx-auto leading-relaxed">
+                    Pay with cash or scan the delivery agent's UPI QR code right at your doorstep after inspecting your fresh vegetables.
+                </p>
+                <div class="flex flex-wrap items-center justify-center gap-2 pt-1 text-[10px] font-bold text-emerald-800">
+                    <span class="bg-emerald-100 px-2.5 py-1 rounded-full">✓ ₹0 COD Convenience Fee</span>
+                    <span class="bg-emerald-100 px-2.5 py-1 rounded-full">✓ Pay Cash or UPI on Arrival</span>
+                </div>
+            </div>
+
+            <div class="bg-gray-50/80 p-3.5 rounded-2xl border border-gray-100 space-y-2 text-xs">
+                <div class="flex items-center justify-between text-gray-700 font-bold">
+                    <span>Payment Mode:</span>
+                    <span class="text-emerald-800 font-black flex items-center gap-1.5">
+                        <i class="fa-solid fa-money-bill-wave text-emerald-600"></i> Cash on Delivery Only
+                    </span>
+                </div>
+                <div class="flex items-center justify-between text-gray-700 font-bold pt-1 border-t border-gray-200/70">
+                    <span>Payable on Arrival:</span>
+                    <span class="text-sm font-black text-gray-900 pay-amount-label">₹0.00</span>
+                </div>
+            </div>
+
+            <button onclick="processSimulatedPayment('Cash on Delivery')" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-black py-3.5 rounded-2xl transition text-xs flex items-center justify-center gap-2 active:scale-95 shadow-lg shadow-emerald-600/25">
+                <i class="fa-solid fa-circle-check text-emerald-200 text-sm"></i>
+                <span>Confirm Order (Cash on Delivery): <span class="pay-amount-label">₹0.00</span></span>
+            </button>
+        </div>
+
+        <!-- Payment Overlay Loader -->
+        <div id="payment-gateway-loader" class="absolute inset-0 bg-white/95 flex flex-col items-center justify-center hidden z-20">
+            <div class="w-12 h-12 border-4 border-emerald-600 border-t-transparent rounded-full animate-spin"></div>
+            <h4 class="font-black text-gray-900 text-sm mt-4" id="gateway-loader-status">Connecting to Secure Gateway...</h4>
+            <p class="text-[11px] text-gray-400 mt-1 font-semibold">Please do not refresh or close this screen.</p>
+        </div>
+    </div>
+</div>
+
+<!-- 4. Produce Nutrition & Health Factsheet Modal -->
+<div id="produce-detail-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs hidden p-4" style="overscroll-behavior: contain;">
+    <div class="bg-white rounded-3xl max-w-xl w-full max-h-[92vh] overflow-y-auto shadow-2xl border border-gray-100 flex flex-col relative animate-in zoom-in duration-200">
+        <div id="produce-modal-content">
+            <div class="p-8 text-center text-gray-400">
+                <i class="fa-solid fa-circle-notch fa-spin text-emerald-600 text-2xl mb-2"></i>
+                <p class="text-xs font-bold text-gray-600">Loading farm harvest nutrition factsheet...</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 5. Tax Invoice Modal -->
+<div id="invoice-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs hidden p-4" style="overscroll-behavior: contain;">
+    <div class="bg-white rounded-3xl max-w-xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-gray-100 flex flex-col relative animate-in fade-in zoom-in duration-200">
+        <div class="sticky top-0 bg-white/95 backdrop-blur-xs px-6 py-3.5 border-b border-gray-100 flex items-center justify-between z-10">
+            <span class="text-xs font-black text-gray-700 uppercase tracking-wider flex items-center gap-1.5">
+                <i class="fa-solid fa-file-invoice text-emerald-600"></i> Official Tax Invoice & Bill
+            </span>
+            <div class="flex items-center gap-2">
+                <button onclick="printInvoice()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs px-3 py-1.5 rounded-xl shadow-xs inline-flex items-center gap-1.5 transition active:scale-95">
+                    <i class="fa-solid fa-print"></i> Print / PDF
+                </button>
+                <button onclick="closeInvoiceModal()" class="p-1.5 hover:bg-gray-100 rounded-full text-gray-400 hover:text-gray-700 transition">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+        </div>
+        <div id="invoice-modal-content"></div>
+    </div>
+</div>
+
+<!-- 6. Star Rating & Verified Review Modal -->
+<div id="review-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs hidden p-4" style="overscroll-behavior: contain;">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-gray-100 flex flex-col space-y-4 animate-in zoom-in duration-200">
+        <div class="flex items-center justify-between pb-3 border-b border-gray-100">
+            <div>
+                <h3 class="text-base font-black text-gray-900 flex items-center gap-1.5">
+                    <span>⭐ Rate Harvest Quality</span>
+                </h3>
+                <p id="review-prod-title" class="text-xs text-emerald-700 font-bold mt-0.5">Vegetable Name</p>
+            </div>
+            <button onclick="closeReviewModal()" class="p-1 text-gray-400 hover:text-gray-600 rounded-full">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+        </div>
+
+        <form onsubmit="handleReviewSubmit(event)" class="space-y-4">
+            <input type="hidden" id="review-prod-id" value="">
+            
+            <div class="text-center py-2">
+                <span class="text-xs font-bold text-gray-400 block uppercase mb-1">Select Star Rating</span>
+                <div class="flex items-center justify-center space-x-2 text-2xl text-amber-400 cursor-pointer" id="review-stars-container">
+                    <span onclick="setRating(1)" class="star-item hover:scale-125 transition">★</span>
+                    <span onclick="setRating(2)" class="star-item hover:scale-125 transition">★</span>
+                    <span onclick="setRating(3)" class="star-item hover:scale-125 transition">★</span>
+                    <span onclick="setRating(4)" class="star-item hover:scale-125 transition">★</span>
+                    <span onclick="setRating(5)" class="star-item hover:scale-125 transition">★</span>
+                </div>
+                <input type="hidden" id="review-rating-val" value="5">
+                <span id="rating-desc" class="text-xs font-bold text-emerald-700 mt-1 block">5.0 - Farm Fresh Excellence!</span>
+            </div>
+
+            <div>
+                <label for="review-comment" class="block text-[11px] font-black text-gray-700 uppercase mb-1">Review Comments</label>
+                <textarea id="review-comment" rows="3" required placeholder="How was the freshness, tenderness, taste, and packaging of this vegetable?"
+                          class="w-full px-3 py-2.5 border border-gray-200 rounded-2xl font-bold text-xs text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-gray-50/50"></textarea>
+            </div>
+
+            <div class="flex gap-2 pt-1">
+                <button type="button" onclick="closeReviewModal()" class="w-1/2 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold rounded-xl text-xs transition">
+                    Cancel
+                </button>
+                <button type="submit" class="w-1/2 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-black rounded-xl shadow-md text-xs transition active:scale-95">
+                    Submit Review
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- 7. Celebratory Order Success & Thank You Modal -->
+<div id="order-success-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs hidden p-4" style="overscroll-behavior: contain;">
+    <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-emerald-100 flex flex-col relative animate-in zoom-in duration-200 text-center space-y-5">
+        
+        <!-- Celebratory Icon & Badge -->
+        <div class="relative mx-auto">
+            <div class="w-20 h-20 rounded-full bg-emerald-50 border-4 border-emerald-100 flex items-center justify-center text-4xl shadow-inner mx-auto animate-bounce">
+                🥬
+            </div>
+            <div class="absolute -bottom-1 -right-1 bg-amber-400 text-white w-7 h-7 rounded-full flex items-center justify-center text-xs font-black shadow-md border-2 border-white">
+                ✨
+            </div>
+        </div>
+
+        <!-- Thank You Message -->
+        <div class="space-y-2">
+            <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100/70 text-emerald-800 font-extrabold text-[11px] uppercase tracking-wider">
+                <i class="fa-solid fa-circle-check text-emerald-600"></i>
+                <span>Order Placed Successfully</span>
+            </div>
+            <h3 class="text-xl sm:text-2xl font-black text-gray-900 tracking-tight">
+                Thank you for ordering with <span class="text-emerald-700">Vamsi Organic Farms</span>!
+            </h3>
+            <p class="text-sm font-bold text-gray-600 max-w-md mx-auto leading-relaxed">
+                Your farm-fresh harvest has been confirmed and <span class="text-emerald-800 font-black">will deliver soon</span> right to your doorstep!
+            </p>
+        </div>
+
+        <!-- Order Snapshot Box -->
+        <div class="bg-gray-50/80 border border-gray-100 rounded-2xl p-4 text-left space-y-2.5 text-xs">
+            <div class="flex items-center justify-between pb-2 border-b border-gray-200/70">
+                <span class="font-extrabold text-gray-500 uppercase text-[10px]">Order ID</span>
+                <span id="success-modal-order-id" class="font-mono font-black text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">#VOF-XXXX</span>
+            </div>
+            <div class="flex items-center justify-between text-gray-700">
+                <span class="font-bold text-gray-500">Delivery Slot</span>
+                <span id="success-modal-slot" class="font-black text-gray-900">Tomorrow • Morning Slot</span>
+            </div>
+            <div class="flex items-start justify-between text-gray-700">
+                <span class="font-bold text-gray-500 flex-shrink-0">Destination</span>
+                <span id="success-modal-address" class="font-bold text-gray-900 text-right max-w-[240px] line-clamp-2">Default Address</span>
+            </div>
+            <div id="success-modal-cashback-row" class="hidden pt-2 border-t border-gray-200/70 flex items-center justify-between text-amber-700 font-black">
+                <span class="flex items-center gap-1">
+                    <i class="fa-solid fa-coins text-amber-500"></i> Farm Cashback Earned
+                </span>
+                <span id="success-modal-cashback-val">+₹0.00</span>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+            <button type="button" onclick="closeOrderSuccessModal('orders')"
+                    class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-black py-3.5 px-4 rounded-2xl shadow-lg shadow-emerald-600/25 text-xs transition active:scale-95 flex items-center justify-center gap-2">
+                <i class="fa-solid fa-truck-fast"></i>
+                <span>Track Live Delivery in Orders</span>
+            </button>
+            <button type="button" onclick="closeOrderSuccessModal('market')"
+                    class="w-full bg-gray-100 hover:bg-gray-200 text-gray-800 font-black py-3.5 px-4 rounded-2xl text-xs transition active:scale-95 flex items-center justify-center gap-2">
+                <i class="fa-solid fa-store text-emerald-600"></i>
+                <span>Continue Shopping</span>
+            </button>
+        </div>
+
+        <!-- WhatsApp Support Direct Link -->
+        <div class="pt-2 border-t border-gray-100 flex items-center justify-center">
+            <a id="success-modal-whatsapp-btn" 
+               href="https://wa.me/917675960440?text=Hello%20Vamsi%20Organic%20Farms%2C%20I%20have%20an%20inquiry%20regarding%20my%20recent%20order!" 
+               target="_blank" 
+               class="inline-flex items-center gap-2 text-xs font-bold text-emerald-800 hover:text-emerald-950 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 px-4 py-2 rounded-xl transition">
+                <i class="fa-brands fa-whatsapp text-emerald-600 text-base"></i>
+                <span>Need help with order? WhatsApp +91 76759 60440</span>
+            </a>
+        </div>
+
+    </div>
+</div>
+
+<!-- ========================================================= -->
+<!-- 24/7 KISAN AI CUSTOMER SUPPORT CHATBOT WIDGET            -->
+<!-- ========================================================= -->
+<!-- Floating Kisan AI Launcher Button -->
+<div id="farm-ai-chat-launcher" class="fixed bottom-20 sm:bottom-6 right-5 z-40">
+    <button type="button" onclick="toggleFarmAIChat()" id="farm-ai-toggle-btn"
+            class="relative flex items-center gap-2.5 bg-gradient-to-r from-emerald-600 via-emerald-700 to-teal-800 hover:from-emerald-500 hover:to-teal-700 text-white px-4 py-3 rounded-full shadow-2xl shadow-emerald-950/30 border-2 border-emerald-300/60 transition-all duration-200 transform hover:scale-105 active:scale-95 group focus:outline-none"
+            title="Chat with Kisan AI - 24/7 Organic Farm Assistant">
+        <div class="relative flex items-center justify-center">
+            <span class="text-2xl animate-pulse">🌾</span>
+            <span class="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-emerald-400 border-2 border-emerald-900 animate-ping"></span>
+            <span class="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-emerald-400 border-2 border-emerald-900"></span>
+        </div>
+        <div class="text-left hidden sm:block">
+            <div class="flex items-center gap-1.5">
+                <p class="text-[11px] font-black uppercase tracking-wider leading-none text-emerald-200">Kisan AI</p>
+                <span class="bg-white/20 text-white text-[8px] font-black px-1.5 py-0.2 rounded-full uppercase tracking-wider">24/7</span>
+            </div>
+            <p class="text-[10px] font-bold text-white/95 leading-tight mt-0.5">Farm Assistant</p>
+        </div>
+        <span class="sm:hidden text-xs font-black">Ask AI</span>
+    </button>
+</div>
+
+<!-- Kisan AI Interactive Chat Window -->
+<div id="farm-ai-chat-window" class="fixed bottom-24 sm:bottom-20 right-4 sm:right-6 w-[calc(100vw-2rem)] sm:w-[420px] bg-white rounded-3xl shadow-2xl shadow-emerald-950/30 border border-emerald-100/90 z-50 flex flex-col hidden overflow-hidden transition-all duration-200" style="display: none; height: 560px; max-height: 82vh;">
+    <!-- Chat Header -->
+    <div class="bg-gradient-to-r from-emerald-800 via-emerald-700 to-teal-800 p-4 text-white flex items-center justify-between shadow-xs">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-2xl bg-white/15 backdrop-blur-md border border-white/20 flex items-center justify-center text-2xl shadow-inner">
+                🌾
+            </div>
+            <div>
+                <div class="flex items-center gap-1.5">
+                    <h3 class="font-black text-sm tracking-tight text-white">Kisan AI • Farm Assistant</h3>
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                </div>
+                <p class="text-[10px] text-emerald-200 font-semibold">24/7 Produce, Orders, Recipes & Problem Support</p>
+            </div>
+        </div>
+        <div class="flex items-center gap-1">
+            <button type="button" onclick="clearFarmAIChat()" class="p-1.5 text-white/70 hover:text-white rounded-full hover:bg-white/10 transition text-xs" title="Reset conversation">
+                <i class="fa-solid fa-rotate-right"></i>
+            </button>
+            <button type="button" onclick="toggleFarmAIChat()" class="p-1.5 text-white/70 hover:text-white rounded-full hover:bg-white/10 transition" title="Minimize chat">
+                <i class="fa-solid fa-xmark text-base"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Live Status Banner -->
+    <div class="bg-emerald-50/90 border-b border-emerald-100 px-4 py-1.5 flex items-center justify-between text-[10px] font-bold text-emerald-900">
+        <span class="flex items-center gap-1.5">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
+            <span>Connected to Live Mandi & Farm Logistics</span>
+        </span>
+        <span class="text-gray-400 font-medium">English & తెలుగు</span>
+    </div>
+
+    <!-- Messages Container -->
+    <div id="farm-ai-messages-container" class="flex-grow overflow-y-auto p-4 space-y-3.5 text-xs bg-gray-50/40">
+        <!-- Dynamic chat history rendered here -->
+    </div>
+
+    <!-- Quick Suggestion Chips Bar -->
+    <div id="farm-ai-chips-bar" class="px-3 py-2 bg-white border-t border-gray-100 flex items-center gap-1.5 overflow-x-auto no-scrollbar whitespace-nowrap text-[11px]">
+        <!-- Suggestion chips injected dynamically -->
+    </div>
+
+    <!-- Chat Input Form -->
+    <form id="farm-ai-chat-form" onsubmit="submitFarmAIChat(event)" class="p-3 bg-white border-t border-gray-100 flex items-center gap-2">
+        <input type="text" id="farm-ai-input" placeholder="Ask about vegetables, recipes, or track order..." autocomplete="off"
+               class="flex-grow px-3.5 py-2.5 border border-gray-200 rounded-2xl text-xs font-bold text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-gray-50/60 transition">
+        <button type="submit" id="farm-ai-send-btn" class="bg-emerald-600 hover:bg-emerald-700 text-white w-10 h-10 rounded-2xl flex items-center justify-center transition active:scale-95 shadow-md shadow-emerald-600/25 flex-shrink-0" title="Send message">
+            <i class="fa-solid fa-paper-plane text-xs"></i>
+        </button>
+    </form>
+</div>
+
+<!-- ========================================================= -->
+<!-- JAVASCRIPT: Unified Tab Routing & Client Logic            -->
+<!-- ========================================================= -->
+<script>
+    // Pure Client-Side Instant Dashboard Tab Switcher
+    function switchDashboardTab(tabName) {
+        const panels = document.querySelectorAll('.app-tab-panel');
+        const tabBtns = document.querySelectorAll('.app-tab-btn');
+
+        panels.forEach(p => p.classList.add('hidden'));
+        tabBtns.forEach(btn => {
+            btn.className = "app-tab-btn flex-1 min-w-[130px] py-3 px-3 rounded-xl font-bold text-xs transition-all duration-200 flex items-center justify-center gap-2 text-gray-600 hover:text-gray-900 active:scale-98";
+        });
+
+        const activePanel = document.getElementById(`tab-panel-${tabName}`);
+        const activeBtn = document.getElementById(`nav-tab-${tabName}`);
+
+        if (activePanel) {
+            activePanel.classList.remove('hidden');
+        }
+        if (activeBtn) {
+            activeBtn.className = "app-tab-btn flex-1 min-w-[130px] py-3 px-3 rounded-xl font-black text-xs transition-all duration-200 flex items-center justify-center gap-2 bg-emerald-600 text-white shadow-sm active:scale-98";
+        }
+
+        // Update URL hash without full reload
+        history.replaceState(null, null, `#${tabName}`);
+
+        // Sync Cart UI counters & items when switching
+        if (typeof updateCartUI === 'function') {
+            updateCartUI();
+        }
+
+        // Window scroll to top of content
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // Category Filter in Fresh Market
+    function filterCategory(categoryName) {
+        const buttons = document.querySelectorAll(".category-tab-btn");
+        buttons.forEach(btn => {
+            if (btn.innerText.trim() === categoryName || (categoryName === 'All' && btn.innerText.trim() === 'All Produce')) {
+                btn.className = "category-tab-btn px-4 py-2 rounded-xl text-xs font-black transition whitespace-nowrap bg-emerald-600 text-white shadow-sm";
+            } else {
+                btn.className = "category-tab-btn px-4 py-2 rounded-xl text-xs font-bold transition whitespace-nowrap bg-white text-gray-600 hover:bg-gray-50 border border-gray-200";
+            }
+        });
+
+        const cards = document.querySelectorAll(".product-card");
+        cards.forEach(card => {
+            const cardCat = card.dataset.category;
+            card.style.display = (categoryName === 'All' || cardCat === categoryName) ? "flex" : "none";
+        });
+    }
+
+    // Live Product Search
+    function searchProducts() {
+        const query = (document.getElementById("search-input") ? document.getElementById("search-input").value : "").toLowerCase().trim();
+        const cards = document.querySelectorAll(".product-card");
+        
+        cards.forEach(card => {
+            const name = (card.dataset.name || "").toLowerCase();
+            const tags = (card.dataset.tags || "").toLowerCase();
+            const category = (card.dataset.category || "").toLowerCase();
+            card.style.display = (query === "" || name.includes(query) || tags.includes(query) || category.includes(query)) ? "flex" : "none";
+        });
+    }
+
+    // Voice Search Support (Bilingual English & Telugu)
+    let recognition = null;
+    function startVoiceSearch() {
+        if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+            showToast("Speech recognition is not supported in this browser. Please use keyboard search.", "error");
+            return;
+        }
+        
+        const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+        recognition = new SpeechRec();
+        recognition.lang = 'en-IN';
+        recognition.continuous = false;
+        recognition.interimResults = false;
+
+        const banner = document.getElementById("voice-status-banner");
+        const statusText = document.getElementById("voice-status-text");
+        const micIcon = document.getElementById("voice-mic-icon");
+
+        if (banner) banner.classList.remove("hidden");
+        if (micIcon) micIcon.classList.add("text-red-500", "animate-ping");
+
+        recognition.onresult = function(event) {
+            const transcript = event.results[0][0].transcript;
+            const searchInput = document.getElementById("search-input");
+            if (searchInput) {
+                searchInput.value = transcript;
+                searchProducts();
+            }
+            showToast(`Voice Search: "${transcript}"`, "success");
+            stopVoiceSearch();
+        };
+
+        recognition.onerror = function() {
+            stopVoiceSearch();
+            showToast("Voice search did not hear anything. Please try again.", "info");
+        };
+
+        recognition.onend = function() {
+            stopVoiceSearch();
+        };
+
+        recognition.start();
+    }
+
+    function stopVoiceSearch() {
+        if (recognition) {
+            try { recognition.stop(); } catch(e) {}
+        }
+        const banner = document.getElementById("voice-status-banner");
+        const micIcon = document.getElementById("voice-mic-icon");
+        if (banner) banner.classList.add("hidden");
+        if (micIcon) micIcon.classList.remove("text-red-500", "animate-ping");
+    }
+
+    // Payment Modal Helpers
+    function openPaymentModal(subtotal) {
+        const modal = document.getElementById("payment-modal");
+        if (modal) {
+            modal.classList.remove("hidden");
+            document.querySelectorAll(".pay-amount-label").forEach(lbl => lbl.innerText = subtotal);
+            switchPaymentTab('upi');
+        }
+    }
+
+    function closePaymentModal() {
+        const modal = document.getElementById("payment-modal");
+        if (modal) modal.classList.add("hidden");
+        const loader = document.getElementById("payment-gateway-loader");
+        if (loader) loader.classList.add("hidden");
+    }
+
+    function switchPaymentTab(tabId) {
+        const btns = document.querySelectorAll(".payment-tab-btn");
+        btns.forEach(btn => {
+            if (btn.id === `tab-${tabId}`) {
+                btn.className = "payment-tab-btn flex-1 py-2 font-black rounded-lg transition bg-white text-emerald-800 shadow-xs";
+            } else {
+                btn.className = "payment-tab-btn flex-1 py-2 font-bold rounded-lg transition text-gray-600 hover:text-gray-900";
+            }
+        });
+
+        const contents = document.querySelectorAll(".payment-tab-content");
+        contents.forEach(cont => {
+            cont.classList.toggle("hidden", cont.id !== `content-${tabId}`);
+        });
+    }
+
+    function processSimulatedPayment(methodName) {
+        const loader = document.getElementById("payment-gateway-loader");
+        const status = document.getElementById("gateway-loader-status");
+        
+        if (loader && status) {
+            loader.classList.remove("hidden");
+            status.innerText = `Connecting to Secure Banking Gateway...`;
+            
+            setTimeout(() => {
+                status.innerText = `Authorizing ₹ payment via ${methodName}...`;
+                setTimeout(() => {
+                    status.innerText = `Payment Approved! Placing fresh harvest order...`;
+                    setTimeout(() => {
+                        executeSecureCheckout();
+                    }, 800);
+                }, 1200);
+            }, 800);
+        }
+    }
+
+    // Review Modal Star Helpers
+    function setRating(val) {
+        const input = document.getElementById('review-rating-val');
+        const desc = document.getElementById('rating-desc');
+        if (input) input.value = val;
+        
+        const stars = document.querySelectorAll('#review-stars-container .star-item');
+        stars.forEach((s, idx) => {
+            s.style.opacity = idx < val ? "1.0" : "0.3";
+        });
+
+        const descriptions = {
+            1: "1.0 - Poor Quality",
+            2: "2.0 - Below Average",
+            3: "3.0 - Satisfactory",
+            4: "4.0 - Very Fresh",
+            5: "5.0 - Farm Fresh Excellence!"
+        };
+        if (desc) desc.innerText = descriptions[val] || `${val}.0`;
+    }
+
+    // Initialize Dashboard Tab and Delivery Date on Load
+    document.addEventListener("DOMContentLoaded", () => {
+        // 1. Check URL hash (e.g. #market, #basket, #orders, #wallet, #pantry)
+        const hash = window.location.hash.replace('#', '');
+        const validTabs = ['market', 'basket', 'orders', 'wallet', 'pantry'];
+        const urlParams = new URLSearchParams(window.location.search);
+        const queryTab = urlParams.get('tab');
+
+        if (hash && validTabs.includes(hash)) {
+            switchDashboardTab(hash);
+        } else if (queryTab && validTabs.includes(queryTab)) {
+            switchDashboardTab(queryTab);
+        } else {
+            switchDashboardTab('{{ active_tab or "market" }}');
+        }
+
+        // 2. Set default harvest date to tomorrow
+        const dateInput = document.getElementById("delivery-date");
+        if (dateInput) {
+            const today = new Date();
+            const tomorrow = new Date(today);
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            const formatDate = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+            dateInput.min = formatDate(today);
+            dateInput.value = formatDate(tomorrow);
+        }
+    });
+</script>
+{% endblock %}

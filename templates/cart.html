@@ -1,0 +1,421 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="space-y-6 max-w-7xl mx-auto">
+
+    <!-- Top Breadcrumb & Title Bar -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-gray-100">
+        <div>
+            <div class="flex items-center space-x-2 text-xs font-bold text-gray-400 mb-1">
+                <a href="/shop" class="hover:text-emerald-700 transition">Market</a>
+                <span>/</span>
+                <span class="text-emerald-800 font-black">Your Farm Basket</span>
+            </div>
+            <h1 class="text-2xl sm:text-3xl font-black text-gray-900 tracking-tight flex items-center gap-2.5">
+                <span>🧺 Your Farm Basket</span>
+                <span id="cart-header-count" class="text-xs font-black bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-full">0 Items</span>
+            </h1>
+        </div>
+
+        <a href="/shop" class="inline-flex items-center gap-2 text-xs font-black text-emerald-800 bg-white hover:bg-emerald-50 px-4 py-2.5 rounded-2xl border border-gray-200 hover:border-emerald-500 shadow-2xs transition active:scale-95 self-start sm:self-auto">
+            <i class="fa-solid fa-arrow-left"></i>
+            <span>Continue Shopping</span>
+        </a>
+    </div>
+
+    <!-- Main Grid: Left 8 Cols (Basket Items & Bundles), Right 4 Cols (Address, Schedule, Discounts & Checkout) -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+
+        <!-- ========================================================= -->
+        <!-- LEFT COLUMN: Basket Items List & Smart Recipe Bundles -->
+        <!-- ========================================================= -->
+        <div class="lg:col-span-7 xl:col-span-8 space-y-6">
+
+            <!-- Empty Cart Notice (Shown if cart is empty) -->
+            <div id="cart-page-empty" class="hidden bg-white p-8 sm:p-12 rounded-3xl border border-gray-100 shadow-xs text-center space-y-4">
+                <div class="w-20 h-20 bg-emerald-50 text-emerald-600 rounded-3xl flex items-center justify-center text-4xl mx-auto shadow-inner">
+                    🧺
+                </div>
+                <h3 class="text-xl font-black text-gray-900">Your basket is currently empty</h3>
+                <p class="text-xs text-gray-400 font-semibold max-w-md mx-auto">
+                    Fill your basket with 100% certified organic farm vegetables harvested fresh this morning at mandi wholesale prices.
+                </p>
+                <div class="pt-2">
+                    <a href="/shop" class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs px-6 py-3.5 rounded-2xl shadow-lg shadow-emerald-600/20 transition active:scale-95">
+                        <i class="fa-solid fa-store"></i>
+                        <span>Explore Produce Catalog</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Populated Cart Items Card -->
+            <div id="cart-page-items-container" class="bg-white rounded-3xl border border-gray-100 shadow-xs overflow-hidden">
+                <div class="px-6 py-4 bg-emerald-50/70 border-b border-emerald-100/80 flex items-center justify-between">
+                    <span class="text-xs font-black text-emerald-950 uppercase tracking-wider flex items-center gap-2">
+                        <i class="fa-solid fa-carrot text-emerald-700"></i> Fresh Produce in Basket
+                    </span>
+                    <button onclick="clearFullCart()" class="text-[11px] font-bold text-red-600 hover:text-red-700 hover:underline">
+                        Clear Basket
+                    </button>
+                </div>
+
+                <!-- Table Container with independent horizontal overflow on small screens -->
+                <div class="divide-y divide-gray-100" id="cart-page-items-list">
+                    <!-- Dynamic Cart Rows Rendered by store.js -->
+                </div>
+            </div>
+
+            <!-- Smart Recipe & Tadka Combo Bundles (1-Click Add) -->
+            <div class="bg-white p-6 rounded-3xl border border-gray-100 shadow-xs space-y-4">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="text-sm sm:text-base font-black text-gray-900 flex items-center gap-2">
+                            <span class="text-xl">✨</span> Smart Recipe Combos (1-Click Add)
+                        </h3>
+                        <p class="text-xs text-gray-400 font-semibold mt-0.5">Complement your basket with handpicked daily culinary packs.</p>
+                    </div>
+                    <span class="text-[10px] font-black text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-full">Save 10%</span>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
+                    <!-- Daily Tadka Pack -->
+                    <div class="bg-gradient-to-br from-amber-50/50 to-orange-50/30 p-4 rounded-2xl border border-amber-200/70 flex flex-col justify-between space-y-3">
+                        <div class="flex items-start gap-3">
+                            <span class="text-2xl">🌶️</span>
+                            <div>
+                                <h4 class="text-xs font-black text-gray-900">Daily Tadka Pack</h4>
+                                <p class="text-[10px] text-gray-500 font-medium mt-0.5">Mirchi + Adrak + Lahsun + Dhania</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between pt-2 border-t border-amber-200/50">
+                            <span class="text-xs font-black text-emerald-700">₹80.00</span>
+                            <button onclick="addRecipeBundle('tadka')" class="text-[10px] font-black bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1 rounded-xl shadow-xs transition active:scale-95">
+                                + ADD
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Sambar & Curry Pack -->
+                    <div class="bg-gradient-to-br from-emerald-50/50 to-green-50/30 p-4 rounded-2xl border border-emerald-200/70 flex flex-col justify-between space-y-3">
+                        <div class="flex items-start gap-3">
+                            <span class="text-2xl">🍲</span>
+                            <div>
+                                <h4 class="text-xs font-black text-gray-900">Sambar & Curry Pack</h4>
+                                <p class="text-[10px] text-gray-500 font-medium mt-0.5">Tamatar + Lauki + Dhania</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between pt-2 border-t border-emerald-200/50">
+                            <span class="text-xs font-black text-emerald-700">₹80.00</span>
+                            <button onclick="addRecipeBundle('sambar')" class="text-[10px] font-black bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1 rounded-xl shadow-xs transition active:scale-95">
+                                + ADD
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Iron Greens Duo -->
+                    <div class="bg-gradient-to-br from-teal-50/50 to-emerald-50/30 p-4 rounded-2xl border border-teal-200/70 flex flex-col justify-between space-y-3">
+                        <div class="flex items-start gap-3">
+                            <span class="text-2xl">🥬</span>
+                            <div>
+                                <h4 class="text-xs font-black text-gray-900">Iron Greens Duo</h4>
+                                <p class="text-[10px] text-gray-500 font-medium mt-0.5">Palak + Methi Bunches</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between pt-2 border-t border-teal-200/50">
+                            <span class="text-xs font-black text-emerald-700">₹50.00</span>
+                            <button onclick="addRecipeBundle('greens')" class="text-[10px] font-black bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1 rounded-xl shadow-xs transition active:scale-95">
+                                + ADD
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ========================================================= -->
+        <!-- RIGHT COLUMN: Order Summary, Address, Coupon, Wallet & Pay -->
+        <!-- ========================================================= -->
+        <div class="lg:col-span-5 xl:col-span-4 space-y-5 lg:sticky lg:top-20">
+
+            <div class="bg-white p-6 rounded-3xl border border-gray-100 shadow-md space-y-5">
+                
+                <!-- 1. Delivery Destination Address -->
+                <div>
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-xs font-black text-gray-700 uppercase tracking-wider flex items-center gap-1.5">
+                            <i class="fa-solid fa-location-dot text-emerald-600"></i> Delivery Address
+                        </span>
+                        <button type="button" onclick="openAddressModal()" class="text-xs font-black text-emerald-700 hover:text-emerald-800 bg-emerald-50 px-2.5 py-1 rounded-xl border border-emerald-200 transition active:scale-95">
+                            Change / Add
+                        </button>
+                    </div>
+
+                    <!-- Address Preview Card -->
+                    <div onclick="openAddressModal()" class="bg-gray-50 hover:bg-emerald-50/50 p-3 rounded-2xl border border-gray-200 hover:border-emerald-500 cursor-pointer transition group">
+                        <div class="flex items-start gap-2.5">
+                            <span class="text-base text-emerald-600 mt-0.5">📍</span>
+                            <div class="flex-grow min-w-0">
+                                <div class="flex items-center justify-between">
+                                    <span id="cart-selected-address-label" class="text-[10px] font-black uppercase text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-md">
+                                        Home (Default)
+                                    </span>
+                                    <span class="text-[10px] font-bold text-gray-400 group-hover:text-emerald-600">Edit ❯</span>
+                                </div>
+                                <p id="cart-selected-address-text" class="text-xs font-bold text-gray-800 mt-1 line-clamp-2 leading-relaxed">
+                                    Loading your saved delivery address...
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Hidden input storing selected delivery address -->
+                    <input type="hidden" id="delivery-address" value="">
+                </div>
+
+                <!-- 2. Delivery Date & Time Slot -->
+                <div class="space-y-2">
+                    <span class="text-xs font-black text-gray-700 uppercase tracking-wider flex items-center gap-1.5">
+                        <i class="fa-solid fa-clock text-emerald-600"></i> Delivery Schedule
+                    </span>
+                    <div class="grid grid-cols-2 gap-2 text-xs">
+                        <div>
+                            <label for="delivery-date" class="block text-[10px] text-gray-400 font-bold uppercase mb-1">Harvest Date</label>
+                            <input type="date" id="delivery-date" required class="w-full px-3 py-2 border border-gray-200 rounded-xl font-bold text-gray-800 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 text-xs">
+                        </div>
+                        <div>
+                            <label for="delivery-slot" class="block text-[10px] text-gray-400 font-bold uppercase mb-1">Delivery Slot</label>
+                            <select id="delivery-slot" class="w-full px-2.5 py-2 border border-gray-200 rounded-xl font-bold text-gray-800 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer text-xs">
+                                <option value="Morning (8:00 AM - 11:00 AM)">Morning (8-11 AM)</option>
+                                <option value="Afternoon (12:00 PM - 3:00 PM)">Afternoon (12-3 PM)</option>
+                                <option value="Evening (5:00 PM - 8:00 PM)">Evening (5-8 PM)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. Promo Code / Coupons -->
+                <div class="pt-3 border-t border-gray-100">
+                    <div class="flex items-center justify-between mb-1.5">
+                        <label for="coupon-input" class="text-xs font-black text-gray-700 uppercase tracking-wider flex items-center gap-1.5">
+                            <i class="fa-solid fa-tag text-emerald-600"></i> Promo Coupon
+                        </label>
+                        <span id="coupon-applied-badge" class="hidden text-[9px] font-black uppercase text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-md">
+                            Applied
+                        </span>
+                    </div>
+
+                    <div class="flex gap-2">
+                        <input type="text" id="coupon-input" placeholder="FARM50 or VAMSI10" 
+                               class="flex-grow px-3 py-2 border border-gray-200 rounded-xl font-black text-xs uppercase text-gray-800 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                        <button type="button" id="apply-coupon-btn" onclick="applyPromoCoupon()" 
+                                class="bg-emerald-600 hover:bg-emerald-700 text-white font-black px-4 py-2 rounded-xl text-xs transition active:scale-95">
+                            Apply
+                        </button>
+                        <button type="button" id="remove-coupon-btn" onclick="removePromoCoupon()" 
+                                class="hidden bg-red-50 hover:bg-red-100 text-red-600 font-bold px-3 py-2 rounded-xl text-xs transition active:scale-95 border border-red-200" title="Remove coupon">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
+
+                    <div class="flex flex-wrap gap-1.5 mt-2">
+                        <button type="button" onclick="quickApplyCoupon('FARM50')" class="text-[10px] font-bold bg-gray-50 hover:bg-emerald-50 text-gray-600 hover:text-emerald-700 px-2.5 py-1 rounded-lg border border-dashed border-gray-300 hover:border-emerald-500 transition">
+                            🏷️ FARM50 (₹50 OFF)
+                        </button>
+                        <button type="button" onclick="quickApplyCoupon('VAMSI10')" class="text-[10px] font-bold bg-gray-50 hover:bg-emerald-50 text-gray-600 hover:text-emerald-700 px-2.5 py-1 rounded-lg border border-dashed border-gray-300 hover:border-emerald-500 transition">
+                            🏷️ VAMSI10 (10% OFF)
+                        </button>
+                    </div>
+
+                    <div id="coupon-message" class="text-[11px] font-bold text-emerald-700 mt-2 hidden"></div>
+                </div>
+
+                <!-- 4. Farm Wallet Coins -->
+                <div class="bg-emerald-50/70 p-3.5 rounded-2xl border border-emerald-100/90 space-y-2">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-2.5">
+                            <span class="text-2xl">🪙</span>
+                            <div>
+                                <span class="text-xs font-black text-gray-900">Redeem Farm Wallet Coins</span>
+                                <p class="text-[10px] text-emerald-700 font-extrabold">
+                                    Balance: <span id="cart-wallet-balance">₹{{ "%.2f" | format(current_user['wallet_balance'] if (current_user and 'wallet_balance' in current_user.keys()) else 100.0) }}</span>
+                                </p>
+                            </div>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="use-wallet-toggle" onchange="toggleWalletRedemption()" class="sr-only peer">
+                            <div class="w-10 h-5 bg-gray-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-600"></div>
+                        </label>
+                    </div>
+
+                    <div id="wallet-deduction-info" class="text-[10px] text-emerald-900 font-black hidden flex items-center justify-between bg-emerald-100/80 px-2.5 py-1.5 rounded-xl">
+                        <span>Coins discount applied:</span>
+                        <span id="wallet-deduction-amount" class="text-emerald-700 font-black">-₹0.00</span>
+                    </div>
+
+                    <p class="text-[10px] text-gray-500 font-semibold flex items-center gap-1.5">
+                        <i class="fa-solid fa-sparkles text-amber-500"></i>
+                        <span>Earn <strong>5% automatic cashback coins</strong> on this order!</span>
+                    </p>
+                </div>
+
+                <!-- 5. Transparent Price Breakdown -->
+                <div class="space-y-2 pt-2 border-t border-gray-100 text-xs">
+                    <div class="flex items-center justify-between text-gray-500 font-bold">
+                        <span>Items Subtotal</span>
+                        <span id="cart-subtotal">₹0.00</span>
+                    </div>
+                    <div id="cart-discount-row" class="hidden flex items-center justify-between text-emerald-600 font-black">
+                        <span>Coupon Discount (<span id="applied-coupon-name"></span>)</span>
+                        <span id="cart-discount-val">-₹0.00</span>
+                    </div>
+                    <div id="cart-wallet-row" class="hidden flex items-center justify-between text-amber-700 font-black">
+                        <span>🪙 Wallet Coins Redeemed</span>
+                        <span id="cart-wallet-val">-₹0.00</span>
+                    </div>
+                    <div class="flex items-center justify-between text-gray-500 font-bold">
+                        <span>Delivery Fee</span>
+                        <span class="text-emerald-700 font-black">FREE (Zero Charge)</span>
+                    </div>
+                    <div class="flex items-center justify-between pt-2 border-t border-gray-200 text-base font-black text-gray-900">
+                        <span>Total Payable</span>
+                        <span id="cart-final-total" class="text-lg text-emerald-800 font-black">₹0.00</span>
+                    </div>
+                </div>
+
+                <!-- Checkout Action Button -->
+                <button id="checkout-btn" onclick="checkoutCart()" class="w-full bg-emerald-600 hover:bg-emerald-700 disabled:bg-gray-200 disabled:text-gray-400 text-white font-black py-4 px-4 rounded-2xl shadow-lg shadow-emerald-600/25 transition duration-200 focus:outline-none flex items-center justify-center space-x-2 text-sm active:scale-98" disabled>
+                    <i class="fa-solid fa-lock text-xs"></i>
+                    <span>Proceed to Express Checkout</span>
+                </button>
+
+                <div class="flex items-center justify-center space-x-4 text-[10px] text-gray-400 font-semibold">
+                    <span>🔒 100% Secure Checkout</span>
+                    <span>⚡ 15-30 Min Delivery</span>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- Address Manager Modal (Reused across shop & cart) -->
+<div id="address-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs hidden p-4" style="overscroll-behavior: contain;">
+    <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-gray-100 flex flex-col space-y-4 animate-in fade-in zoom-in duration-200">
+        <div class="flex items-center justify-between pb-3 border-b border-gray-100">
+            <div>
+                <h3 class="text-base sm:text-lg font-black text-gray-900 flex items-center gap-2">
+                    <i class="fa-solid fa-map-location-dot text-emerald-600"></i> Select Delivery Destination
+                </h3>
+                <span id="saved-addr-count" class="text-[11px] font-bold text-gray-400"></span>
+            </div>
+            <button onclick="closeAddressModal()" class="p-1 text-gray-400 hover:text-gray-600 rounded-full">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+        </div>
+
+        <div id="saved-addresses-list" class="space-y-2.5 max-h-60 overflow-y-auto pr-1">
+            <!-- Dynamically populated by store.js -->
+        </div>
+
+        <button onclick="openNewAddressModal()" class="w-full bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-black py-3 rounded-2xl border border-emerald-200/80 text-xs transition flex items-center justify-center gap-2 active:scale-98">
+            <i class="fa-solid fa-plus text-xs"></i>
+            <span>Add New Delivery Address</span>
+        </button>
+    </div>
+</div>
+
+<!-- Add New Address Modal -->
+<div id="new-address-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs hidden p-4" style="overscroll-behavior: contain;">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-gray-100 flex flex-col space-y-4 animate-in fade-in zoom-in duration-200">
+        <div class="flex items-center justify-between pb-3 border-b border-gray-100">
+            <h3 class="text-base font-black text-gray-900">Add New Delivery Location</h3>
+            <button onclick="closeNewAddressModal()" class="p-1 text-gray-400 hover:text-gray-600 rounded-full">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+        </div>
+
+        <form onsubmit="handleSaveNewAddress(event)" class="space-y-3.5">
+            <div>
+                <label for="new-addr-label" class="block text-[11px] font-black text-gray-700 uppercase mb-1">Address Type</label>
+                <div class="flex gap-2">
+                    <label class="flex-1 text-center py-2 px-3 border border-gray-200 rounded-xl cursor-pointer text-xs font-bold has-[:checked]:bg-emerald-600 has-[:checked]:text-white has-[:checked]:border-emerald-600 transition">
+                        <input type="radio" name="addr_label" value="Home" checked class="hidden"> 🏠 Home
+                    </label>
+                    <label class="flex-1 text-center py-2 px-3 border border-gray-200 rounded-xl cursor-pointer text-xs font-bold has-[:checked]:bg-emerald-600 has-[:checked]:text-white has-[:checked]:border-emerald-600 transition">
+                        <input type="radio" name="addr_label" value="Work" class="hidden"> 🏢 Work
+                    </label>
+                    <label class="flex-1 text-center py-2 px-3 border border-gray-200 rounded-xl cursor-pointer text-xs font-bold has-[:checked]:bg-emerald-600 has-[:checked]:text-white has-[:checked]:border-emerald-600 transition">
+                        <input type="radio" name="addr_label" value="Other" class="hidden"> 📍 Other
+                    </label>
+                </div>
+            </div>
+
+            <div>
+                <label for="new-addr-text" class="block text-[11px] font-black text-gray-700 uppercase mb-1">Complete Street Address</label>
+                <textarea id="new-addr-text" required rows="3" placeholder="Flat / House No, Apartment Name, Street, Landmark, City & Pincode"
+                          class="w-full px-3 py-2.5 border border-gray-200 rounded-2xl font-bold text-xs text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-gray-50/50"></textarea>
+            </div>
+
+            <div class="flex items-center space-x-2">
+                <input type="checkbox" id="new-addr-default" checked class="w-4 h-4 text-emerald-600 rounded border-gray-300 focus:ring-emerald-500">
+                <label for="new-addr-default" class="text-xs font-bold text-gray-700 cursor-pointer">Save as default delivery address</label>
+            </div>
+
+            <div class="flex gap-2 pt-2">
+                <button type="button" onclick="closeNewAddressModal()" class="w-1/2 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold rounded-xl text-xs transition">
+                    Cancel
+                </button>
+                <button type="submit" class="w-1/2 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-black rounded-xl shadow-lg shadow-emerald-600/20 text-xs transition active:scale-95">
+                    Save Address
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Invoice Modal -->
+<div id="invoice-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs hidden p-4" style="overscroll-behavior: contain;">
+    <div class="bg-white rounded-3xl max-w-xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-gray-100 flex flex-col relative animate-in fade-in zoom-in duration-200">
+        <div class="sticky top-0 bg-white/95 backdrop-blur-xs px-6 py-3.5 border-b border-gray-100 flex items-center justify-between z-10">
+            <span class="text-xs font-black text-gray-700 uppercase tracking-wider flex items-center gap-1.5">
+                <i class="fa-solid fa-file-invoice text-emerald-600"></i> Official Tax Invoice & Bill
+            </span>
+            <div class="flex items-center gap-2">
+                <button onclick="printInvoice()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs px-3 py-1.5 rounded-xl shadow-xs inline-flex items-center gap-1.5 transition active:scale-95">
+                    <i class="fa-solid fa-print"></i> Print / Save PDF
+                </button>
+                <button onclick="closeInvoiceModal()" class="p-1.5 hover:bg-gray-100 rounded-full text-gray-400 hover:text-gray-700 transition">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+        </div>
+        
+        <div id="invoice-modal-content"></div>
+    </div>
+</div>
+
+<script>
+    // Initialize delivery date to tomorrow minimum
+    document.addEventListener("DOMContentLoaded", () => {
+        const dateInput = document.getElementById("delivery-date");
+        if (dateInput) {
+            const today = new Date();
+            const tomorrow = new Date(today);
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            
+            const formatDate = (d) => {
+                const year = d.getFullYear();
+                const month = String(d.getMonth() + 1).padStart(2, '0');
+                const day = String(d.getDate()).padStart(2, '0');
+                return `${year}-${month}-${day}`;
+            };
+            
+            dateInput.min = formatDate(today);
+            dateInput.value = formatDate(tomorrow);
+        }
+    });
+</script>
+{% endblock %}

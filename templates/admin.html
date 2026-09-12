@@ -1,0 +1,750 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="space-y-8">
+    
+    <!-- Admin Header -->
+    <div class="border-b border-gray-200 pb-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+            <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight flex items-center">
+                <i class="fa-solid fa-sliders text-emerald-600 mr-2.5"></i> Farm Operations & Manager Console
+            </h1>
+            <p class="text-xs sm:text-sm text-gray-500 font-medium mt-1">Real-time inventory manager, dispatch queue status controller, and business revenue analytics.</p>
+        </div>
+        <div class="flex flex-wrap items-center gap-2">
+            <button id="admin-audio-toggle-btn" onclick="toggleAdminAudioAlerts()" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-extrabold text-xs px-3.5 py-2.5 rounded-xl border border-emerald-200 shadow-xs inline-flex items-center gap-1.5 transition active:scale-95" title="Test and Toggle Sound Chimes">
+                <i id="admin-audio-icon" class="fa-solid fa-volume-high text-emerald-600"></i>
+                <span id="admin-audio-text">Audio Alerts: ON</span>
+            </button>
+            <a href="/admin/customers" class="bg-purple-600 hover:bg-purple-700 text-white font-extrabold text-xs px-3.5 py-2.5 rounded-xl shadow-xs transition inline-flex items-center gap-1.5 active:scale-95" title="Customer 360° Intelligence Dashboard">
+                <i class="fa-solid fa-users"></i> Customer Dashboard
+            </a>
+            <button onclick="window.print()" class="bg-white hover:bg-gray-50 text-gray-700 font-extrabold text-xs px-3.5 py-2.5 rounded-xl border border-gray-200 shadow-xs inline-flex items-center gap-1.5 transition">
+                <i class="fa-solid fa-print"></i> Print Dispatch Sheet
+            </button>
+            <a href="/shop" class="bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs px-4 py-2.5 rounded-xl shadow-sm transition inline-flex items-center gap-1.5">
+                <i class="fa-solid fa-store"></i> Open Marketplace
+            </a>
+        </div>
+    </div>
+
+    <!-- Top KPI Business Intelligence Cards -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <!-- Revenue -->
+        <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-xs flex items-center space-x-4">
+            <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl font-black">
+                ₹
+            </div>
+            <div>
+                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Total Sales</p>
+                <h3 class="text-xl font-black text-gray-900 leading-tight">₹{{ "%.2f" | format(kpi.revenue) }}</h3>
+                <span class="text-[10px] text-emerald-600 font-bold">100% Direct Revenue</span>
+            </div>
+        </div>
+
+        <!-- Orders -->
+        <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-xs flex items-center space-x-4">
+            <div class="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center text-xl">
+                <i class="fa-solid fa-truck-fast"></i>
+            </div>
+            <div>
+                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Orders Handled</p>
+                <h3 class="text-xl font-black text-gray-900 leading-tight">{{ kpi.orders_count }}</h3>
+                <span class="text-[10px] text-blue-600 font-bold">Scheduled Deliveries</span>
+            </div>
+        </div>
+
+        <!-- Customers -->
+        <a href="/admin/customers" class="bg-white hover:bg-purple-50/40 p-5 rounded-2xl border border-gray-100 shadow-xs flex items-center space-x-4 transition group" title="Open Dedicated Customers Directory">
+            <div class="w-12 h-12 rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center text-xl group-hover:scale-105 transition-transform">
+                <i class="fa-solid fa-users"></i>
+            </div>
+            <div>
+                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Active Buyers</p>
+                <h3 class="text-xl font-black text-gray-900 leading-tight">{{ kpi.customers_count }}</h3>
+                <span class="text-[10px] text-purple-600 font-bold flex items-center gap-1">Manage Directory <i class="fa-solid fa-arrow-right text-[8px]"></i></span>
+            </div>
+        </a>
+
+        <!-- Low Stock -->
+        <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-xs flex items-center space-x-4">
+            <div class="w-12 h-12 rounded-2xl {% if kpi.low_stock_count > 0 %}bg-amber-50 text-amber-600{% else %}bg-green-50 text-green-600{% endif %} flex items-center justify-center text-xl">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <div>
+                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Low Stock Warnings</p>
+                <h3 class="text-xl font-black text-gray-900 leading-tight">{{ kpi.low_stock_count }} items</h3>
+                <span class="text-[10px] {% if kpi.low_stock_count > 0 %}text-amber-600 font-extrabold animate-pulse{% else %}text-gray-400 font-semibold{% endif %}">
+                    {% if kpi.low_stock_count > 0 %}⚡ Restock Required{% else %}Optimal Stock Level{% endif %}
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Section: Left (Inventory) & Right (Top Selling & CRM) -->
+    <div class="grid grid-cols-1 xl:grid-cols-3 gap-8">
+        
+        <!-- Left 2 Cols: Product Catalog & Fast Price/Stock Editor -->
+        <div class="xl:col-span-2 space-y-6">
+            
+            <!-- Product Inventory Table -->
+            <div id="inventory-section" class="bg-white p-6 rounded-2xl border border-gray-100 shadow-xs">
+                <div class="flex items-center justify-between pb-4 border-b border-gray-100 mb-6">
+                    <div>
+                        <h3 class="font-extrabold text-gray-900 text-lg flex items-center">
+                            <i class="fa-solid fa-boxes-stacked text-emerald-600 mr-2"></i> Real-Time Inventory & Price Controller
+                        </h3>
+                        <p class="text-xs text-gray-400 font-semibold mt-0.5">Edit price or quantity directly. Changes sync in real-time to the customer storefront.</p>
+                    </div>
+                    <button type="button" onclick="openAddProductModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs px-3.5 py-2 rounded-xl shadow-xs transition active:scale-95 flex items-center gap-1.5 flex-shrink-0">
+                        <i class="fa-solid fa-plus text-[10px]"></i>
+                        <span>Add Vegetable</span>
+                    </button>
+                </div>
+                
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead>
+                            <tr>
+                                <th class="px-3 py-3 bg-gray-50 text-left text-[10px] font-extrabold text-gray-400 uppercase tracking-wider">Product Info & Telugu Name</th>
+                                <th class="px-3 py-3 bg-gray-50 text-left text-[10px] font-extrabold text-gray-400 uppercase tracking-wider">Category</th>
+                                <th class="px-3 py-3 bg-gray-50 text-center text-[10px] font-extrabold text-gray-400 uppercase tracking-wider">Unit</th>
+                                <th class="px-3 py-3 bg-gray-50 text-center text-[10px] font-extrabold text-gray-400 uppercase tracking-wider">Price (₹)</th>
+                                <th class="px-3 py-3 bg-gray-50 text-center text-[10px] font-extrabold text-gray-400 uppercase tracking-wider">Live Stock</th>
+                                <th class="px-3 py-3 bg-gray-50 text-center text-[10px] font-extrabold text-gray-400 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100 text-sm font-medium">
+                            {% for prod in products %}
+                                <tr class="hover:bg-gray-50/50 transition">
+                                    <td class="px-3 py-3 whitespace-nowrap flex items-center space-x-3">
+                                        <div class="w-10 h-10 rounded-xl bg-gray-50 border border-gray-100 flex items-center justify-center text-2xl flex-shrink-0 shadow-xs">
+                                            {{ prod.image_url }}
+                                        </div>
+                                        <div class="space-y-1 w-64">
+                                            <div class="flex items-center gap-1.5 flex-wrap">
+                                                <span class="font-extrabold text-xs text-gray-900 leading-tight">
+                                                    {{ prod.name.split('[')[0].strip() }}
+                                                </span>
+                                                {% if '[' in prod.name %}
+                                                    <span class="inline-block px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-800 text-[10px] font-bold border border-emerald-100">
+                                                        [{{ prod.name.split('[')[1].replace(']', '').strip() }}]
+                                                    </span>
+                                                {% endif %}
+                                            </div>
+                                            <input type="text" id="prod-name-{{ prod.id }}" value="{{ prod.name }}" class="w-full px-2 py-1 border border-gray-200 rounded-lg text-xs font-medium bg-gray-50/70 focus:bg-white focus:outline-none focus:ring-1 focus:ring-emerald-500" title="Edit Produce Name & Telugu Text">
+                                            <p class="text-[10px] text-gray-400 font-semibold pl-1">ID: #{{ prod.id }} • Certified Organic</p>
+                                        </div>
+                                    </td>
+                                    <td class="px-3 py-3 whitespace-nowrap">
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-gray-50 border border-gray-100 text-gray-600">
+                                            {{ prod.category }}
+                                        </span>
+                                    </td>
+                                    <td class="px-3 py-3 whitespace-nowrap text-center text-xs text-gray-500 font-semibold">
+                                        {{ prod.unit }}
+                                    </td>
+                                    <td class="px-3 py-3 whitespace-nowrap text-center">
+                                        <div class="inline-flex items-center gap-1">
+                                            <span class="text-xs font-bold text-gray-500">₹</span>
+                                            <input type="number" id="prod-price-{{ prod.id }}" value="{{ prod.price }}" step="0.01" min="0" class="w-20 px-2 py-1 text-center border border-gray-200 rounded-lg text-sm font-black bg-gray-50 focus:bg-white focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                                        </div>
+                                    </td>
+                                    <td class="px-3 py-3 whitespace-nowrap text-center">
+                                        <div class="inline-flex flex-col items-center">
+                                            <input type="number" id="prod-stock-{{ prod.id }}" value="{{ prod.stock }}" min="0" class="w-16 px-2 py-1 text-center border border-gray-200 rounded-lg text-sm font-black {% if prod.stock <= 15 %}bg-amber-50 text-amber-800 border-amber-300{% else %}bg-gray-50 text-gray-900{% endif %} focus:bg-white focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                                            {% if prod.stock <= 15 %}
+                                                <span class="text-[8px] font-black uppercase text-amber-700 bg-amber-100/80 px-1.5 rounded-full mt-0.5">Low Stock</span>
+                                            {% else %}
+                                                <span class="text-[8px] font-bold text-emerald-700 bg-emerald-50 px-1.5 rounded-full mt-0.5">Optimal</span>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                    <td class="px-3 py-3 whitespace-nowrap text-center">
+                                        <div class="flex items-center justify-center gap-1.5">
+                                            <button onclick="updateProductDetails({{ prod.id }})" class="bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold px-2.5 py-1.5 rounded-xl text-xs transition duration-150 focus:outline-none shadow-xs flex items-center justify-center gap-1 active:scale-95" title="Save changes">
+                                                <i class="fa-solid fa-check"></i>
+                                                <span>Save</span>
+                                            </button>
+                                            <button onclick="deleteProductAdmin({{ prod.id }}, '{{ prod.name }}')" class="bg-red-50 hover:bg-red-100 text-red-600 font-bold p-1.5 rounded-xl text-xs transition border border-red-200" title="Delete Produce from Store">
+                                                <i class="fa-solid fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: Top Selling Produce & Customer Spend Metrics -->
+        <div class="space-y-6">
+            <!-- Top Selling Vegetables -->
+            <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-xs">
+                <h3 class="font-extrabold text-gray-900 text-base flex items-center pb-3 border-b border-gray-100 mb-4">
+                    <i class="fa-solid fa-fire text-amber-500 mr-2"></i> Top 5 Best-Selling Produce
+                </h3>
+                
+                <div class="space-y-3">
+                    {% for top in top_selling %}
+                        <div class="flex items-center justify-between p-2.5 rounded-xl bg-gray-50/70 border border-gray-100">
+                            <div class="flex items-center space-x-2.5">
+                                <span class="text-2xl">{{ top.image_url }}</span>
+                                <div>
+                                    <p class="font-bold text-xs text-gray-900 leading-tight">{{ top.name.split('[')[0].strip() }}</p>
+                                    <p class="text-[10px] text-emerald-700 font-semibold mt-0.5">Sold: <strong>{{ top.total_sold }} units</strong></p>
+                                </div>
+                            </div>
+                            <span class="text-xs font-black text-gray-900">₹{{ "%.2f" | format(top.revenue or 0) }}</span>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Customer CRM Table -->
+            <div id="crm-section" class="bg-white p-6 rounded-2xl border border-gray-100 shadow-xs">
+                <div class="flex items-center justify-between pb-3 border-b border-gray-100 mb-4">
+                    <h3 class="font-extrabold text-gray-900 text-base flex items-center">
+                        <i class="fa-solid fa-users text-emerald-600 mr-2"></i> Registered Buyers CRM
+                    </h3>
+                    <div class="flex items-center gap-2.5">
+                        <a href="/admin/customers" class="text-xs font-black text-emerald-700 hover:text-emerald-800 hover:underline inline-flex items-center gap-1">
+                            <span>Open Directory</span>
+                            <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
+                        </a>
+                        <span class="text-[11px] font-bold text-gray-400">({{ user_stats|length }} buyers)</span>
+                    </div>
+                </div>
+                
+                <div class="space-y-3 max-h-80 overflow-y-auto">
+                    {% for stat in user_stats %}
+                        <div class="border border-gray-100 p-3 rounded-xl bg-gray-50/50 flex flex-col gap-2 text-xs">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <div class="flex items-center gap-1.5">
+                                        <h4 class="font-extrabold text-gray-900 leading-tight">{{ stat.name }}</h4>
+                                        <span class="text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded {% if stat.role == 'admin' %}bg-purple-100 text-purple-800{% else %}bg-blue-50 text-blue-700{% endif %}">
+                                            {{ stat.role or 'customer' }}
+                                        </span>
+                                    </div>
+                                    <p class="text-[10px] text-gray-500 font-medium">📞 +91 {{ stat.phone }}</p>
+                                </div>
+                                <div class="text-right">
+                                    <span class="text-xs font-black text-emerald-700">₹{{ "%.2f" | format(stat.total_spent) }}</span>
+                                    <p class="text-[9px] text-gray-400 font-bold uppercase">{{ stat.total_orders }} orders</p>
+                                </div>
+                            </div>
+                            <!-- CRM Admin Action Controls -->
+                            <div class="flex items-center justify-between pt-2 border-t border-gray-100 mt-0.5 text-[11px]">
+                                <span class="inline-flex items-center gap-1 font-extrabold text-amber-800 bg-amber-50 px-2 py-0.5 rounded-lg border border-amber-200/70">
+                                    <span>🪙</span>
+                                    <span>₹{{ "%.2f" | format(stat.wallet_balance or 0.0) }}</span>
+                                </span>
+                                <div class="flex items-center gap-1.5">
+                                    <button type="button" onclick="openCustomerWalletModal({{ stat.id }}, '{{ stat.name }}', {{ stat.wallet_balance or 0.0 }})"
+                                            class="bg-amber-500 hover:bg-amber-600 text-white font-extrabold px-2 py-1 rounded-lg transition active:scale-95 text-[10px] shadow-xs" title="Add or credit coins">
+                                        <i class="fa-solid fa-plus text-[8px] mr-1"></i>Coins
+                                    </button>
+                                    <button type="button" onclick="toggleCustomerRole({{ stat.id }}, '{{ stat.role or 'customer' }}')"
+                                            class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold px-2 py-1 rounded-lg border border-gray-200 transition text-[10px]" title="Toggle User Role">
+                                        Role: {{ stat.role or 'customer' }}
+                                    </button>
+                                    {% if stat.id != session.get('user_id') %}
+                                        <button type="button" onclick="deleteCustomerAdmin({{ stat.id }}, '{{ stat.name }}')"
+                                                class="bg-red-50 hover:bg-red-100 text-red-600 font-bold px-2 py-1 rounded-lg border border-red-200 transition text-[10px]" title="Delete Account">
+                                            <i class="fa-solid fa-trash"></i>
+                                        </button>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Promo Discount Coupons Manager -->
+            <div id="coupons-section" class="bg-white p-6 rounded-2xl border border-gray-100 shadow-xs">
+                <div class="flex items-center justify-between pb-3 border-b border-gray-100 mb-4">
+                    <div>
+                        <h3 class="font-extrabold text-gray-900 text-base flex items-center">
+                            <i class="fa-solid fa-tag text-emerald-600 mr-2"></i> Promo Coupons Manager
+                        </h3>
+                        <p class="text-[10px] text-gray-400 font-semibold">Active discounts & vouchers</p>
+                    </div>
+                    <button type="button" onclick="openAddCouponModal()" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-extrabold text-xs px-2.5 py-1.5 rounded-xl border border-emerald-200 transition active:scale-95 flex items-center gap-1">
+                        <i class="fa-solid fa-plus text-[10px]"></i>
+                        <span>New Coupon</span>
+                    </button>
+                </div>
+                
+                <div class="space-y-2.5 max-h-72 overflow-y-auto">
+                    {% for cp in coupons %}
+                        <div class="border border-gray-100 p-2.5 rounded-xl bg-gray-50/60 flex items-center justify-between text-xs">
+                            <div>
+                                <div class="flex items-center gap-1.5">
+                                    <span class="font-mono font-black text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                                        {{ cp.code }}
+                                    </span>
+                                    <span class="text-[10px] font-extrabold text-gray-700">
+                                        {{ cp.value }}{{ '%' if cp.type == 'percent' else '₹' }} OFF
+                                    </span>
+                                </div>
+                                <p class="text-[10px] text-gray-500 font-medium mt-0.5">{{ cp.description or 'Special Discount' }}</p>
+                            </div>
+                            <button type="button" onclick="deleteCouponAdmin({{ cp.id }}, '{{ cp.code }}')" class="bg-red-50 hover:bg-red-100 text-red-600 font-bold p-1.5 rounded-lg border border-red-200 transition active:scale-95" title="Delete Coupon">
+                                <i class="fa-solid fa-trash text-xs"></i>
+                            </button>
+                        </div>
+                    {% else %}
+                        <p class="text-xs text-gray-400 text-center py-4">No promo coupons configured.</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Order Dispatch & Scheduled Delivery Queue (Grouped with Status Toggler) -->
+    <div id="orders-section" class="bg-white p-6 rounded-2xl border border-gray-100 shadow-xs mt-8">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between pb-4 border-b border-gray-100 mb-6 gap-3">
+            <div>
+                <h3 class="font-extrabold text-gray-900 text-lg flex items-center">
+                    <i class="fa-solid fa-truck-ramp-box text-emerald-600 mr-2"></i> Order Dispatch & Live Status Queue
+                </h3>
+                <p class="text-xs text-gray-400 font-semibold mt-0.5">Toggle delivery status in real-time. Every customer order is logged and tracked live here.</p>
+            </div>
+            <div class="flex items-center flex-wrap gap-2">
+                <button onclick="refreshAdminOrdersTable(true)" id="admin-refresh-orders-btn" class="bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs px-3 py-2 rounded-xl shadow-xs inline-flex items-center gap-1.5 transition active:scale-95" title="Fetch live customer orders">
+                    <i class="fa-solid fa-arrows-rotate" id="admin-refresh-icon"></i>
+                    <span>Refresh Orders</span>
+                </button>
+                <a href="/api/admin/export-dispatch-csv" class="bg-emerald-800 hover:bg-emerald-900 text-white font-extrabold text-xs px-3 py-2 rounded-xl shadow-xs inline-flex items-center gap-1.5 transition active:scale-95">
+                    <i class="fa-solid fa-file-csv"></i>
+                    <span>Export CSV</span>
+                </a>
+                <button onclick="window.print()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-extrabold text-xs px-3 py-2 rounded-xl border border-gray-200 inline-flex items-center gap-1.5 transition active:scale-95">
+                    <i class="fa-solid fa-print"></i>
+                    <span>Print</span>
+                </button>
+                <span id="admin-orders-count-badge" class="text-xs font-extrabold bg-emerald-50 text-emerald-800 px-3 py-1.5 rounded-xl border border-emerald-200">
+                    {{ grouped_orders | length }} Total Orders
+                </span>
+            </div>
+        </div>
+
+        <!-- Real-Time Order Search & Status Filter Controls -->
+        <div class="px-6 py-3 bg-gray-50/80 border-b border-gray-200 flex flex-col md:flex-row md:items-center justify-between gap-3">
+            <div class="relative flex-1 max-w-md">
+                <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
+                <input id="admin-order-search" type="text" placeholder="Search by Order ID, customer, phone, address..." 
+                       oninput="handleAdminOrderSearch(this.value)"
+                       class="w-full pl-9 pr-4 py-2 bg-white border border-gray-200 rounded-xl text-xs font-medium text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 shadow-2xs">
+            </div>
+            
+            <!-- Quick Filter Tabs -->
+            <div class="flex items-center flex-wrap gap-1.5" id="admin-status-filters">
+                <button onclick="filterAdminOrdersByStatus('all')" data-status="all" class="admin-status-filter-btn px-2.5 py-1 text-xs font-bold rounded-lg bg-emerald-700 text-white shadow-xs transition">
+                    All (<span id="count-filter-all">{{ grouped_orders | length }}</span>)
+                </button>
+                <button onclick="filterAdminOrdersByStatus('Placed')" data-status="Placed" class="admin-status-filter-btn px-2.5 py-1 text-xs font-bold rounded-lg bg-white border border-gray-200 text-gray-600 hover:bg-gray-100 transition">
+                    ⏳ Placed
+                </button>
+                <button onclick="filterAdminOrdersByStatus('Packed at Farm')" data-status="Packed at Farm" class="admin-status-filter-btn px-2.5 py-1 text-xs font-bold rounded-lg bg-white border border-gray-200 text-gray-600 hover:bg-gray-100 transition">
+                    📦 Packed
+                </button>
+                <button onclick="filterAdminOrdersByStatus('Out for Delivery')" data-status="Out for Delivery" class="admin-status-filter-btn px-2.5 py-1 text-xs font-bold rounded-lg bg-white border border-gray-200 text-gray-600 hover:bg-gray-100 transition">
+                    🚚 Out for Delivery
+                </button>
+                <button onclick="filterAdminOrdersByStatus('Delivered')" data-status="Delivered" class="admin-status-filter-btn px-2.5 py-1 text-xs font-bold rounded-lg bg-white border border-gray-200 text-gray-600 hover:bg-gray-100 transition">
+                    🟢 Delivered
+                </button>
+                <button onclick="filterAdminOrdersByStatus('Cancelled')" data-status="Cancelled" class="admin-status-filter-btn px-2.5 py-1 text-xs font-bold rounded-lg bg-white border border-gray-200 text-gray-600 hover:bg-gray-100 transition">
+                    🔴 Cancelled
+                </button>
+            </div>
+        </div>
+        
+        <div id="admin-orders-empty-state" class="py-12 text-center text-gray-400 {% if grouped_orders %}hidden{% endif %}">
+            <span class="text-3xl mb-2 block">🚚</span>
+            <p class="text-sm font-semibold">No customer orders matching current filter criteria</p>
+        </div>
+
+        <div id="admin-orders-table-wrapper" class="overflow-x-auto {% if not grouped_orders %}hidden{% endif %}">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead>
+                    <tr>
+                        <th class="px-4 py-3 bg-gray-50 text-left text-[10px] font-extrabold text-gray-400 uppercase tracking-wider">Order ID & Date</th>
+                        <th class="px-4 py-3 bg-gray-50 text-left text-[10px] font-extrabold text-gray-400 uppercase tracking-wider">Customer Info</th>
+                        <th class="px-4 py-3 bg-gray-50 text-left text-[10px] font-extrabold text-gray-400 uppercase tracking-wider">Delivery Destination</th>
+                        <th class="px-4 py-3 bg-gray-50 text-left text-[10px] font-extrabold text-gray-400 uppercase tracking-wider">Items Summary</th>
+                        <th class="px-4 py-3 bg-gray-50 text-right text-[10px] font-extrabold text-gray-400 uppercase tracking-wider">Order Total</th>
+                        <th class="px-4 py-3 bg-gray-50 text-center text-[10px] font-extrabold text-gray-400 uppercase tracking-wider">Status Controller</th>
+                        <th class="px-4 py-3 bg-gray-50 text-center text-[10px] font-extrabold text-gray-400 uppercase tracking-wider">Bill</th>
+                        <th class="px-4 py-3 bg-gray-50 text-center text-[10px] font-extrabold text-gray-400 uppercase tracking-wider">Action</th>
+                    </tr>
+                </thead>
+                <tbody id="admin-orders-table-body" class="divide-y divide-gray-100 text-sm font-medium">
+                        {% for order in grouped_orders %}
+                            <tr class="hover:bg-emerald-50/30 transition cursor-pointer group" onclick="openAdminOrderDrawer('{{ order.order_id }}')">
+                                <td class="px-4 py-4 whitespace-nowrap">
+                                    <span class="font-mono text-xs font-black text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-lg border border-emerald-100 group-hover:border-emerald-400 transition">
+                                        {{ order.order_id }}
+                                    </span>
+                                    <div class="text-[10px] text-gray-400 font-semibold mt-1">{{ order.purchase_date }}</div>
+                                </td>
+                                <td class="px-4 py-4 whitespace-nowrap">
+                                    <div class="font-extrabold text-gray-900">{{ order.customer_name }}</div>
+                                    <div class="text-xs text-gray-500 font-medium">📞 +91 {{ order.customer_phone }}</div>
+                                </td>
+                                <td class="px-4 py-4 text-xs text-gray-700 max-w-xs">
+                                    <div class="font-bold text-emerald-800">
+                                        📅 {{ order.delivery_date or 'Today' }} • {{ order.delivery_slot or 'Morning' }}
+                                    </div>
+                                    <p class="text-[11px] text-gray-600 font-medium mt-0.5 line-clamp-2">
+                                        📍 {{ order.delivery_address or 'Store Default' }}
+                                    </p>
+                                </td>
+                                <td class="px-4 py-4 text-xs text-gray-800 max-w-xs">
+                                    <p class="font-semibold line-clamp-2">{{ order.items_summary }}</p>
+                                    <span class="text-[10px] text-gray-400 font-bold">({{ order.item_count }} items)</span>
+                                </td>
+                                <td class="px-4 py-4 whitespace-nowrap text-right font-black text-gray-900 text-sm">
+                                    ₹{{ "%.2f" | format(order.order_total) }}
+                                </td>
+                                <td class="px-4 py-4 whitespace-nowrap text-center" onclick="event.stopPropagation()">
+                                    <select onchange="updateOrderStatusAdmin('{{ order.order_id }}', this.value)"
+                                            class="text-xs font-extrabold px-3 py-1.5 rounded-xl border focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer shadow-2xs {% if order.status == 'Delivered' %}bg-emerald-50 text-emerald-800 border-emerald-300{% elif order.status == 'Out for Delivery' %}bg-amber-50 text-amber-800 border-amber-300{% elif order.status == 'Packed at Farm' %}bg-blue-50 text-blue-800 border-blue-300{% else %}bg-indigo-50 text-indigo-800 border-indigo-300{% endif %}">
+                                        <option value="Placed" {% if order.status == 'Placed' %}selected{% endif %}>⏳ Order Placed</option>
+                                        <option value="Packed at Farm" {% if order.status == 'Packed at Farm' %}selected{% endif %}>📦 Packed at Farm</option>
+                                        <option value="Out for Delivery" {% if order.status == 'Out for Delivery' %}selected{% endif %}>🚚 Out for Delivery</option>
+                                        <option value="Delivered" {% if order.status == 'Delivered' %}selected{% endif %}>🟢 Delivered</option>
+                                        <option value="Cancelled" {% if order.status == 'Cancelled' %}selected{% endif %}>🔴 Cancelled</option>
+                                    </select>
+                                </td>
+                                <td class="px-4 py-4 whitespace-nowrap text-center" onclick="event.stopPropagation()">
+                                    <button onclick="openInvoiceModal('{{ order.order_id }}')" class="bg-gray-100 hover:bg-emerald-50 hover:text-emerald-800 text-gray-700 font-bold p-2 rounded-xl text-xs transition border border-gray-200" title="View / Print Customer Bill">
+                                        <i class="fa-solid fa-file-invoice"></i>
+                                    </button>
+                                </td>
+                                <td class="px-4 py-4 whitespace-nowrap text-center" onclick="event.stopPropagation()">
+                                    <button onclick="openAdminOrderDrawer('{{ order.order_id }}')" class="bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs px-3 py-1.5 rounded-xl shadow-xs transition active:scale-95 flex items-center gap-1 mx-auto" title="Inspect Order & Dispatch">
+                                        <span>Dispatch</span>
+                                        <i class="fa-solid fa-chevron-right text-[9px]"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+    </div>
+
+</div>
+
+<!-- Live New Order Alert Pop-up Modal -->
+<div id="new-order-popup-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs hidden p-4 animate-in fade-in">
+    <div class="bg-white rounded-3xl max-w-md w-full shadow-2xl border-2 border-emerald-500 overflow-hidden transform scale-100 transition-all">
+        <div class="bg-gradient-to-r from-emerald-700 to-green-600 p-5 text-white flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center text-2xl animate-bounce">
+                    🔔
+                </div>
+                <div>
+                    <span class="text-[10px] font-extrabold uppercase tracking-widest text-emerald-200">Live Order Dispatch Alert</span>
+                    <h3 class="font-black text-lg text-white">New Order Received!</h3>
+                </div>
+            </div>
+            <button onclick="closeNewOrderPopup()" class="text-white/80 hover:text-white p-1 rounded-full">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+        </div>
+        
+        <div class="p-6 space-y-4">
+            <div class="bg-emerald-50 border border-emerald-200 rounded-2xl p-4 space-y-2">
+                <div class="flex items-center justify-between">
+                    <span id="popup-order-id" class="font-mono text-xs font-black text-emerald-900 bg-white px-2 py-0.5 rounded-lg border border-emerald-200">VOF-XXXX</span>
+                    <span id="popup-order-total" class="font-black text-base text-emerald-700">₹0.00</span>
+                </div>
+                <p id="popup-customer-name" class="font-black text-sm text-gray-900">Customer Name</p>
+                <p id="popup-delivery-info" class="text-xs text-gray-600 font-medium">📍 Address & Schedule</p>
+                <p id="popup-items-summary" class="text-[11px] text-gray-500 font-semibold border-t border-emerald-200/60 pt-2"></p>
+            </div>
+
+            <div class="flex gap-2.5">
+                <button id="popup-view-bill-btn" class="w-1/2 bg-white hover:bg-gray-50 text-gray-700 font-extrabold py-3 rounded-xl border border-gray-200 text-xs transition flex items-center justify-center gap-1.5 shadow-xs">
+                    <i class="fa-solid fa-file-invoice text-emerald-600"></i> View Bill
+                </button>
+                <button onclick="acknowledgeAndRefreshOrder()" class="w-1/2 bg-emerald-600 hover:bg-emerald-700 text-white font-black py-3 rounded-xl shadow-lg shadow-emerald-600/20 text-xs transition flex items-center justify-center gap-1.5 active:scale-95">
+                    <i class="fa-solid fa-check"></i> Process Order
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Printable Tax Invoice Modal -->
+<div id="invoice-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs hidden p-4">
+    <div class="bg-white rounded-3xl max-w-xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-gray-100 flex flex-col relative animate-in fade-in zoom-in duration-200">
+        <div class="sticky top-0 bg-white/95 backdrop-blur-xs px-6 py-3.5 border-b border-gray-100 flex items-center justify-between z-10">
+            <span class="text-xs font-black text-gray-700 uppercase tracking-wider flex items-center gap-1.5">
+                <i class="fa-solid fa-file-invoice text-emerald-600"></i> Official Tax Invoice & Bill
+            </span>
+            <div class="flex items-center gap-2">
+                <button onclick="printInvoice()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs px-3 py-1.5 rounded-xl shadow-xs inline-flex items-center gap-1.5 transition active:scale-95">
+                    <i class="fa-solid fa-print"></i> Print / Save PDF
+                </button>
+                <button onclick="closeInvoiceModal()" class="p-1.5 hover:bg-gray-100 rounded-full text-gray-400 hover:text-gray-700 transition">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+        </div>
+        
+        <div id="invoice-modal-content">
+            <!-- Dynamic Invoice Content injected by store.js -->
+        </div>
+    </div>
+</div>
+
+<!-- ========================================================= -->
+<!-- SLIDE-OVER DRAWER: ORDER INSPECTION, CUSTOMER & DISPATCH -->
+<!-- ========================================================= -->
+<!-- Backdrop Overlay -->
+<div id="admin-order-drawer-backdrop" onclick="closeAdminOrderDrawer()" class="fixed inset-0 bg-black/50 backdrop-blur-xs z-40 hidden transition-opacity" style="display: none;"></div>
+
+<!-- Slide-In Drawer Panel from Right -->
+<aside id="admin-order-drawer" class="fixed inset-y-0 right-0 max-w-lg w-full bg-white shadow-2xl z-50 transform translate-x-full transition-transform duration-300 ease-in-out flex flex-col hidden" style="display: none;" aria-label="Order Details Drawer">
+    <div class="p-4 border-b border-gray-100 flex items-center justify-between bg-white z-10">
+        <div class="flex items-center gap-2.5">
+            <span class="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center text-lg shadow-xs border border-emerald-100">
+                📦
+            </span>
+            <div>
+                <h3 class="font-black text-gray-900 text-sm leading-tight">Order Inspection & Dispatch</h3>
+                <p class="text-[10px] text-gray-400 font-semibold">Review customer, items, and dispatch harvest</p>
+            </div>
+        </div>
+        <button type="button" onclick="closeAdminOrderDrawer()" class="p-1.5 text-gray-400 hover:text-gray-700 rounded-full transition hover:bg-gray-100">
+            <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+    </div>
+
+    <!-- Dynamic Drawer Content (Injected by store.js) -->
+    <div id="admin-order-drawer-content" class="flex-grow flex flex-col overflow-hidden">
+        <!-- Injected dynamically by openAdminOrderDrawer(orderId) -->
+    </div>
+</aside>
+
+<!-- ========================================================= -->
+<!-- ADMIN CONTROL MODALS: PRODUCE, WALLET, AND COUPONS        -->
+<!-- ========================================================= -->
+
+<!-- 1. Add New Vegetable Modal -->
+<div id="admin-add-product-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs hidden p-4" style="display: none; overscroll-behavior: contain;">
+    <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-gray-100 flex flex-col space-y-4 max-h-[90vh] overflow-y-auto animate-in zoom-in duration-200">
+        <div class="flex items-center justify-between pb-3 border-b border-gray-100">
+            <div class="flex items-center gap-2">
+                <span class="text-2xl">🥬</span>
+                <h3 class="font-black text-gray-900 text-base">Add New Farm Vegetable</h3>
+            </div>
+            <button type="button" onclick="closeAddProductModal()" class="p-1 text-gray-400 hover:text-gray-700 rounded-full">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+        </div>
+
+        <form onsubmit="submitAddProduct(event)" class="space-y-3.5 text-xs">
+            <div>
+                <label for="create-prod-name" class="block text-[11px] font-black text-gray-700 uppercase mb-1">Product & Telugu Name</label>
+                <input type="text" id="create-prod-name" required placeholder="e.g. Tender Ridge Gourd (Turai) [బీరకాయ]"
+                       class="w-full px-3 py-2 border border-gray-200 rounded-xl font-bold text-gray-900 focus:ring-2 focus:ring-emerald-500 bg-gray-50/50">
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label for="create-prod-category" class="block text-[11px] font-black text-gray-700 uppercase mb-1">Category</label>
+                    <select id="create-prod-category" class="w-full px-3 py-2 border border-gray-200 rounded-xl font-bold text-gray-900 focus:ring-2 focus:ring-emerald-500 bg-gray-50/50">
+                        <option value="Daily Essentials">Daily Essentials</option>
+                        <option value="Leafy Greens">Leafy Greens</option>
+                        <option value="Fresh Vegetables">Fresh Vegetables</option>
+                        <option value="Exotic & Organic">Exotic & Organic</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="create-prod-unit" class="block text-[11px] font-black text-gray-700 uppercase mb-1">Unit</label>
+                    <input type="text" id="create-prod-unit" required placeholder="e.g. 500g, 1 kg, 1 Bunch"
+                           class="w-full px-3 py-2 border border-gray-200 rounded-xl font-bold text-gray-900 focus:ring-2 focus:ring-emerald-500 bg-gray-50/50">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-3 gap-3">
+                <div>
+                    <label for="create-prod-price" class="block text-[11px] font-black text-gray-700 uppercase mb-1">Price (₹)</label>
+                    <input type="number" step="0.01" min="1" id="create-prod-price" required placeholder="40.00"
+                           class="w-full px-3 py-2 border border-gray-200 rounded-xl font-bold text-gray-900 focus:ring-2 focus:ring-emerald-500 bg-gray-50/50">
+                </div>
+                <div>
+                    <label for="create-prod-stock" class="block text-[11px] font-black text-gray-700 uppercase mb-1">Stock Units</label>
+                    <input type="number" min="1" id="create-prod-stock" required placeholder="50"
+                           class="w-full px-3 py-2 border border-gray-200 rounded-xl font-bold text-gray-900 focus:ring-2 focus:ring-emerald-500 bg-gray-50/50">
+                </div>
+                <div>
+                    <label for="create-prod-image" class="block text-[11px] font-black text-gray-700 uppercase mb-1">Emoji Icon</label>
+                    <input type="text" id="create-prod-image" required placeholder="🥒" value="🥒"
+                           class="w-full px-3 py-2 border border-gray-200 rounded-xl font-bold text-center text-gray-900 focus:ring-2 focus:ring-emerald-500 bg-gray-50/50">
+                </div>
+            </div>
+
+            <div>
+                <label for="create-prod-tags" class="block text-[11px] font-black text-gray-700 uppercase mb-1">Search Keywords / Tags</label>
+                <input type="text" id="create-prod-tags" placeholder="e.g. green, organic, beerakaya, turai, curry"
+                       class="w-full px-3 py-2 border border-gray-200 rounded-xl font-medium text-gray-900 focus:ring-2 focus:ring-emerald-500 bg-gray-50/50">
+            </div>
+
+            <div>
+                <label for="create-prod-desc" class="block text-[11px] font-black text-gray-700 uppercase mb-1">Harvest Description</label>
+                <textarea id="create-prod-desc" rows="2" required placeholder="Freshly harvested tender produce..."
+                          class="w-full px-3 py-2 border border-gray-200 rounded-xl font-medium text-gray-900 focus:ring-2 focus:ring-emerald-500 bg-gray-50/50"></textarea>
+            </div>
+
+            <div class="flex gap-2 pt-2">
+                <button type="button" onclick="closeAddProductModal()" class="w-1/2 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold rounded-xl transition">
+                    Cancel
+                </button>
+                <button type="submit" class="w-1/2 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-black rounded-xl shadow-md transition active:scale-95">
+                    Create Vegetable
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- 2. Customer Wallet Balance Adjustment Modal -->
+<div id="customer-wallet-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs hidden p-4" style="display: none; overscroll-behavior: contain;">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-gray-100 flex flex-col space-y-4 animate-in zoom-in duration-200 text-xs">
+        <div class="flex items-center justify-between pb-3 border-b border-gray-100">
+            <div class="flex items-center gap-2">
+                <span class="text-2xl">🪙</span>
+                <div>
+                    <h3 class="font-black text-gray-900 text-base">Adjust Customer Wallet Coins</h3>
+                    <p class="text-[10px] text-gray-400 font-semibold" id="wallet-modal-cust-name">Customer Name</p>
+                </div>
+            </div>
+            <button type="button" onclick="closeCustomerWalletModal()" class="p-1 text-gray-400 hover:text-gray-700 rounded-full">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+        </div>
+
+        <form onsubmit="submitCustomerWalletAdjustment(event)" class="space-y-3.5">
+            <input type="hidden" id="wallet-modal-uid" value="">
+
+            <div class="bg-amber-50 border border-amber-200 p-3 rounded-2xl flex items-center justify-between">
+                <span class="font-bold text-amber-900">Current Wallet Balance:</span>
+                <span class="font-black text-base text-amber-700" id="wallet-modal-cur-balance">₹0.00</span>
+            </div>
+
+            <div>
+                <label class="block text-[11px] font-black text-gray-700 uppercase mb-1">Adjustment Type</label>
+                <div class="flex gap-2">
+                    <label class="flex-1 text-center py-2 px-3 border border-gray-200 rounded-xl cursor-pointer text-xs font-black has-[:checked]:bg-emerald-600 has-[:checked]:text-white has-[:checked]:border-emerald-600 transition">
+                        <input type="radio" name="wallet_tx_type" value="credit" checked class="hidden"> ➕ Add Coins (Credit)
+                    </label>
+                    <label class="flex-1 text-center py-2 px-3 border border-gray-200 rounded-xl cursor-pointer text-xs font-black has-[:checked]:bg-red-600 has-[:checked]:text-white has-[:checked]:border-red-600 transition">
+                        <input type="radio" name="wallet_tx_type" value="debit" class="hidden"> ➖ Deduct (Debit)
+                    </label>
+                </div>
+            </div>
+
+            <div>
+                <label for="wallet-modal-amount" class="block text-[11px] font-black text-gray-700 uppercase mb-1">Amount (Coins / ₹)</label>
+                <input type="number" step="1" min="1" id="wallet-modal-amount" required placeholder="e.g. 50"
+                       class="w-full px-3 py-2 border border-gray-200 rounded-xl font-black text-gray-900 focus:ring-2 focus:ring-emerald-500 bg-gray-50/50">
+            </div>
+
+            <div>
+                <label for="wallet-modal-reason" class="block text-[11px] font-black text-gray-700 uppercase mb-1">Reason / Note for Customer</label>
+                <input type="text" id="wallet-modal-reason" required placeholder="e.g. Goodwill bonus, Delivery delay compensation"
+                       class="w-full px-3 py-2 border border-gray-200 rounded-xl font-bold text-gray-900 focus:ring-2 focus:ring-emerald-500 bg-gray-50/50">
+            </div>
+
+            <div class="flex gap-2 pt-1">
+                <button type="button" onclick="closeCustomerWalletModal()" class="w-1/2 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold rounded-xl transition">
+                    Cancel
+                </button>
+                <button type="submit" class="w-1/2 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-black rounded-xl shadow-md transition active:scale-95">
+                    Confirm Adjustment
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- 3. Add Promo Discount Coupon Modal -->
+<div id="admin-add-coupon-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs hidden p-4" style="display: none; overscroll-behavior: contain;">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-gray-100 flex flex-col space-y-4 animate-in zoom-in duration-200 text-xs">
+        <div class="flex items-center justify-between pb-3 border-b border-gray-100">
+            <div class="flex items-center gap-2">
+                <span class="text-2xl">🏷️</span>
+                <div>
+                    <h3 class="font-black text-gray-900 text-base">Create Promo Coupon</h3>
+                    <p class="text-[10px] text-gray-400 font-semibold">Attract buyers with instant checkout savings</p>
+                </div>
+            </div>
+            <button type="button" onclick="closeAddCouponModal()" class="p-1 text-gray-400 hover:text-gray-700 rounded-full">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+        </div>
+
+        <form onsubmit="submitCreateCoupon(event)" class="space-y-3.5">
+            <div>
+                <label for="new-coupon-code" class="block text-[11px] font-black text-gray-700 uppercase mb-1">Promo Code</label>
+                <input type="text" id="new-coupon-code" required placeholder="e.g. FRESH40"
+                       class="w-full px-3 py-2 border border-gray-200 rounded-xl font-mono font-black text-emerald-800 uppercase focus:ring-2 focus:ring-emerald-500 bg-gray-50/50">
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label for="new-coupon-type" class="block text-[11px] font-black text-gray-700 uppercase mb-1">Discount Type</label>
+                    <select id="new-coupon-type" class="w-full px-3 py-2 border border-gray-200 rounded-xl font-bold text-gray-900 focus:ring-2 focus:ring-emerald-500 bg-gray-50/50">
+                        <option value="flat">Flat ₹ Discount</option>
+                        <option value="percent">Percentage (%) OFF</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="new-coupon-value" class="block text-[11px] font-black text-gray-700 uppercase mb-1">Discount Value</label>
+                    <input type="number" step="0.5" min="1" id="new-coupon-value" required placeholder="e.g. 50 or 15"
+                           class="w-full px-3 py-2 border border-gray-200 rounded-xl font-black text-gray-900 focus:ring-2 focus:ring-emerald-500 bg-gray-50/50">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label for="new-coupon-min-order" class="block text-[11px] font-black text-gray-700 uppercase mb-1">Min Basket (₹)</label>
+                    <input type="number" step="1" min="0" id="new-coupon-min-order" placeholder="199"
+                           class="w-full px-3 py-2 border border-gray-200 rounded-xl font-bold text-gray-900 focus:ring-2 focus:ring-emerald-500 bg-gray-50/50">
+                </div>
+                <div>
+                    <label for="new-coupon-max-disc" class="block text-[11px] font-black text-gray-700 uppercase mb-1">Max Cap (₹)</label>
+                    <input type="number" step="1" min="1" id="new-coupon-max-disc" placeholder="150"
+                           class="w-full px-3 py-2 border border-gray-200 rounded-xl font-bold text-gray-900 focus:ring-2 focus:ring-emerald-500 bg-gray-50/50">
+                </div>
+            </div>
+
+            <div>
+                <label for="new-coupon-desc" class="block text-[11px] font-black text-gray-700 uppercase mb-1">Customer Description</label>
+                <input type="text" id="new-coupon-desc" placeholder="e.g. Flat ₹50 OFF on orders above ₹199"
+                       class="w-full px-3 py-2 border border-gray-200 rounded-xl font-medium text-gray-900 focus:ring-2 focus:ring-emerald-500 bg-gray-50/50">
+            </div>
+
+            <div class="flex gap-2 pt-1">
+                <button type="button" onclick="closeAddCouponModal()" class="w-1/2 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold rounded-xl transition">
+                    Cancel
+                </button>
+                <button type="submit" class="w-1/2 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-black rounded-xl shadow-md transition active:scale-95">
+                    Create Coupon
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

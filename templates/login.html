@@ -1,0 +1,260 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="min-h-[92vh] flex items-center justify-center py-10 px-4 sm:px-6 relative overflow-hidden">
+    <!-- Subtle Organic Background Mesh -->
+    <div class="absolute -top-24 -left-24 w-96 h-96 bg-emerald-100/40 rounded-full blur-3xl pointer-events-none -z-10"></div>
+    <div class="absolute -bottom-24 -right-24 w-96 h-96 bg-green-100/40 rounded-full blur-3xl pointer-events-none -z-10"></div>
+
+    <div class="w-full max-w-md bg-white rounded-3xl shadow-2xl shadow-emerald-950/8 border border-emerald-100/80 p-6 sm:p-8 space-y-6 relative transition-all duration-200">
+        
+        <!-- Brand Header Emblem -->
+        <div class="text-center space-y-2.5">
+            <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-tr from-emerald-600 to-green-500 text-white shadow-lg shadow-emerald-600/25 ring-4 ring-emerald-50 text-3xl">
+                🥬
+            </div>
+            <div>
+                <h1 class="font-black text-2xl tracking-tight text-gray-900 leading-snug">
+                    VAMSI <span class="text-emerald-600">ORGANIC FARMS</span>
+                </h1>
+                <p class="text-xs font-bold text-gray-500 mt-0.5">
+                    100% Certified Farm-Fresh Mandi • Delivered Daily
+                </p>
+            </div>
+            
+            <!-- Trust Badge Pill -->
+            <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200/70 text-emerald-800 text-[10px] font-black uppercase tracking-wider">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span>Harvested Today at 5:00 AM • Zero Pesticides</span>
+            </div>
+        </div>
+
+        <!-- Segmented Tab Switcher -->
+        <div class="flex rounded-2xl bg-gray-100/90 p-1 gap-1 text-xs">
+            <button type="button" id="tab-btn-customer" onclick="switchLoginMode('customer')"
+                    class="flex-1 py-2.5 font-black rounded-xl transition-all duration-200 bg-emerald-600 text-white shadow-sm flex items-center justify-center space-x-1.5 active:scale-98">
+                <i class="fa-solid fa-mobile-screen text-[11px]"></i>
+                <span>Customer Login</span>
+            </button>
+            <button type="button" id="tab-btn-register" onclick="switchLoginMode('register')"
+                    class="flex-1 py-2.5 font-bold rounded-xl transition-all duration-200 text-gray-600 hover:text-gray-900 flex items-center justify-center space-x-1.5 active:scale-98">
+                <i class="fa-solid fa-gift text-amber-500 text-[11px]"></i>
+                <span>New Customer Register (+₹100)</span>
+            </button>
+        </div>
+
+        <!-- Flash Notification Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="space-y-2">
+                    {% for category, message in messages %}
+                        <div class="p-3 text-xs font-bold rounded-2xl {% if category == 'error' %}bg-red-50 text-red-800 border border-red-200{% else %}bg-emerald-50 text-emerald-800 border border-emerald-200{% endif %} flex items-center justify-between animate-in fade-in">
+                            <span class="flex items-center gap-1.5">
+                                <i class="fa-solid {% if category == 'error' %}fa-triangle-exclamation text-red-600{% else %}fa-circle-check text-emerald-600{% endif %}"></i>
+                                {{ message }}
+                            </span>
+                            <button type="button" onclick="this.parentElement.remove()" class="text-gray-400 hover:text-gray-600">
+                                <i class="fa-solid fa-xmark"></i>
+                            </button>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+
+        <!-- ==================================================== -->
+        <!-- 1. Customer Login Form (10-Digit Mobile Number)      -->
+        <!-- ==================================================== -->
+        <div id="customer-login-section" style="display: block;">
+            <form id="customer-login-form" action="/login" method="POST" autocomplete="off" class="space-y-4">
+                <input type="hidden" name="login_type" value="customer">
+                
+                <div>
+                    <div class="flex items-center justify-between mb-1.5">
+                        <label for="phone" class="block text-[11px] font-black text-gray-700 uppercase tracking-wider">
+                            Mobile Number
+                        </label>
+                        <span id="digit-counter" class="text-[10px] font-bold text-gray-400">0/10 Digits</span>
+                    </div>
+
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-600 font-black text-xs space-x-1">
+                            <span>🇮🇳</span>
+                            <span class="font-extrabold text-gray-700">+91</span>
+                            <span class="text-gray-300">|</span>
+                        </div>
+                        <input type="tel" id="phone" name="phone" maxlength="10" placeholder="Enter 10-digit mobile number"
+                               oninput="validatePhoneDigits(this)" required autofocus autocomplete="tel"
+                               class="w-full pl-20 pr-4 py-3.5 border border-gray-200 rounded-2xl font-bold text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 bg-gray-50/60 transition">
+                    </div>
+                    <p id="phone-hint" class="text-[10px] text-gray-400 mt-1.5 font-semibold flex items-center gap-1">
+                        <i class="fa-solid fa-circle-info text-gray-400 text-[10px]"></i>
+                        <span>Enter your registered 10-digit Indian mobile number</span>
+                    </p>
+                </div>
+
+                <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-black py-4 rounded-2xl shadow-lg shadow-emerald-600/25 transition duration-150 focus:outline-none flex items-center justify-center space-x-2 text-sm active:scale-[0.99]">
+                    <span>Continue to Fresh Vegetable Market</span>
+                    <i class="fa-solid fa-arrow-right text-xs"></i>
+                </button>
+            </form>
+        </div>
+
+        <!-- ==================================================== -->
+        <!-- 2. Customer Registration Form                        -->
+        <!-- ==================================================== -->
+        <div id="customer-register-section" style="display: none;" class="hidden">
+            <form id="customer-register-form" action="/register" method="POST" autocomplete="off" class="space-y-3.5">
+                <div>
+                    <label for="reg-name" class="block text-[11px] font-black text-gray-700 uppercase tracking-wider mb-1">
+                        Full Name
+                    </label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
+                            <i class="fa-solid fa-user text-xs"></i>
+                        </div>
+                        <input type="text" id="reg-name" name="name" required placeholder="Enter your full name"
+                               class="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-2xl font-bold text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-gray-50/60 transition">
+                    </div>
+                </div>
+
+                <div>
+                    <div class="flex items-center justify-between mb-1">
+                        <label for="reg-email" class="block text-[11px] font-black text-gray-700 uppercase tracking-wider">
+                            Email Address
+                        </label>
+                        <span id="reg-email-status" class="text-[10px] font-bold text-gray-400">Unique</span>
+                    </div>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
+                            <i class="fa-solid fa-envelope text-xs"></i>
+                        </div>
+                        <input type="email" id="reg-email" name="email" required placeholder="name@example.com"
+                               class="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-2xl font-bold text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-gray-50/60 transition">
+                    </div>
+                </div>
+
+                <div>
+                    <div class="flex items-center justify-between mb-1">
+                        <label for="reg-phone" class="block text-[11px] font-black text-gray-700 uppercase tracking-wider">
+                            10-Digit Mobile Number
+                        </label>
+                        <span id="reg-digit-counter" class="text-[10px] font-bold text-gray-400">0/10 Digits</span>
+                    </div>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-600 font-black text-xs space-x-1">
+                            <span>🇮🇳</span>
+                            <span class="font-extrabold text-gray-700">+91</span>
+                            <span class="text-gray-300">|</span>
+                        </div>
+                        <input type="tel" id="reg-phone" name="phone" maxlength="10" placeholder="Enter mobile number"
+                               oninput="validateRegPhoneDigits(this)" required
+                               class="w-full pl-20 pr-4 py-3 border border-gray-200 rounded-2xl font-bold text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-gray-50/60 transition">
+                    </div>
+                </div>
+
+                <div class="bg-amber-50 border border-amber-200/70 p-3 rounded-2xl flex items-center gap-2.5">
+                    <span class="text-xl">🎁</span>
+                    <p class="text-[11px] font-bold text-amber-900 leading-tight">
+                        <strong>Instant ₹100 Welcome Coins</strong> will be credited directly to your Farm Wallet upon registration!
+                    </p>
+                </div>
+
+                <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-black py-4 rounded-2xl shadow-lg shadow-emerald-600/25 transition duration-150 focus:outline-none flex items-center justify-center space-x-2 text-sm active:scale-[0.99]">
+                    <i class="fa-solid fa-gift text-amber-300 text-xs"></i>
+                    <span>Register & Enter Fresh Market</span>
+                </button>
+            </form>
+        </div>
+
+        <!-- Trust Badges Footer -->
+        <div class="pt-4 border-t border-gray-100 flex items-center justify-between text-[10px] font-bold text-gray-400">
+            <span class="flex items-center gap-1">
+                <i class="fa-solid fa-shield-halved text-emerald-600"></i> SSL 256-Bit
+            </span>
+            <span class="flex items-center gap-1">
+                <i class="fa-solid fa-leaf text-emerald-600"></i> 100% Organic
+            </span>
+            <span class="flex items-center gap-1">
+                <i class="fa-solid fa-bolt text-amber-500"></i> 15–30 Min Fast
+            </span>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    function switchLoginMode(mode) {
+        const custSec = document.getElementById('customer-login-section');
+        const regSec = document.getElementById('customer-register-section');
+        
+        const custBtn = document.getElementById('tab-btn-customer');
+        const regBtn = document.getElementById('tab-btn-register');
+
+        if (custSec) { custSec.style.display = 'none'; custSec.classList.add('hidden'); }
+        if (regSec) { regSec.style.display = 'none'; regSec.classList.add('hidden'); }
+
+        [custBtn, regBtn].forEach(btn => {
+            if (btn) {
+                btn.className = "flex-1 py-2.5 font-bold rounded-xl transition-all duration-200 text-gray-600 hover:text-gray-900 flex items-center justify-center space-x-1.5 active:scale-98";
+            }
+        });
+
+        if (mode === 'register') {
+            if (regSec) { regSec.style.display = 'block'; regSec.classList.remove('hidden'); }
+            if (regBtn) {
+                regBtn.className = "flex-1 py-2.5 font-black rounded-xl transition-all duration-200 bg-emerald-600 text-white shadow-sm flex items-center justify-center space-x-1.5 active:scale-98";
+            }
+        } else {
+            if (custSec) { custSec.style.display = 'block'; custSec.classList.remove('hidden'); }
+            if (custBtn) {
+                custBtn.className = "flex-1 py-2.5 font-black rounded-xl transition-all duration-200 bg-emerald-600 text-white shadow-sm flex items-center justify-center space-x-1.5 active:scale-98";
+            }
+        }
+    }
+
+    function validatePhoneDigits(input) {
+        input.value = input.value.replace(/[^0-9]/g, '');
+        const len = input.value.length;
+        const counter = document.getElementById('digit-counter');
+        const hint = document.getElementById('phone-hint');
+        
+        if (counter) {
+            counter.innerText = `${len}/10 Digits`;
+            counter.className = len === 10 ? "text-[10px] font-black text-emerald-600" : "text-[10px] font-bold text-gray-400";
+        }
+        if (hint) {
+            if (len === 10) {
+                hint.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-600"></i> <span class="text-emerald-600 font-bold">✓ Valid 10-digit Indian phone number</span>`;
+            } else {
+                hint.innerHTML = `<i class="fa-solid fa-circle-info text-gray-400"></i> <span>Enter ${10 - len} more digit${10 - len === 1 ? '' : 's'}</span>`;
+            }
+        }
+    }
+
+    function validateRegPhoneDigits(input) {
+        input.value = input.value.replace(/[^0-9]/g, '');
+        const len = input.value.length;
+        const counter = document.getElementById('reg-digit-counter');
+        if (counter) {
+            counter.innerText = `${len}/10 Digits`;
+            counter.className = len === 10 ? "text-[10px] font-black text-emerald-600" : "text-[10px] font-bold text-gray-400";
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const tab = urlParams.get('tab');
+        if (tab === 'admin') {
+            window.location.href = '/admin/login';
+            return;
+        }
+        if (tab === 'register') {
+            switchLoginMode('register');
+        } else {
+            switchLoginMode('customer');
+        }
+    });
+</script>
+{% endblock %}
