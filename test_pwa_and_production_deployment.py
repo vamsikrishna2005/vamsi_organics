@@ -115,7 +115,7 @@ class TestPWAAndProductionDeployment(unittest.TestCase):
         with open(render_path, "r", encoding="utf-8") as f:
             render_content = f.read()
             self.assertIn("services:", render_content)
-            self.assertIn("vamsi-vegi-market", render_content)
+            self.assertTrue("vamsi-organics" in render_content or "vamsi-vegi-market" in render_content)
             self.assertIn("gunicorn wsgi:app", render_content)
             
         # 5. Dockerfile

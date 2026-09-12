@@ -8,6 +8,13 @@ import sys
 # Ensure current directory is on python path
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
+import database
+if not os.path.exists(database.DB_PATH):
+    print("Initializing production database...")
+    database.init_db()
+else:
+    database.check_and_migrate_db()
+
 from app import app
 
 if __name__ == "__main__":
