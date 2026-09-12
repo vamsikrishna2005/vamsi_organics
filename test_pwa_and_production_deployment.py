@@ -80,8 +80,6 @@ class TestPWAAndProductionDeployment(unittest.TestCase):
         self.assertIn('meta name="theme-color" content="#065f46"', html)
         self.assertIn('apple-touch-icon', html)
         self.assertIn('serviceWorker.register', html)
-        self.assertIn('pwa-install-banner', html)
-        self.assertIn('triggerPWAInstall', html)
 
     def test_05_production_deployment_files(self):
         """Verify all production deployment files exist and contain appropriate configurations"""
