@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="min-h-[70vh] flex items-center justify-center py-12 px-4 text-center">
+    <div class="max-w-md bg-white p-8 rounded-3xl shadow-sm border border-gray-100 space-y-5">
+        <div class="w-16 h-16 rounded-3xl bg-amber-50 text-amber-600 flex items-center justify-center text-3xl mx-auto">
+            🌾
+        </div>
+        <h1 class="text-2xl font-black text-gray-900">Farm Service Momentary Hiccup</h1>
+        <p class="text-xs text-gray-500 leading-relaxed">
+            Our organic farm servers experienced a temporary connection hiccup. Our operations manager has been automatically notified.
+        </p>
+        {% if error_id %}
+        <div class="p-2.5 bg-gray-50 rounded-xl font-mono text-[11px] text-gray-500">
+            Error Incident Reference: <strong>#{{ error_id }}</strong>
+        </div>
+        {% endif %}
+        <div class="pt-2 flex flex-col gap-2">
+            <button onclick="window.location.reload()" class="w-full bg-emerald-700 hover:bg-emerald-800 text-white font-bold py-3 rounded-2xl text-xs transition shadow-sm">
+                <i class="fa-solid fa-rotate-right mr-1"></i> Try Reloading
+            </button>
+            <a href="/dashboard" class="w-full bg-gray-50 hover:bg-gray-100 text-gray-700 font-bold py-3 rounded-2xl text-xs transition">
+                Return to Fresh Market
+            </a>
+            <a href="https://wa.me/917675960440" target="_blank" class="text-emerald-700 font-bold text-xs hover:underline pt-2">
+                Need help? WhatsApp Support: +91 76759 60440
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

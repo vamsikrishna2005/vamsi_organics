@@ -1,0 +1,225 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="space-y-8 max-w-7xl mx-auto py-6">
+    <!-- Header -->
+    <div class="border-b border-gray-200 pb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+            <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-black uppercase tracking-wider mb-2">
+                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span>Live Remote Monitoring</span>
+            </div>
+            <h1 class="text-3xl font-black text-gray-900 tracking-tight flex items-center gap-2">
+                <i class="fa-solid fa-screwdriver-wrench text-emerald-600"></i> System Health & Error Diagnostics
+            </h1>
+            <p class="text-xs sm:text-sm text-gray-500 font-medium mt-1">
+                Monitor live server status, inspect real-time error traces, download database backups, and run automated health checks.
+            </p>
+        </div>
+        <div class="flex items-center gap-2">
+            <a href="/admin/backup-db" class="bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs px-4 py-2.5 rounded-xl shadow-sm transition inline-flex items-center gap-1.5 active:scale-95" title="Download current database snapshot">
+                <i class="fa-solid fa-download"></i> Backup Database (.db)
+            </a>
+            <a href="/admin" class="bg-white hover:bg-gray-50 text-gray-700 font-extrabold text-xs px-4 py-2.5 rounded-xl border border-gray-200 shadow-xs inline-flex items-center gap-1.5 transition">
+                <i class="fa-solid fa-arrow-left"></i> Return to Store Admin
+            </a>
+        </div>
+    </div>
+
+    <!-- Health KPI Cards -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <!-- Status Card -->
+        <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-xs flex items-center space-x-4">
+            <div class="w-12 h-12 rounded-2xl {% if unresolved_count == 0 %}bg-emerald-50 text-emerald-600{% else %}bg-amber-50 text-amber-600{% endif %} flex items-center justify-center text-xl">
+                <i class="fa-solid {% if unresolved_count == 0 %}fa-circle-check{% else %}fa-triangle-exclamation{% endif %}"></i>
+            </div>
+            <div>
+                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">System Status</p>
+                <h3 class="text-xl font-black text-gray-900 leading-tight">
+                    {% if unresolved_count == 0 %}Healthy{% else %}{{ unresolved_count }} Errors{% endif %}
+                </h3>
+                <span class="text-[10px] {% if unresolved_count == 0 %}text-emerald-600{% else %}text-amber-600{% endif %} font-bold">
+                    {% if unresolved_count == 0 %}All Services Normal{% else %}Review Trace Below{% endif %}
+                </span>
+            </div>
+        </div>
+
+        <!-- Database Health -->
+        <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-xs flex items-center space-x-4">
+            <div class="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center text-xl">
+                <i class="fa-solid fa-database"></i>
+            </div>
+            <div>
+                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Database Size</p>
+                <h3 class="text-xl font-black text-gray-900 leading-tight">{{ db_size_kb }} KB</h3>
+                <span class="text-[10px] text-blue-600 font-bold">SQLite Live Connection</span>
+            </div>
+        </div>
+
+        <!-- Registered Customers -->
+        <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-xs flex items-center space-x-4">
+            <div class="w-12 h-12 rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center text-xl">
+                <i class="fa-solid fa-users"></i>
+            </div>
+            <div>
+                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Total Users</p>
+                <h3 class="text-xl font-black text-gray-900 leading-tight">{{ total_users }}</h3>
+                <span class="text-[10px] text-purple-600 font-bold">Unique Phone Records</span>
+            </div>
+        </div>
+
+        <!-- Environment Info -->
+        <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-xs flex items-center space-x-4">
+            <div class="w-12 h-12 rounded-2xl bg-gray-50 text-gray-600 flex items-center justify-center text-xl">
+                <i class="fa-brands fa-python"></i>
+            </div>
+            <div>
+                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Python Runtime</p>
+                <h3 class="text-xl font-black text-gray-900 leading-tight">{{ python_version }}</h3>
+                <span class="text-[10px] text-gray-500 font-bold">Cloud Production</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Self-Test Diagnostics Trigger Bar -->
+    <div class="bg-emerald-900 text-white p-6 rounded-3xl shadow-sm flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+            <h2 class="text-lg font-bold flex items-center gap-2">
+                <i class="fa-solid fa-stethoscope text-emerald-400"></i> Automated Self-Test Health Check
+            </h2>
+            <p class="text-xs text-emerald-200 mt-1">
+                Runs comprehensive checks on DB integrity, 20-produce inventory counts, address indexes, and API responsiveness.
+            </p>
+        </div>
+        <div class="flex items-center gap-2">
+            <button id="run-self-test-btn" onclick="runSelfTestDiagnostics()" class="bg-emerald-400 hover:bg-emerald-300 text-emerald-950 font-black text-xs px-5 py-3 rounded-2xl shadow-md transition active:scale-95 flex items-center gap-2">
+                <i class="fa-solid fa-play text-[10px]"></i>
+                <span>Run Diagnostics Now</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Self-Test Results Box (Revealed on click) -->
+    <div id="self-test-results" class="hidden bg-white p-6 rounded-3xl border border-gray-200 shadow-sm space-y-4">
+        <h3 class="font-bold text-sm text-gray-900 flex items-center gap-2">
+            <i class="fa-solid fa-clipboard-check text-emerald-600"></i> Diagnostic Health Report
+        </h3>
+        <div id="self-test-items" class="space-y-2 text-xs">
+            <!-- Populated dynamically via JS -->
+        </div>
+    </div>
+
+    <!-- Live Error Trace Log Feed -->
+    <div class="bg-white rounded-3xl border border-gray-100 shadow-xs overflow-hidden">
+        <div class="p-6 border-b border-gray-100 flex items-center justify-between">
+            <div>
+                <h2 class="text-lg font-black text-gray-900 flex items-center gap-2">
+                    <i class="fa-solid fa-bug text-red-500"></i> Real-Time Server Error Logs
+                </h2>
+                <p class="text-xs text-gray-400 mt-0.5">Captures unhandled server exceptions, failing endpoints, and traceback details for instant resolution.</p>
+            </div>
+            {% if errors %}
+            <button onclick="clearErrorLogs()" class="text-xs font-bold text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-xl border border-red-200 transition">
+                <i class="fa-solid fa-trash-can mr-1"></i> Clear Logs
+            </button>
+            {% endif %}
+        </div>
+
+        {% if not errors %}
+        <div class="p-12 text-center space-y-3">
+            <div class="w-16 h-16 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center text-2xl mx-auto shadow-inner">
+                <i class="fa-solid fa-shield-heart"></i>
+            </div>
+            <h3 class="text-base font-bold text-gray-800">Zero Server Errors Recorded!</h3>
+            <p class="text-xs text-gray-400 max-w-md mx-auto">
+                All customer orders, database queries, and AI chatbot requests are functioning normally. Any future server hiccups will appear here with full debug tracebacks.
+            </p>
+        </div>
+        {% else %}
+        <div class="divide-y divide-gray-100">
+            {% for err in errors %}
+            <div class="p-6 hover:bg-gray-50/60 transition space-y-3">
+                <div class="flex flex-wrap items-center justify-between gap-2">
+                    <div class="flex items-center gap-2">
+                        <span class="px-2.5 py-1 rounded-lg bg-red-100 text-red-800 font-mono text-[11px] font-bold">
+                            {{ err.method }} {{ err.path }}
+                        </span>
+                        <span class="text-xs font-bold text-gray-700">{{ err.error }}</span>
+                    </div>
+                    <div class="flex items-center gap-2 text-xs text-gray-400">
+                        <i class="fa-regular fa-clock"></i>
+                        <span>{{ err.timestamp }}</span>
+                        <span class="px-2 py-0.5 bg-gray-100 rounded text-[10px] font-mono text-gray-600">ID: {{ err.id }}</span>
+                    </div>
+                </div>
+
+                <div class="text-xs text-gray-500 font-medium">
+                    <span>User / Client: <strong>{{ err.user }}</strong></span>
+                </div>
+
+                <!-- Traceback Accordion -->
+                {% if err.trace %}
+                <details class="bg-gray-900 text-emerald-400 rounded-2xl p-4 font-mono text-[11px] overflow-x-auto">
+                    <summary class="cursor-pointer text-gray-300 font-bold hover:text-white select-none">
+                        Inspect Full Python Traceback
+                    </summary>
+                    <pre class="mt-3 whitespace-pre-wrap text-gray-300">{{ err.trace }}</pre>
+                </details>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+async function runSelfTestDiagnostics() {
+    const btn = document.getElementById('run-self-test-btn');
+    const container = document.getElementById('self-test-results');
+    const itemsList = document.getElementById('self-test-items');
+    
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin text-[10px]"></i> Running diagnostics...';
+    
+    try {
+        const resp = await fetch('/admin/api/self-test', { method: 'POST' });
+        const data = await resp.json();
+        
+        container.classList.remove('hidden');
+        itemsList.innerHTML = '';
+        
+        data.checks.forEach(check => {
+            const div = document.createElement('div');
+            div.className = `p-3 rounded-2xl flex items-center justify-between ${check.passed ? 'bg-emerald-50 text-emerald-900 border border-emerald-100' : 'bg-red-50 text-red-900 border border-red-100'}`;
+            div.innerHTML = `
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid ${check.passed ? 'fa-circle-check text-emerald-600' : 'fa-circle-xmark text-red-600'} text-sm"></i>
+                    <span class="font-bold">${check.name}:</span>
+                    <span>${check.details}</span>
+                </div>
+                <span class="font-mono text-[10px] font-black uppercase px-2 py-0.5 rounded ${check.passed ? 'bg-emerald-200 text-emerald-900' : 'bg-red-200 text-red-900'}">
+                    ${check.passed ? 'PASSED' : 'FAILED'}
+                </span>
+            `;
+            itemsList.appendChild(div);
+        });
+    } catch (e) {
+        alert('Could not run diagnostics: ' + e);
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa-solid fa-play text-[10px]"></i> <span>Run Diagnostics Now</span>';
+    }
+}
+
+async function clearErrorLogs() {
+    if (!confirm('Are you sure you want to clear all error logs?')) return;
+    try {
+        const res = await fetch('/admin/api/clear-errors', { method: 'POST' });
+        if (res.ok) window.location.reload();
+    } catch (e) {
+        alert('Failed to clear logs: ' + e);
+    }
+}
+</script>
+{% endblock %}

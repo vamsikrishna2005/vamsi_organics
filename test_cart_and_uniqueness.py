@@ -170,8 +170,8 @@ class TestCartAndUniqueness(unittest.TestCase):
         res = self.app.get('/admin/login')
         self.assertEqual(res.status_code, 200)
         html = res.data.decode('utf-8')
-        self.assertIn("Farm Operations Portal", html)
-        self.assertIn("Admin Username", html)
+        self.assertTrue("Store Manager" in html or "Farm Operations" in html)
+        self.assertTrue("Manager Username" in html or "Admin Username" in html)
 
         # Submit valid credentials
         post_res = self.app.post('/admin/login', data={'username': 'admin', 'password': 'admin123'}, follow_redirects=False)

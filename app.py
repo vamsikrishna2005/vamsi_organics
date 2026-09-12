@@ -1,5 +1,6 @@
-from flask import Flask, render_template, request, jsonify, session, redirect, url_for
+from flask import Flask, render_template, request, jsonify, session, redirect, url_for, Response, send_file
 import sqlite3
+import sys
 import os
 import random
 import secrets
@@ -458,6 +459,131 @@ def api_admin_export_customers_csv():
         output.getvalue(),
         mimetype="text/csv",
         headers={"Content-Disposition": "attachment; filename=vamsi_farm_customers_directory.csv"}
+    )
+
+# =====================================================================
+# Remote Diagnostics, Error Monitoring & Database Backup System
+# =====================================================================
+SYSTEM_ERROR_LOGS = []
+
+@app.errorhandler(500)
+def handle_500_error(e):
+    import traceback
+    err_id = secrets.token_hex(4).upper()
+    err_info = {
+        'id': err_id,
+        'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+        'path': request.path,
+        'method': request.method,
+        'user': (session.get('name') or 'Guest') + f" (Role: {session.get('role', 'None')})",
+        'error': str(e),
+        'trace': traceback.format_exc()
+    }
+    SYSTEM_ERROR_LOGS.insert(0, err_info)
+    if len(SYSTEM_ERROR_LOGS) > 100:
+        SYSTEM_ERROR_LOGS.pop()
+    
+    if request.path.startswith('/api/') or request.is_json:
+        return jsonify({'status': 'error', 'message': 'A temporary server error occurred.', 'error_id': err_id}), 500
+    return render_template('error_500.html', error_id=err_id), 500
+
+@app.route('/admin/diagnostics')
+def admin_diagnostics():
+    if session.get('role') != 'admin':
+        from flask import flash
+        flash("Access denied. Administrator privileges required.", "error")
+        return redirect(url_for('admin_login'))
+        
+    db_size_kb = 0
+    if os.path.exists(database.DB_PATH):
+        db_size_kb = round(os.path.getsize(database.DB_PATH) / 1024, 1)
+        
+    conn = get_db_connection()
+    total_users = conn.execute("SELECT COUNT(*) FROM users").fetchone()[0]
+    total_products = conn.execute("SELECT COUNT(*) FROM products").fetchone()[0]
+    total_orders = conn.execute("SELECT COUNT(DISTINCT order_id) FROM purchases").fetchone()[0]
+    conn.close()
+    
+    unresolved_count = len(SYSTEM_ERROR_LOGS)
+    
+    return render_template(
+        'admin_diagnostics.html',
+        db_size_kb=db_size_kb,
+        total_users=total_users,
+        total_products=total_products,
+        total_orders=total_orders,
+        unresolved_count=unresolved_count,
+        python_version=sys.version.split(' ')[0],
+        errors=SYSTEM_ERROR_LOGS
+    )
+
+@app.route('/admin/api/clear-errors', methods=['POST'])
+def clear_errors():
+    if session.get('role') != 'admin':
+        return jsonify({'error': 'Unauthorized'}), 403
+    SYSTEM_ERROR_LOGS.clear()
+    return jsonify({'success': True})
+
+@app.route('/admin/api/self-test', methods=['POST'])
+def admin_self_test():
+    if session.get('role') != 'admin':
+        return jsonify({'error': 'Unauthorized'}), 403
+        
+    checks = []
+    try:
+        conn = get_db_connection()
+        user_count = conn.execute("SELECT COUNT(*) FROM users").fetchone()[0]
+        checks.append({
+            'name': 'Database Connectivity',
+            'passed': True,
+            'details': f'Connected to SQLite successfully ({user_count} registered users).'
+        })
+        
+        prod_count = conn.execute("SELECT COUNT(*) FROM products").fetchone()[0]
+        checks.append({
+            'name': 'Produce Inventory Catalog',
+            'passed': prod_count >= 20,
+            'details': f'{prod_count} fresh produce items active in database.'
+        })
+        
+        admin_row = conn.execute("SELECT * FROM users WHERE role = 'admin'").fetchone()
+        checks.append({
+            'name': 'Manager Admin Access',
+            'passed': admin_row is not None,
+            'details': f'Admin phone: +91 {admin_row["phone"]}' if admin_row else 'No admin found.'
+        })
+        
+        idx_row = conn.execute("SELECT name FROM sqlite_master WHERE type='index' AND name='idx_user_addresses_unique'").fetchone()
+        checks.append({
+            'name': 'Address Uniqueness Constraint',
+            'passed': idx_row is not None,
+            'details': 'Unique deduplication index active on user addresses.'
+        })
+        
+        conn.close()
+    except Exception as e:
+        checks.append({
+            'name': 'Database Connectivity',
+            'passed': False,
+            'details': f'Failed with error: {str(e)}'
+        })
+        
+    return jsonify({'success': True, 'checks': checks})
+
+@app.route('/admin/backup-db')
+def backup_database():
+    if session.get('role') != 'admin':
+        from flask import flash
+        flash("Unauthorized", "error")
+        return redirect(url_for('admin_login'))
+        
+    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+    filename = f"vamsi_market_backup_{timestamp}.db"
+    return send_file(
+        database.DB_PATH,
+        as_attachment=True,
+        download_name=filename,
+        mimetype="application/x-sqlite3"
     )
 
 @app.route('/login', methods=['GET', 'POST'])
