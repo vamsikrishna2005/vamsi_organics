@@ -68,11 +68,12 @@
 </head>
 <body class="bg-gray-50 flex flex-col min-h-screen text-gray-800">
 
+    {% if request.path not in ['/login', '/register', '/admin/login'] %}
     <!-- PWA Install Banner (Discreetly prompts mobile & desktop browsers) -->
-    <div id="pwa-install-banner" class="hidden bg-gradient-to-r from-emerald-800 to-green-900 text-white px-4 py-2.5 text-xs border-b border-emerald-700 shadow-md transition-all duration-300">
+    <div id="pwa-install-banner" style="display: none;" class="hidden bg-gradient-to-r from-emerald-800 to-green-900 text-white px-4 py-2.5 text-xs border-b border-emerald-700 shadow-md transition-all duration-300">
         <div class="max-w-7xl mx-auto flex items-center justify-between gap-3">
             <div class="flex items-center gap-2.5">
-                <img src="/static/icons/icon-192.png" alt="App Icon" class="w-6 h-6 rounded-lg shadow-sm border border-emerald-400/40">
+                <img src="/static/icons/icon-192.png" alt="" class="w-6 h-6 rounded-lg shadow-sm border border-emerald-400/40">
                 <span class="font-medium">
                     <strong class="font-bold text-emerald-200">Install Vamsi Farms App:</strong> Ultra-fast ordering, offline caching, and direct access from your home screen.
                 </span>
@@ -81,14 +82,13 @@
                 <button onclick="triggerPWAInstall()" class="bg-emerald-400 hover:bg-emerald-300 active:scale-95 text-emerald-950 font-black px-3.5 py-1 rounded-xl text-xs transition shadow-sm">
                     <i class="fa-solid fa-download mr-1"></i> Install App
                 </button>
-                <button onclick="document.getElementById('pwa-install-banner').classList.add('hidden')" class="text-emerald-300 hover:text-white text-xs px-2 py-1 rounded-lg transition" title="Dismiss banner">
+                <button onclick="document.getElementById('pwa-install-banner').style.display='none'" class="text-emerald-300 hover:text-white text-xs px-2 py-1 rounded-lg transition" title="Dismiss banner">
                     ✕
                 </button>
             </div>
         </div>
     </div>
 
-    {% if request.path not in ['/login', '/register', '/admin/login'] %}
     <!-- Header Navbar -->
     <nav class="bg-white border-b border-gray-100 sticky top-0 z-40 shadow-xs">
         <!-- Full Unified Dashboard Navigation Bar -->
@@ -491,8 +491,8 @@
             deferredPrompt = e;
             const banner = document.getElementById('pwa-install-banner');
             const navBtn = document.getElementById('pwa-nav-install-btn');
-            if (banner) banner.classList.remove('hidden');
-            if (navBtn) navBtn.classList.remove('hidden');
+            if (banner) { banner.style.display = 'block'; banner.classList.remove('hidden'); }
+            if (navBtn) { navBtn.style.display = 'inline-flex'; navBtn.classList.remove('hidden'); }
         });
 
         window.triggerPWAInstall = function() {
@@ -505,8 +505,8 @@
                     deferredPrompt = null;
                     const banner = document.getElementById('pwa-install-banner');
                     const navBtn = document.getElementById('pwa-nav-install-btn');
-                    if (banner) banner.classList.add('hidden');
-                    if (navBtn) navBtn.classList.add('hidden');
+                    if (banner) { banner.style.display = 'none'; banner.classList.add('hidden'); }
+                    if (navBtn) { navBtn.style.display = 'none'; navBtn.classList.add('hidden'); }
                 });
             } else {
                 // Fallback instructions for browsers that don't trigger beforeinstallprompt (e.g. iOS Safari)
@@ -518,8 +518,8 @@
             console.log('🌿 [PWA] Vamsi Farms installed as native app!');
             const banner = document.getElementById('pwa-install-banner');
             const navBtn = document.getElementById('pwa-nav-install-btn');
-            if (banner) banner.classList.add('hidden');
-            if (navBtn) navBtn.classList.add('hidden');
+            if (banner) { banner.style.display = 'none'; banner.classList.add('hidden'); }
+            if (navBtn) { navBtn.style.display = 'none'; navBtn.classList.add('hidden'); }
         });
     </script>
 </body>
