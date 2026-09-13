@@ -20,8 +20,13 @@
 
     <!-- Standalone Core Stylesheet (Guarantees clean layout offline or under CDN failure) -->
     <link rel="stylesheet" href="/static/css/styles.css">
-    <!-- Tailwind CSS (Local Bundle) -->
-    <script src="/static/js/tailwind.min.js"></script>
+    <!-- Tailwind CSS (Direct Fast CDN with local fallback) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        if (typeof tailwind === 'undefined') {
+            document.write('<script src="/static/js/tailwind.min.js"><\/script>');
+        }
+    </script>
     <script>
         if (typeof tailwind !== 'undefined') {
             tailwind.config = {

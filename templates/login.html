@@ -1,16 +1,90 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="min-h-[92vh] flex items-center justify-center py-10 px-4 sm:px-6 relative overflow-hidden">
+<style>
+    .customer-auth-container {
+        min-height: 90vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2.5rem 1rem;
+        position: relative;
+    }
+    .customer-auth-card {
+        width: 100%;
+        max-width: 440px;
+        background: #ffffff;
+        border-radius: 1.5rem;
+        box-shadow: 0 20px 25px -5px rgba(6, 78, 59, 0.08), 0 8px 10px -6px rgba(6, 78, 59, 0.04);
+        border: 1px solid #d1fae5;
+        padding: 2rem;
+        position: relative;
+        box-sizing: border-box;
+    }
+    .customer-auth-emblem {
+        width: 4rem;
+        height: 4rem;
+        border-radius: 1rem;
+        background: linear-gradient(135deg, #059669, #10b981);
+        color: #ffffff;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        margin: 0 auto 0.75rem auto;
+        box-shadow: 0 10px 15px -3px rgba(5, 150, 105, 0.25);
+    }
+    .customer-auth-input {
+        width: 100%;
+        padding: 0.875rem 1rem 0.875rem 5rem;
+        border: 1px solid #e2e8f0;
+        border-radius: 1rem;
+        font-size: 0.875rem;
+        font-weight: 700;
+        color: #111827;
+        background-color: #f8fafc;
+        box-sizing: border-box;
+        transition: all 0.15s ease;
+    }
+    .customer-auth-input:focus {
+        outline: none;
+        border-color: #059669;
+        box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.15);
+        background-color: #ffffff;
+    }
+    .customer-auth-btn {
+        width: 100%;
+        background-color: #059669;
+        color: #ffffff;
+        font-weight: 800;
+        font-size: 0.875rem;
+        padding: 1rem;
+        border-radius: 1rem;
+        border: none;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        box-shadow: 0 10px 15px -3px rgba(5, 150, 105, 0.25);
+        transition: all 0.15s ease;
+        margin-top: 0.75rem;
+    }
+    .customer-auth-btn:hover {
+        background-color: #047857;
+    }
+</style>
+
+<div class="customer-auth-container min-h-[92vh] flex items-center justify-center py-10 px-4 sm:px-6 relative overflow-hidden">
     <!-- Subtle Organic Background Mesh -->
     <div class="absolute -top-24 -left-24 w-96 h-96 bg-emerald-100/40 rounded-full blur-3xl pointer-events-none -z-10"></div>
     <div class="absolute -bottom-24 -right-24 w-96 h-96 bg-green-100/40 rounded-full blur-3xl pointer-events-none -z-10"></div>
 
-    <div class="w-full max-w-md bg-white rounded-3xl shadow-2xl shadow-emerald-950/8 border border-emerald-100/80 p-6 sm:p-8 space-y-6 relative transition-all duration-200">
+    <div class="customer-auth-card w-full max-w-md bg-white rounded-3xl shadow-2xl shadow-emerald-950/8 border border-emerald-100/80 p-6 sm:p-8 space-y-6 relative transition-all duration-200">
         
         <!-- Brand Header Emblem -->
         <div class="text-center space-y-2.5">
-            <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-tr from-emerald-600 to-green-500 text-white shadow-lg shadow-emerald-600/25 ring-4 ring-emerald-50 text-3xl">
+            <div class="customer-auth-emblem inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-tr from-emerald-600 to-green-500 text-white shadow-lg shadow-emerald-600/25 ring-4 ring-emerald-50 text-3xl">
                 🥬
             </div>
             <div>
@@ -86,7 +160,7 @@
                         </div>
                         <input type="tel" id="phone" name="phone" maxlength="10" placeholder="Enter 10-digit mobile number"
                                oninput="validatePhoneDigits(this)" required autofocus autocomplete="tel"
-                               class="w-full pl-20 pr-4 py-3.5 border border-gray-200 rounded-2xl font-bold text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 bg-gray-50/60 transition">
+                               class="customer-auth-input w-full pl-20 pr-4 py-3.5 border border-gray-200 rounded-2xl font-bold text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 bg-gray-50/60 transition">
                     </div>
                     <p id="phone-hint" class="text-[10px] text-gray-400 mt-1.5 font-semibold flex items-center gap-1">
                         <i class="fa-solid fa-circle-info text-gray-400 text-[10px]"></i>
@@ -94,7 +168,7 @@
                     </p>
                 </div>
 
-                <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-black py-4 rounded-2xl shadow-lg shadow-emerald-600/25 transition duration-150 focus:outline-none flex items-center justify-center space-x-2 text-sm active:scale-[0.99]">
+                <button type="submit" class="customer-auth-btn w-full bg-emerald-600 hover:bg-emerald-700 text-white font-black py-4 rounded-2xl shadow-lg shadow-emerald-600/25 transition duration-150 focus:outline-none flex items-center justify-center space-x-2 text-sm active:scale-[0.99]">
                     <span>Continue to Fresh Vegetable Market</span>
                     <i class="fa-solid fa-arrow-right text-xs"></i>
                 </button>

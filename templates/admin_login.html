@@ -1,15 +1,89 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="min-h-[85vh] flex items-center justify-center py-10 px-4 sm:px-6 relative overflow-hidden">
+<style>
+    .admin-auth-container {
+        min-height: 85vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2.5rem 1rem;
+        position: relative;
+    }
+    .admin-auth-card {
+        width: 100%;
+        max-width: 440px;
+        background: #ffffff;
+        border-radius: 1.5rem;
+        box-shadow: 0 20px 25px -5px rgba(6, 78, 59, 0.08), 0 8px 10px -6px rgba(6, 78, 59, 0.04);
+        border: 1px solid #d1fae5;
+        padding: 2rem;
+        position: relative;
+        box-sizing: border-box;
+    }
+    .admin-auth-emblem {
+        width: 4rem;
+        height: 4rem;
+        border-radius: 1rem;
+        background: linear-gradient(135deg, #047857, #16a34a);
+        color: #ffffff;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        margin: 0 auto 0.75rem auto;
+        box-shadow: 0 10px 15px -3px rgba(4, 120, 87, 0.25);
+    }
+    .admin-auth-input {
+        width: 100%;
+        padding: 0.875rem 1rem 0.875rem 2.75rem;
+        border: 1px solid #e2e8f0;
+        border-radius: 1rem;
+        font-size: 0.875rem;
+        font-weight: 700;
+        color: #111827;
+        background-color: #f8fafc;
+        box-sizing: border-box;
+        transition: all 0.15s ease;
+    }
+    .admin-auth-input:focus {
+        outline: none;
+        border-color: #047857;
+        box-shadow: 0 0 0 3px rgba(4, 120, 87, 0.15);
+        background-color: #ffffff;
+    }
+    .admin-auth-btn {
+        width: 100%;
+        background-color: #047857;
+        color: #ffffff;
+        font-weight: 800;
+        font-size: 0.875rem;
+        padding: 1rem;
+        border-radius: 1rem;
+        border: none;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        box-shadow: 0 10px 15px -3px rgba(4, 120, 87, 0.25);
+        transition: all 0.15s ease;
+        margin-top: 0.75rem;
+    }
+    .admin-auth-btn:hover {
+        background-color: #065f46;
+    }
+</style>
+
+<div class="admin-auth-container min-h-[85vh] flex items-center justify-center py-10 px-4 sm:px-6 relative overflow-hidden">
     <!-- Subtle Organic Glow -->
     <div class="absolute -top-24 -left-24 w-96 h-96 bg-emerald-100/40 rounded-full blur-3xl pointer-events-none -z-10"></div>
     <div class="absolute -bottom-24 -right-24 w-96 h-96 bg-green-100/40 rounded-full blur-3xl pointer-events-none -z-10"></div>
 
-    <div class="w-full max-w-md bg-white rounded-3xl shadow-2xl shadow-emerald-950/8 border border-emerald-100/80 p-6 sm:p-8 space-y-6 relative transition-all duration-200">
+    <div class="admin-auth-card w-full max-w-md bg-white rounded-3xl shadow-2xl shadow-emerald-950/8 border border-emerald-100/80 p-6 sm:p-8 space-y-6 relative transition-all duration-200">
         <!-- Brand Header Emblem -->
         <div class="text-center space-y-2">
-            <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-tr from-emerald-700 to-green-600 text-white shadow-lg shadow-emerald-700/25 ring-4 ring-emerald-50 text-3xl">
+            <div class="admin-auth-emblem inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-tr from-emerald-700 to-green-600 text-white shadow-lg shadow-emerald-700/25 ring-4 ring-emerald-50 text-3xl">
                 🥬
             </div>
             <div>
@@ -60,7 +134,7 @@
                         <i class="fa-solid fa-user-tie text-xs"></i>
                     </span>
                     <input type="text" id="admin-username" name="username" value="{{ request.args.get('username', '') }}" placeholder="Enter username or mobile (admin or 7675960440)" required autofocus autocomplete="off"
-                           class="pl-10 w-full px-4 py-3.5 border border-gray-200 rounded-2xl font-bold text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-600 bg-gray-50/60 transition">
+                           class="admin-auth-input pl-10 w-full px-4 py-3.5 border border-gray-200 rounded-2xl font-bold text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-600 bg-gray-50/60 transition">
                 </div>
             </div>
 
@@ -75,14 +149,14 @@
                         <i class="fa-solid fa-lock text-xs"></i>
                     </span>
                     <input type="password" id="admin-password" name="password" placeholder="Enter administrator password" required autocomplete="current-password"
-                           class="pl-10 pr-10 w-full px-4 py-3.5 border border-gray-200 rounded-2xl font-bold text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-600 bg-gray-50/60 transition">
+                           class="admin-auth-input pl-10 pr-10 w-full px-4 py-3.5 border border-gray-200 rounded-2xl font-bold text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-600 bg-gray-50/60 transition">
                     <button type="button" onclick="toggleAdminPassword()" class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-gray-400 hover:text-gray-600 focus:outline-none" title="Toggle password visibility">
                         <i id="admin-pw-eye" class="fa-solid fa-eye text-xs"></i>
                     </button>
                 </div>
             </div>
 
-            <button type="submit" id="adminSubmitBtn" class="w-full bg-emerald-700 hover:bg-emerald-800 text-white font-black py-4 rounded-2xl shadow-lg shadow-emerald-700/25 transition-all duration-150 focus:outline-none flex items-center justify-center space-x-2 active:scale-[0.99] text-sm mt-3">
+            <button type="submit" id="adminSubmitBtn" class="admin-auth-btn w-full bg-emerald-700 hover:bg-emerald-800 text-white font-black py-4 rounded-2xl shadow-lg shadow-emerald-700/25 transition-all duration-150 focus:outline-none flex items-center justify-center space-x-2 active:scale-[0.99] text-sm mt-3">
                 <i class="fa-solid fa-sliders text-xs"></i>
                 <span id="adminSubmitText">Log In to Store Manager Panel</span>
                 <i id="adminSubmitSpinner" class="fa-solid fa-circle-notch fa-spin text-xs hidden ml-1.5"></i>
