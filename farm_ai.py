@@ -49,7 +49,7 @@ class FarmAIAssistant:
                 return {
                     "reply": (
                         "### 💵 100% Cash on Delivery (COD) Only\n\n"
-                        "At Vamsi Organic Farms, we proudly offer **exclusive Cash on Delivery** with zero convenience fees!\n\n"
+                        "At PPM Organic Farms, we proudly offer **exclusive Cash on Delivery** with zero convenience fees!\n\n"
                         "• **₹0 COD Fees**: No extra charges or surprise platform fees.\n"
                         "• **Doorstep Inspection**: Inspect your harvested vegetables before paying.\n"
                         "• **Cash or UPI on Arrival**: Pay cash or scan the delivery executive's UPI QR code right at your doorstep.\n\n"
@@ -205,7 +205,7 @@ class FarmAIAssistant:
         return {
             "reply": (
                 "### 🛡️ 100% Farm Fresh Guarantee & Immediate Support\n\n"
-                "We sincerely apologize for any problem with your order! At Vamsi Organic Farms, customer satisfaction is our top priority:\n\n"
+                "We sincerely apologize for any problem with your order! At PPM Organic Farms, customer satisfaction is our top priority:\n\n"
                 "1. **Instant Replacement or Refund**: If any vegetable arrived bruised, spoiled, or missing, we provide an immediate free replacement or credit full refund coins to your Farm Wallet.\n"
                 "2. **📞 Customer Support & WhatsApp**: Call or chat with us at **`+91 7675960440`** (Helpline: `+91 9876543210`, 6:00 AM - 10:00 PM).\n"
                 "3. **💬 WhatsApp Live Support**: Chat directly with our farm logistics coordinator on WhatsApp at **`+91 7675960440`**.\n"
@@ -243,7 +243,7 @@ class FarmAIAssistant:
     def _handle_coupon_inquiry(cls, conn) -> dict:
         coupons = conn.execute("SELECT * FROM coupons WHERE is_active = 1").fetchall()
         if not coupons:
-            coupon_list = "- `FARM50`: Flat ₹50 OFF on orders above ₹199\n- `VAMSI10`: 10% OFF on all fresh harvest"
+            coupon_list = "- `PPM10`: 10% OFF on all fresh harvest\n- `FARM50`: Flat ₹50 OFF on orders above ₹199\n- `VAMSI10`: 10% OFF on fresh harvest"
         else:
             coupon_list = "\n".join([
                 f"- **`{c['code']}`**: {c['description']} (Min Order: ₹{c['min_order']:.0f})"
@@ -446,7 +446,7 @@ class FarmAIAssistant:
                 user_name = u['name']
 
         reply = (
-            f"Namaste, {user_name}! 🙏 I am **Kisan AI**, your 24/7 personal farm assistant at Vamsi Organic Farms.\n\n"
+            f"Namaste, {user_name}! 🙏 I am **Kisan AI**, your 24/7 personal farm assistant at PPM Organic Farms.\n\n"
             f"I can help you with:\n"
             f"- 🥬 **Checking vegetable availability & live mandi prices**\n"
             f"- 🚚 **Live tracking your harvest delivery status**\n"

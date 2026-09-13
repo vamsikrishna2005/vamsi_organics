@@ -1,4 +1,4 @@
-# 🥬 Vamsi Organic Farms - Smart Farm-to-Table E-Commerce Platform & Mobile App (PWA)
+# 🥬 PPM Organic Farms - Smart Farm-to-Table E-Commerce Platform & Mobile App (PWA)
 
 An e-commerce marketplace and Progressive Web Application (PWA) for daily farm-fresh vegetable deliveries, featuring Cash on Delivery (COD), 24/7 Kisan AI assistant, unique phone-authenticated customer profiles, and a Customer 360° Admin Management Console.
 

@@ -294,7 +294,7 @@ class TestAdminAndOrderFlow(unittest.TestCase):
         html = res.data.decode('utf-8')
         self.assertIn('order-success-modal', html)
         self.assertIn('Thank you for ordering with', html)
-        self.assertIn('Vamsi Organic Farms', html)
+        self.assertTrue('PPM Organic Farms' in html or 'Vamsi Organic Farms' in html)
         self.assertIn('will deliver soon', html)
 
 if __name__ == '__main__':

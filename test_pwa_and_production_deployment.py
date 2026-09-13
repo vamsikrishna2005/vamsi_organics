@@ -24,7 +24,7 @@ class TestPWAAndProductionDeployment(unittest.TestCase):
         with open(manifest_path, "r", encoding="utf-8") as f:
             manifest = json.load(f)
             
-        self.assertIn("Vamsi", manifest.get("name", ""))
+        self.assertTrue("PPM" in manifest.get("name", "") or "Vamsi" in manifest.get("name", ""))
         self.assertIn("short_name", manifest)
         self.assertEqual(manifest.get("display"), "standalone")
         self.assertEqual(manifest.get("start_url"), "/dashboard?tab=market")
@@ -46,7 +46,7 @@ class TestPWAAndProductionDeployment(unittest.TestCase):
         with open(sw_path, "r", encoding="utf-8") as f:
             sw_code = f.read()
             
-        self.assertIn("vamsi-vegi-cache", sw_code)
+        self.assertTrue("ppm-vegi-cache" in sw_code or "vamsi-vegi-cache" in sw_code)
         self.assertIn("install", sw_code)
         self.assertIn("fetch", sw_code)
         self.assertIn("caches.open", sw_code)

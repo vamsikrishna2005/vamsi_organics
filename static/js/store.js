@@ -1,4 +1,4 @@
-// Vamsi Organic Farms - Frontend Store, Invoicing, Cart, Address Manager, Coupons, and Real-Time Admin Alerts
+// PPM Organic Farms - Frontend Store, Invoicing, Cart, Address Manager, Coupons, and Real-Time Admin Alerts
 
 let cart = [];
 let userAddresses = [];
@@ -1119,7 +1119,7 @@ function openOrderSuccessModal(result, deliverySlot, deliveryAddress) {
     
     const waBtn = document.getElementById("success-modal-whatsapp-btn");
     if (waBtn && result.order_id) {
-        const msg = encodeURIComponent(`Hello Vamsi Organic Farms, I have an inquiry about my recent Order #${result.order_id}!`);
+        const msg = encodeURIComponent(`Hello PPM Organic Farms, I have an inquiry about my recent Order #${result.order_id}!`);
         waBtn.href = `https://wa.me/917675960440?text=${msg}`;
     }
     
@@ -1756,7 +1756,7 @@ async function openInvoiceModal(orderId) {
                             <i class="fa-solid fa-leaf text-lg"></i>
                         </div>
                         <div>
-                            <h3 class="font-black text-base text-gray-900">VAMSI ORGANIC FARMS</h3>
+                            <h3 class="font-black text-base text-gray-900">PPM ORGANIC FARMS</h3>
                             <p class="text-[10px] font-bold text-emerald-700">100% Certified Organic • Direct Harvest</p>
                         </div>
                     </div>

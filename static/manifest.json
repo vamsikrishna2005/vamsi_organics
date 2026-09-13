@@ -1,6 +1,6 @@
 {
-  "name": "Vamsi Organic Farms",
-  "short_name": "Vamsi Farms",
+  "name": "PPM Organic Farms",
+  "short_name": "PPM Farms",
   "description": "100% Farm-Fresh Vegetables & Organics Delivered Daily to Your Doorstep",
   "start_url": "/dashboard?tab=market",
   "scope": "/",

@@ -85,35 +85,35 @@
             </div>
 
             <!-- 20 Fresh Indian Vegetables Grid -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-5" id="product-grid">
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-5" id="product-grid">
                 {% for prod in products %}
-                    <div class="product-card bg-white rounded-3xl shadow-xs border border-gray-100 overflow-hidden hover:shadow-xl hover:border-emerald-300 transition-all duration-300 flex flex-col justify-between group" 
+                    <div class="product-card bg-white rounded-2xl sm:rounded-3xl shadow-xs border border-gray-100 overflow-hidden hover:shadow-xl hover:border-emerald-300 transition-all duration-300 flex flex-col justify-between group" 
                          data-category="{{ prod.category }}" 
                          data-name="{{ prod.name | lower }}" 
                          data-tags="{{ prod.tags | lower }}"
                          id="card-prod-{{ prod.id }}">
                         
                         <!-- Top Icon & Stock Status Area -->
-                        <div class="p-5 pb-3 bg-gradient-to-b from-gray-50/90 to-white flex items-start justify-between relative border-b border-gray-100/60">
-                            <div class="w-14 h-14 rounded-2xl bg-white border border-gray-100 shadow-xs flex items-center justify-center text-3xl group-hover:scale-110 transition-transform duration-200">
+                        <div class="p-3 sm:p-5 pb-2 sm:pb-3 bg-gradient-to-b from-gray-50/90 to-white flex items-start justify-between relative border-b border-gray-100/60">
+                            <div class="w-11 h-11 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl bg-white border border-gray-100 shadow-xs flex items-center justify-center text-2xl sm:text-3xl group-hover:scale-110 transition-transform duration-200">
                                 {{ prod.image_url }}
                             </div>
 
-                            <div class="flex flex-col items-end gap-1.5">
-                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-black bg-emerald-50 text-emerald-800 border border-emerald-100 uppercase">
+                            <div class="flex flex-col items-end gap-1 sm:gap-1.5">
+                                <span class="inline-flex items-center px-1.5 sm:px-2 py-0.5 rounded-full text-[8px] sm:text-[9px] font-black bg-emerald-50 text-emerald-800 border border-emerald-100 uppercase">
                                     {{ prod.category }}
                                 </span>
                                 
                                 {% if prod.stock == 0 %}
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-black bg-red-50 text-red-600 border border-red-100">
+                                    <span class="inline-flex items-center px-1.5 sm:px-2 py-0.5 rounded-full text-[8px] sm:text-[9px] font-black bg-red-50 text-red-600 border border-red-100">
                                         🔴 Sold Out
                                     </span>
                                 {% elif prod.stock <= 15 %}
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-black bg-amber-50 text-amber-800 border border-amber-200 animate-pulse">
+                                    <span class="inline-flex items-center px-1.5 sm:px-2 py-0.5 rounded-full text-[8px] sm:text-[9px] font-black bg-amber-50 text-amber-800 border border-amber-200 animate-pulse">
                                         ⚡ Only {{ prod.stock }} left
                                     </span>
                                 {% else %}
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-bold bg-green-50 text-green-700">
+                                    <span class="inline-flex items-center px-1.5 sm:px-2 py-0.5 rounded-full text-[8px] sm:text-[9px] font-bold bg-green-50 text-green-700">
                                         🟢 In Stock
                                     </span>
                                 {% endif %}
@@ -121,9 +121,9 @@
                         </div>
 
                         <!-- Product Content Body -->
-                        <div class="p-4 pt-3 flex-grow flex flex-col justify-between space-y-3">
+                        <div class="p-3 sm:p-4 pt-2 sm:pt-3 flex-grow flex flex-col justify-between space-y-2 sm:space-y-3">
                             <div>
-                                <h3 class="font-extrabold text-gray-900 text-sm sm:text-base leading-snug group-hover:text-emerald-700 transition-colors">
+                                <h3 class="font-extrabold text-gray-900 text-xs sm:text-base leading-snug group-hover:text-emerald-700 transition-colors">
                                     {{ prod.name.split('[')[0].strip() }}
                                 </h3>
                                 
@@ -187,7 +187,7 @@
 
             <!-- Trust & Benefits Section -->
             <div class="mt-12 bg-white p-6 sm:p-8 rounded-3xl border border-gray-100 shadow-xs">
-                <h3 class="text-lg font-black text-gray-900 text-center mb-6">Why Indian Families Trust Vamsi Organic Farms</h3>
+                <h3 class="text-lg font-black text-gray-900 text-center mb-6">Why Indian Families Trust PPM Organic Farms</h3>
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                     <div class="text-center space-y-2 p-3 rounded-2xl bg-gray-50/60 border border-gray-100">
                         <span class="text-3xl">🚜</span>
@@ -360,6 +360,9 @@
 
                     <!-- Quick Coupon Suggestion Chips -->
                     <div class="flex flex-wrap gap-1 mt-2">
+                        <button type="button" onclick="quickApplyCoupon('PPM10')" class="text-[9px] font-black bg-emerald-100 hover:bg-emerald-200 text-emerald-900 px-2 py-0.5 rounded-lg border border-emerald-300 transition">
+                            🏷️ PPM10 (10% OFF)
+                        </button>
                         <button type="button" onclick="quickApplyCoupon('FARM50')" class="text-[9px] font-bold bg-white hover:bg-emerald-50 text-gray-600 hover:text-emerald-700 px-2 py-0.5 rounded-lg border border-dashed border-gray-300 hover:border-emerald-500 transition">
                             🏷️ FARM50 (₹50 OFF)
                         </button>

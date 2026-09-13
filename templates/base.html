@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="user-role" content="{{ current_user.role if current_user else 'guest' }}">
     <meta name="user-id" content="{{ current_user.id if current_user else '' }}">
-    <title>Vamsi Vegi Market - Fresh & Smart 🥬</title>
+    <title>PPM Organic Farms - Fresh & Smart 🥬</title>
 
     <!-- PWA Web App Manifest & Mobile Web Tags -->
     <link rel="manifest" href="/static/manifest.json">
@@ -13,7 +13,7 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Vamsi Farms">
+    <meta name="apple-mobile-web-app-title" content="PPM Farms">
     <link rel="apple-touch-icon" href="/static/icons/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="192x192" href="/static/icons/icon-192.png">
     <link rel="icon" type="image/png" sizes="512x512" href="/static/icons/icon-512.png">
@@ -90,11 +90,11 @@
                             </div>
                             <div class="flex flex-col">
                                 <div class="flex items-center">
-                                    <span class="font-extrabold text-lg tracking-tight text-gray-900 leading-none">
-                                        Vamsi <span class="text-primary-600">Organic Farms</span>
+                                    <span class="font-extrabold text-base sm:text-lg tracking-tight text-gray-900 leading-none">
+                                        PPM <span class="text-primary-600">Organic Farms</span>
                                     </span>
                                     {% if request.path.startswith('/admin') %}
-                                        <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-black bg-purple-100 text-purple-800 border border-purple-200">
+                                        <span class="ml-1.5 sm:ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] font-black bg-purple-100 text-purple-800 border border-purple-200">
                                             ⚡ Admin Console
                                         </span>
                                     {% endif %}
@@ -159,7 +159,7 @@
 
                     <div class="flex items-center space-x-3">
                         {% if not request.path.startswith('/admin') %}
-                        <a href="https://wa.me/917675960440?text=Hello%20Vamsi%20Organic%20Farms%2C%20I%20have%20an%20inquiry%20about%20fresh%20vegetables!" 
+                        <a href="https://wa.me/917675960440?text=Hello%20PPM%20Organic%20Farms%2C%20I%20have%20an%20inquiry%20about%20fresh%20vegetables!" 
                            target="_blank" 
                            class="hidden lg:inline-flex items-center gap-1.5 text-xs bg-emerald-50 hover:bg-emerald-100 text-emerald-800 px-3 py-1.5 rounded-full border border-emerald-200 font-bold transition shadow-2xs"
                            title="Chat with Customer Support on WhatsApp (+91 76759 60440)">
@@ -320,7 +320,7 @@
     </button>
 
     <!-- Floating Farm Support WhatsApp Button -->
-    <a href="https://api.whatsapp.com/send?phone=917675960440&text=Hello%20Vamsi%20Organic%20Farms%2C%20I%20have%20an%20inquiry%20about%20fresh%20vegetables%20or%20my%20order!" 
+    <a href="https://api.whatsapp.com/send?phone=917675960440&text=Hello%20PPM%20Organic%20Farms%2C%20I%20have%20an%20inquiry%20about%20fresh%20vegetables%20or%20my%20order!" 
        target="_blank" 
        rel="noopener noreferrer"
        title="Chat with Farm Support on WhatsApp (+91 76759 60440)"
@@ -365,7 +365,7 @@
                 <i class="fa-brands fa-whatsapp text-emerald-600 text-xs"></i>
                 <span>Helpline: <strong>+91 76759 60440</strong></span>
             </span>
-            <a href="https://wa.me/917675960440?text=Hello%20Vamsi%20Organic%20Farms%2C%20I%20need%20assistance%20from%20human%20support!" 
+            <a href="https://wa.me/917675960440?text=Hello%20PPM%20Organic%20Farms%2C%20I%20need%20assistance%20from%20human%20support!" 
                target="_blank" 
                class="text-[10px] bg-emerald-600 hover:bg-emerald-700 text-white px-2.5 py-1 rounded-lg transition font-black active:scale-95 flex items-center gap-1">
                 <i class="fa-brands fa-whatsapp text-xs"></i> WhatsApp Support
@@ -385,7 +385,7 @@
                         <span class="text-[9px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.2 rounded-full border border-emerald-100">Farm Assistant</span>
                     </p>
                     <p class="text-xs leading-relaxed text-gray-700">
-                        Namaste! 🙏 Welcome to Vamsi Organic Farms. I'm here 24/7 to help you with <strong>today's harvest availability</strong>, <strong>live delivery tracking</strong>, <strong>authentic Andhra recipes</strong>, <strong>wallet coins</strong>, and any customer support needs!
+                        Namaste! 🙏 Welcome to PPM Organic Farms. I'm here 24/7 to help you with <strong>today's harvest availability</strong>, <strong>live delivery tracking</strong>, <strong>authentic Andhra recipes</strong>, <strong>wallet coins</strong>, and any customer support needs!
                     </p>
                 </div>
             </div>
@@ -437,13 +437,13 @@
                     <i class="fa-solid fa-phone text-[10px]"></i> +91 76759 60440
                 </a>
                 <span class="text-emerald-300">|</span>
-                <a href="https://wa.me/917675960440?text=Hello%20Vamsi%20Organic%20Farms%2C%20I%20need%20assistance%20with%20fresh%20vegetables%20or%20my%20order!" 
+                <a href="https://wa.me/917675960440?text=Hello%20PPM%20Organic%20Farms%2C%20I%20need%20assistance%20with%20fresh%20vegetables%20or%20my%20order!" 
                    target="_blank" 
                    class="text-emerald-700 hover:text-emerald-800 font-black hover:underline flex items-center gap-1">
                     <i class="fa-brands fa-whatsapp text-emerald-600 text-sm"></i> WhatsApp Support (+91 76759 60440)
                 </a>
             </div>
-            <p class="font-bold text-gray-700">&copy; 2026 Vamsi Organic Farms • 100% Farm Fresh Local Harvest.</p>
+            <p class="font-bold text-gray-700">&copy; 2026 PPM Organic Farms • 100% Farm Fresh Local Harvest.</p>
             <p class="text-xs text-gray-400">Pure Organic Daily Harvest • Instant Local Delivery • Smart Farm-to-Table Marketplace • <a href="/privacy-policy" class="text-emerald-700 hover:underline font-semibold">Privacy Policy</a></p>
         </div>
     </footer>

@@ -416,6 +416,7 @@ def check_and_migrate_db():
     if coupon_count == 0:
         now_str = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         default_coupons = [
+            ('PPM10', 99.0, 'percent', 10.0, 150.0, '10% OFF on fresh organic harvest (up to ₹150)', 1, now_str),
             ('FARM50', 199.0, 'flat', 50.0, 50.0, 'Flat ₹50 OFF on orders above ₹199', 1, now_str),
             ('VAMSI10', 99.0, 'percent', 10.0, 150.0, '10% OFF on fresh organic harvest (up to ₹150)', 1, now_str),
             ('FIRSTFARM', 150.0, 'percent', 15.0, 200.0, '15% Welcome Discount on your first farm order', 1, now_str),

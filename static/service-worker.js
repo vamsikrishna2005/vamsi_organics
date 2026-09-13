@@ -1,5 +1,5 @@
-// Vamsi Organic Farms - Offline PWA Service Worker
-const CACHE_NAME = 'vamsi-vegi-cache-v1';
+// PPM Organic Farms - Offline PWA Service Worker
+const CACHE_NAME = 'ppm-vegi-cache-v1';
 const STATIC_ASSETS = [
     '/',
     '/static/manifest.json',
@@ -72,9 +72,9 @@ self.addEventListener('fetch', (event) => {
                 return new Response(
                     `<!DOCTYPE html>
                     <html lang="en">
-                    <head><meta charset="UTF-8"><title>Offline - Vamsi Organic Farms</title></head>
+                    <head><meta charset="UTF-8"><title>Offline - PPM Organic Farms</title></head>
                     <body style="font-family:sans-serif;text-align:center;padding:50px 20px;background:#f9fafb;color:#111827;">
-                        <h1 style="color:#065f46;">🌾 Vamsi Organic Farms</h1>
+                        <h1 style="color:#065f46;">🌾 PPM Organic Farms</h1>
                         <h3>You are currently offline</h3>
                         <p style="color:#6b7280;">Please check your internet connection to view live vegetable prices and place orders.</p>
                         <button onclick="location.reload()" style="background:#059669;color:#fff;border:none;padding:10px 20px;border-radius:10px;cursor:pointer;font-weight:bold;">Try Reconnecting</button>

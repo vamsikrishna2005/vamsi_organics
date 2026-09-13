@@ -175,7 +175,7 @@
                                             <span>+91 {{ c.phone }}</span>
                                         </a>
                                         <!-- Direct 1-Click WhatsApp Button -->
-                                        <a href="https://wa.me/91{{ c.phone }}?text=Hello%20{{ c.name | urlencode }}%2C%20this%20is%20Vamsi%20Organic%20Farms%20regarding%20your%20farm%20orders%20and%20produce%20delivery." 
+                                        <a href="https://wa.me/91{{ c.phone }}?text=Hello%20{{ c.name | urlencode }}%2C%20this%20is%20PPM%20Organic%20Farms%20regarding%20your%20farm%20orders%20and%20produce%20delivery." 
                                            target="_blank" 
                                            class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 p-1.5 rounded-lg border border-emerald-200 transition shadow-2xs inline-flex items-center justify-center"
                                            title="Chat directly with {{ c.name }} on WhatsApp">
@@ -546,7 +546,7 @@
                 contactEl.innerHTML = `📞 +91 ${c.phone} • ✉️ ${c.email || 'No email registered'}`;
             }
             if (waBtn) {
-                waBtn.href = `https://wa.me/91${c.phone}?text=Hello%20${encodeURIComponent(c.name)}%2C%20this%20is%20Vamsi%20Organic%20Farms%20regarding%20your%20farm%20orders.`;
+                waBtn.href = `https://wa.me/91${c.phone}?text=Hello%20${encodeURIComponent(c.name)}%2C%20this%20is%20PPM%20Organic%20Farms%20regarding%20your%20farm%20orders.`;
             }
             const callBtn = document.getElementById('drawer-header-call-btn');
             if (callBtn) {
@@ -609,7 +609,7 @@
                     else if (order.status === 'Out for Delivery') statusClass = "bg-amber-50 text-amber-800 border-amber-200";
                     else if (order.status === 'Cancelled') statusClass = "bg-red-50 text-red-800 border-red-200";
 
-                    const waOrderMsg = encodeURIComponent(`Hello ${c.name}, this is Vamsi Organic Farms regarding your Order #${order.order_id} (Status: ${order.status}). Let us know if you need any assistance!`);
+                    const waOrderMsg = encodeURIComponent(`Hello ${c.name}, this is PPM Organic Farms regarding your Order #${order.order_id} (Status: ${order.status}). Let us know if you need any assistance!`);
 
                     return `
                         <div class="p-4 rounded-2xl bg-white border border-gray-200 shadow-xs space-y-3">
