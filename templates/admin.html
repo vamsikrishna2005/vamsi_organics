@@ -281,6 +281,10 @@
                                     <span>₹{{ "%.2f" | format(stat.wallet_balance or 0.0) }}</span>
                                 </span>
                                 <div class="flex items-center gap-1.5">
+                                    <button type="button" onclick="window.location.href='/admin/customers?customer_id={{ stat.id }}'"
+                                            class="bg-purple-600 hover:bg-purple-700 text-white font-black px-2 py-1 rounded-lg transition active:scale-95 text-[10px] shadow-xs inline-flex items-center gap-1" title="Inspect Customer Order History">
+                                        <i class="fa-solid fa-clock-rotate-left text-[8px]"></i>History
+                                    </button>
                                     <button type="button" onclick="openCustomerWalletModal({{ stat.id }}, '{{ stat.name }}', {{ stat.wallet_balance or 0.0 }})"
                                             class="bg-amber-500 hover:bg-amber-600 text-white font-extrabold px-2 py-1 rounded-lg transition active:scale-95 text-[10px] shadow-xs" title="Add or credit coins">
                                         <i class="fa-solid fa-plus text-[8px] mr-1"></i>Coins
@@ -435,6 +439,12 @@
                                 <td class="px-4 py-4 whitespace-nowrap">
                                     <div class="font-extrabold text-gray-900">{{ order.customer_name }}</div>
                                     <div class="text-xs text-gray-500 font-medium">📞 +91 {{ order.customer_phone }}</div>
+                                    <div class="mt-1" onclick="event.stopPropagation()">
+                                        <a href="/admin/customers?search={{ order.customer_phone }}" class="text-[10px] font-black text-purple-700 hover:text-purple-900 hover:underline inline-flex items-center gap-1">
+                                            <i class="fa-solid fa-clock-rotate-left text-[8px]"></i>
+                                            <span>Customer History</span>
+                                        </a>
+                                    </div>
                                 </td>
                                 <td class="px-4 py-4 text-xs text-gray-700 max-w-xs">
                                     <div class="font-bold text-emerald-800">

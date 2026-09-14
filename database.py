@@ -192,10 +192,7 @@ def init_db():
     admin_hashed_pw = generate_password_hash("admin123")
     users = [
         ("Vamsi Vegi", "vamsi@example.com", "8888888888", "customer", None),
-        ("Pranav Ghee", "pranav@example.com", "7777777777", "customer", None),
-        ("Sita Sweet", "sita@example.com", "6666666666", "customer", None),
-        ("General Shopper", "shopper@example.com", "5555555555", "customer", None),
-        ("Store Manager (Admin)", "admin@vamsiorganicfarms.com", "7675960440", "admin", admin_hashed_pw)
+        ("Store Manager (Admin)", "admin@ppmorganicfarms.com", "7675960440", "admin", admin_hashed_pw)
     ]
     cursor.executemany("""
         INSERT INTO users (name, email, phone, role, password)
@@ -216,28 +213,7 @@ def init_db():
         ('VOF-20260829-1003', 1, 1, 3, 105.00, (now - timedelta(days=3)).strftime('%Y-%m-%d %H:%M:%S'), '2026-08-30', 'Morning (8:00 AM - 11:00 AM)', 'Flat 301, Sri Sai Residency, Madhapur, Hyderabad', 'Out for Delivery')
     ]
 
-    # User 2 (Pranav Ghee): Buys Carrots (15 ₹40), Potatoes (3 ₹30), Spinach (9 ₹25)
-    purchases_user2 = [
-        ('VOF-20260805-1004', 2, 15, 1, 40.00, (now - timedelta(days=28)).strftime('%Y-%m-%d %H:%M:%S'), '2026-08-06', 'Evening (5:00 PM - 8:00 PM)', 'House #45, Jubilee Hills, Hyderabad', 'Delivered'),
-        ('VOF-20260823-1005', 2, 3, 2, 60.00, (now - timedelta(days=10)).strftime('%Y-%m-%d %H:%M:%S'), '2026-08-24', 'Evening (5:00 PM - 8:00 PM)', 'House #45, Jubilee Hills, Hyderabad', 'Delivered'),
-        ('VOF-20260813-1006', 2, 9, 1, 25.00, (now - timedelta(days=20)).strftime('%Y-%m-%d %H:%M:%S'), '2026-08-14', 'Evening (5:00 PM - 8:00 PM)', 'House #45, Jubilee Hills, Hyderabad', 'Delivered')
-    ]
-
-    # User 3 (Sita Sweet): Buys Mint (8 ₹15), Tomatoes (1 ₹35), Onions (2 ₹38)
-    purchases_user3 = [
-        ('VOF-20260821-1007', 3, 8, 2, 30.00, (now - timedelta(days=12)).strftime('%Y-%m-%d %H:%M:%S'), '2026-08-22', 'Afternoon (12:00 PM - 3:00 PM)', 'Plot 12, Amaravathi Road, Guntur', 'Delivered'),
-        ('VOF-20260808-1008', 3, 1, 1, 35.00, (now - timedelta(days=25)).strftime('%Y-%m-%d %H:%M:%S'), '2026-08-09', 'Afternoon (12:00 PM - 3:00 PM)', 'Plot 12, Amaravathi Road, Guntur', 'Delivered'),
-        ('VOF-20260819-1009', 3, 2, 1, 38.00, (now - timedelta(days=14)).strftime('%Y-%m-%d %H:%M:%S'), '2026-08-20', 'Afternoon (12:00 PM - 3:00 PM)', 'Plot 12, Amaravathi Road, Guntur', 'Delivered')
-    ]
-
-    # User 4 (General Shopper): Buys Onions (2 ₹38), Potatoes (3 ₹30), Tomatoes (1 ₹35)
-    purchases_user4 = [
-        ('VOF-20260825-1010', 4, 2, 2, 76.00, (now - timedelta(days=8)).strftime('%Y-%m-%d %H:%M:%S'), '2026-08-26', 'Morning (8:00 AM - 11:00 AM)', 'Door 8-2, MVP Colony, Visakhapatnam', 'Delivered'),
-        ('VOF-20260825-1010', 4, 3, 2, 60.00, (now - timedelta(days=8)).strftime('%Y-%m-%d %H:%M:%S'), '2026-08-26', 'Morning (8:00 AM - 11:00 AM)', 'Door 8-2, MVP Colony, Visakhapatnam', 'Delivered'),
-        ('VOF-20260825-1010', 4, 1, 1, 35.00, (now - timedelta(days=8)).strftime('%Y-%m-%d %H:%M:%S'), '2026-08-26', 'Morning (8:00 AM - 11:00 AM)', 'Door 8-2, MVP Colony, Visakhapatnam', 'Delivered')
-    ]
-
-    all_purchases = purchases_user1 + purchases_user2 + purchases_user3 + purchases_user4
+    all_purchases = purchases_user1
     cursor.executemany("""
         INSERT INTO purchases (order_id, user_id, product_id, quantity, total_price, purchase_date, delivery_date, delivery_slot, delivery_address, status)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
@@ -247,10 +223,7 @@ def init_db():
     now_str = now.strftime('%Y-%m-%d %H:%M:%S')
     addresses = [
         (1, 'Home', 'Flat 301, Sri Sai Residency, Madhapur, Hyderabad - 500081', 1, now_str),
-        (1, 'Office', 'Cyber Towers, 4th Floor, Hitech City, Hyderabad - 500081', 0, now_str),
-        (2, 'Home', 'House #45, Road No 10, Jubilee Hills, Hyderabad - 500033', 1, now_str),
-        (3, 'Home', 'Plot 12, Amaravathi Road, Guntur - 522002', 1, now_str),
-        (4, 'Home', 'Door 8-2, Sector 4, MVP Colony, Visakhapatnam - 530017', 1, now_str)
+        (1, 'Office', 'Cyber Towers, 4th Floor, Hitech City, Hyderabad - 500081', 0, now_str)
     ]
     cursor.executemany("""
         INSERT INTO user_addresses (user_id, label, address, is_default, created_at)
@@ -259,8 +232,7 @@ def init_db():
 
     # 5. Seed Notifications (Pre-populate a couple of alerts)
     notifications = [
-        (1, "Fresh organic Coriander is freshly harvested and back in stock! 🌿", "restock", (now - timedelta(hours=2)).strftime('%Y-%m-%d %H:%M:%S')),
-        (2, "We noticed you bought Orange Sweet Carrots last month. Would you like to restock for your kitchen? 🥕", "recommendation", (now - timedelta(hours=4)).strftime('%Y-%m-%d %H:%M:%S'))
+        (1, "Fresh organic Coriander is freshly harvested and back in stock! 🌿", "restock", (now - timedelta(hours=2)).strftime('%Y-%m-%d %H:%M:%S'))
     ]
     cursor.executemany("""
         INSERT INTO notifications (user_id, message, type, timestamp)
@@ -375,8 +347,8 @@ def check_and_migrate_db():
             (1, 2, 5, "Very fresh and firm tomatoes, no bruises. Highly recommended for daily cooking.", "2026-09-07 10:15:00"),
             (9, 1, 5, "Crisp spinach with vibrant green leaves. Made Palak Paneer and everyone loved it!", "2026-09-08 18:30:00"),
             (2, 3, 5, "Authentic Nashik red onions. Crisp, pungent, and long shelf life.", "2026-09-06 16:45:00"),
-            (7, 4, 5, "Incredible fresh coriander aroma! The roots were moist and stayed fresh for a week.", "2026-09-08 09:10:00"),
-            (17, 2, 5, "Perfect tender brinjals for Gutti Vankaya curry. Zero seeds, delicious taste!", "2026-09-05 11:20:00")
+            (7, 1, 5, "Incredible fresh coriander aroma! The roots were moist and stayed fresh for a week.", "2026-09-08 09:10:00"),
+            (17, 1, 5, "Perfect tender brinjals for Gutti Vankaya curry. Zero seeds, delicious taste!", "2026-09-05 11:20:00")
         ]
         cursor.executemany("""
             INSERT INTO reviews (product_id, user_id, rating, comment, created_at)
@@ -388,10 +360,7 @@ def check_and_migrate_db():
     if tx_count == 0:
         now_str = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         wallet_seeds = [
-            (1, 100.0, 'credit', '🎁 Welcome Farm Bonus Coins credited to your wallet!', now_str),
-            (2, 100.0, 'credit', '🎁 Welcome Farm Bonus Coins credited to your wallet!', now_str),
-            (3, 100.0, 'credit', '🎁 Welcome Farm Bonus Coins credited to your wallet!', now_str),
-            (4, 100.0, 'credit', '🎁 Welcome Farm Bonus Coins credited to your wallet!', now_str)
+            (1, 100.0, 'credit', '🎁 Welcome Farm Bonus Coins credited to your wallet!', now_str)
         ]
         cursor.executemany("""
             INSERT INTO wallet_transactions (user_id, amount, type, description, created_at)
@@ -458,6 +427,36 @@ def check_and_migrate_db():
         UPDATE users 
         SET phone = '7675960440' 
         WHERE role = 'admin'
+    """)
+
+    # 13. Purge legacy mock/demo users from live database (General Shopper, Pranav Ghee, Sita Sweet)
+    cursor.execute("""
+        DELETE FROM purchases 
+        WHERE user_id IN (SELECT id FROM users WHERE phone IN ('5555555555', '7777777777', '6666666666'))
+    """)
+    cursor.execute("""
+        DELETE FROM user_addresses 
+        WHERE user_id IN (SELECT id FROM users WHERE phone IN ('5555555555', '7777777777', '6666666666'))
+    """)
+    cursor.execute("""
+        DELETE FROM notifications 
+        WHERE user_id IN (SELECT id FROM users WHERE phone IN ('5555555555', '7777777777', '6666666666'))
+    """)
+    cursor.execute("""
+        DELETE FROM wallet_transactions 
+        WHERE user_id IN (SELECT id FROM users WHERE phone IN ('5555555555', '7777777777', '6666666666'))
+    """)
+    cursor.execute("""
+        DELETE FROM user_cart 
+        WHERE user_id IN (SELECT id FROM users WHERE phone IN ('5555555555', '7777777777', '6666666666'))
+    """)
+    cursor.execute("""
+        DELETE FROM reviews 
+        WHERE user_id IN (SELECT id FROM users WHERE phone IN ('5555555555', '7777777777', '6666666666'))
+    """)
+    cursor.execute("""
+        DELETE FROM users 
+        WHERE phone IN ('5555555555', '7777777777', '6666666666')
     """)
 
     conn.commit()

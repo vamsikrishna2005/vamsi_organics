@@ -1147,11 +1147,8 @@ function closeOrderSuccessModal(targetTab = 'orders') {
         modal.classList.add("hidden");
         setModalScrollLock(false);
     }
-    if (typeof switchDashboardTab === 'function') {
-        switchDashboardTab(targetTab);
-    } else {
-        window.location.href = `/dashboard#${targetTab}`;
-    }
+    // Always navigate to fresh dashboard with target tab to guarantee newly placed orders appear immediately in history
+    window.location.href = `/dashboard?tab=${targetTab}`;
 }
 
 // Admin: Update Order Status API (Placed -> Packed at Farm -> Out for Delivery -> Delivered)
@@ -1341,6 +1338,13 @@ async function openAdminOrderDrawer(orderId) {
                         <div class="flex items-center justify-between pt-1.5 border-t border-gray-200/70">
                             <span class="font-bold text-gray-500">Farm Wallet:</span>
                             <span class="font-black text-amber-700">🪙 ₹${customer.wallet_balance.toFixed(2)} Coins</span>
+                        </div>
+                        <div class="flex items-center justify-between pt-1.5 border-t border-gray-200/70">
+                            <span class="font-bold text-gray-500">Order History:</span>
+                            <a href="/admin/customers?customer_id=${customer.id}" class="inline-flex items-center gap-1 font-black text-purple-700 hover:text-purple-900 bg-purple-50 hover:bg-purple-100 px-2.5 py-1 rounded-lg border border-purple-200 transition text-[11px]" title="View Customer Profile & Full Past Orders">
+                                <i class="fa-solid fa-clock-rotate-left"></i>
+                                <span>Inspect Customer History</span>
+                            </a>
                         </div>
                     </div>
                 </div>

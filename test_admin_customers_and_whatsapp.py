@@ -48,11 +48,17 @@ class TestAdminCustomersAndWhatsApp(unittest.TestCase):
         self.assertIn("Total Customer Spend", html)
         self.assertIn("Avg Order Value", html)
         
-        # Verify customer entries exist
+        # Verify real customer entries exist
         self.assertIn("Vamsi Vegi", html)
-        self.assertIn("Pranav Ghee", html)
         self.assertIn("8888888888", html)
-        self.assertIn("7777777777", html)
+
+        # Verify mock/demo customers are strictly removed
+        self.assertNotIn("Pranav Ghee", html)
+        self.assertNotIn("7777777777", html)
+        self.assertNotIn("Sita Sweet", html)
+        self.assertNotIn("6666666666", html)
+        self.assertNotIn("General Shopper", html)
+        self.assertNotIn("5555555555", html)
 
         # Verify WhatsApp support and customer chat integration
         self.assertIn("76759 60440", html)
@@ -132,6 +138,83 @@ class TestAdminCustomersAndWhatsApp(unittest.TestCase):
         self.assertEqual(res.status_code, 200)
         html = res.data.decode('utf-8')
         self.assertIn('/admin/customers', html)
+
+    def test_09_customer_history_visible_after_proceeding_with_order(self):
+        """Verify customer and admin can immediately see customer order history after proceeding with order."""
+        self.app.get('/logout')
+        phone = "9123456780"
+        name = "Radha Farm Buyer"
+        email = "radha@farmtest.com"
+
+        # 1. Register customer
+        res_reg = self.app.post('/register', data={
+            'name': name,
+            'email': email,
+            'phone': phone
+        }, follow_redirects=True)
+        self.assertEqual(res_reg.status_code, 200)
+
+        # Log in as the newly registered customer
+        res_login = self.app.post('/login', data={'login_type': 'customer', 'phone': phone}, follow_redirects=True)
+        self.assertEqual(res_login.status_code, 200)
+
+        # 2. Proceed with order (Checkout)
+        res_order = self.app.post('/api/checkout', json={
+            'items': [
+                {'product_id': 1, 'quantity': 2}, # 2 Tomatoes
+                {'product_id': 9, 'quantity': 1}  # 1 Spinach
+            ],
+            'delivery_address': 'Flat 402, Lotus Greens, Gachibowli, Hyderabad - 500032',
+            'delivery_date': '2026-09-17',
+            'delivery_slot': 'Morning (8:00 AM - 11:00 AM)'
+        })
+        self.assertEqual(res_order.status_code, 200)
+        order_data = res_order.get_json()
+        self.assertTrue(order_data['success'])
+        order_id = order_data['order_id']
+
+        # 3. Customer immediately sees order in customer order history on /dashboard?tab=orders
+        res_dashboard = self.app.get('/dashboard?tab=orders')
+        self.assertEqual(res_dashboard.status_code, 200)
+        dash_html = res_dashboard.data.decode('utf-8')
+        self.assertIn(order_id, dash_html)
+        self.assertIn('Lotus Greens, Gachibowli', dash_html)
+
+        # 4. Admin logs in and checks /admin/customers
+        self.app.get('/logout')
+        self.login_admin()
+
+        res_admin_cust = self.app.get('/admin/customers')
+        self.assertEqual(res_admin_cust.status_code, 200)
+        admin_cust_html = res_admin_cust.data.decode('utf-8')
+        self.assertIn(name, admin_cust_html)
+        self.assertIn(phone, admin_cust_html)
+        self.assertIn('Lotus Greens, Gachibowli', admin_cust_html)
+
+        # Verify demo customers are NOT present
+        self.assertNotIn('General Shopper', admin_cust_html)
+        self.assertNotIn('Pranav Ghee', admin_cust_html)
+        self.assertNotIn('Sita Sweet', admin_cust_html)
+
+        # 5. Query customer orders API for Radha
+        from database import get_db_connection
+        conn = get_db_connection()
+        user_row = conn.execute("SELECT id FROM users WHERE phone = ?", (phone,)).fetchone()
+        conn.close()
+        self.assertIsNotNone(user_row)
+        radha_id = user_row['id']
+
+        res_api = self.app.get(f'/api/admin/customers/{radha_id}/orders')
+        self.assertEqual(res_api.status_code, 200)
+        api_data = res_api.get_json()
+        self.assertTrue(api_data['success'])
+        self.assertEqual(api_data['customer']['name'], name)
+        self.assertEqual(api_data['customer']['phone'], phone)
+        self.assertEqual(api_data['customer']['total_orders'], 1)
+        self.assertEqual(len(api_data['orders']), 1)
+        self.assertEqual(api_data['orders'][0]['order_id'], order_id)
+        self.assertIn('Lotus Greens, Gachibowli', api_data['orders'][0]['delivery_address'])
+        self.assertEqual(len(api_data['orders'][0]['items']), 2)
 
 if __name__ == '__main__':
     unittest.main()

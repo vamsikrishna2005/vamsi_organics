@@ -43,9 +43,14 @@ class TestCartIsolationAndAdminOrders(unittest.TestCase):
         self.assertEqual(cdata1['total_count'], 5)
         self.assertEqual(len(cdata1['items']), 2)
 
-        # 2. Logout User 1 and Login as User 2 (Pranav Ghee, 7777777777)
+        # 2. Create User 2 (Buyer Two, 9876543211) and test cart isolation
+        conn = get_db_connection()
+        conn.execute("INSERT OR REPLACE INTO users (name, email, phone, role) VALUES ('Buyer Two', 'buyer2@example.com', '9876543211', 'customer')")
+        conn.commit()
+        conn.close()
+
         self.app.get('/logout')
-        res_login2 = self.app.post('/login', data={'login_type': 'customer', 'phone': '7777777777'}, follow_redirects=True)
+        res_login2 = self.app.post('/login', data={'login_type': 'customer', 'phone': '9876543211'}, follow_redirects=True)
         self.assertEqual(res_login2.status_code, 200)
 
         # Clear cart first for User 2

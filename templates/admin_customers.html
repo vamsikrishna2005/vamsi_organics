@@ -139,6 +139,7 @@
                 <tbody id="customers-table-body" class="divide-y divide-gray-100 text-sm font-medium">
                     {% for c in customers %}
                         <tr class="customer-row hover:bg-purple-50/20 transition cursor-pointer" 
+                            data-id="{{ c.id }}"
                             data-name="{{ c.name | lower }}" 
                             data-phone="{{ c.phone }}" 
                             data-email="{{ c.email | lower }}" 
@@ -684,5 +685,28 @@
         if (!currentDrawerCustomer) return;
         openCustomerWalletModal(currentDrawerCustomer.id, currentDrawerCustomer.name, currentDrawerCustomer.wallet_balance);
     }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const params = new URLSearchParams(window.location.search);
+        const searchParam = params.get('search');
+        const custIdParam = params.get('customer_id');
+
+        if (searchParam) {
+            const searchInput = document.getElementById('customer-search-input');
+            if (searchInput) {
+                searchInput.value = searchParam;
+                filterCustomersDirectory(searchParam);
+            }
+        }
+        if (custIdParam) {
+            const row = document.querySelector(`.customer-row[data-id="${custIdParam}"]`);
+            if (row) {
+                const name = row.dataset.name;
+                openCustomerOrderDrawer(parseInt(custIdParam), name);
+            } else {
+                openCustomerOrderDrawer(parseInt(custIdParam), 'Customer #' + custIdParam);
+            }
+        }
+    });
 </script>
 {% endblock %}
