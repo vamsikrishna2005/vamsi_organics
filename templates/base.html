@@ -18,15 +18,12 @@
     <link rel="icon" type="image/png" sizes="192x192" href="/static/icons/icon-192.png">
     <link rel="icon" type="image/png" sizes="512x512" href="/static/icons/icon-512.png">
 
-    <!-- Standalone Core Stylesheet (Guarantees clean layout offline or under CDN failure) -->
+    <!-- Production Precompiled Tailwind CSS (Zero CDN latency, works everywhere offline and on mobile) -->
+    <link rel="stylesheet" href="/static/css/tailwind.min.css">
+    <!-- Standalone Core Stylesheet -->
     <link rel="stylesheet" href="/static/css/styles.css">
-    <!-- Tailwind CSS (Direct Fast CDN with local fallback) -->
+    <!-- Tailwind CSS (Direct CDN with progressive enhancement) -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        if (typeof tailwind === 'undefined') {
-            document.write('<script src="/static/js/tailwind.min.js"><\/script>');
-        }
-    </script>
     <script>
         if (typeof tailwind !== 'undefined') {
             tailwind.config = {

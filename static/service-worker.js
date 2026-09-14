@@ -3,6 +3,8 @@ const CACHE_NAME = 'ppm-vegi-cache-v1';
 const STATIC_ASSETS = [
     '/',
     '/static/manifest.json',
+    '/static/css/tailwind.min.css',
+    '/static/css/styles.css',
     '/static/icons/icon-192.png',
     '/static/icons/icon-512.png',
     '/static/js/store.js'
