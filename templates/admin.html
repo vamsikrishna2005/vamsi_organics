@@ -1,6 +1,41 @@
 {% extends 'base.html' %}
 
 {% block content %}
+<style>
+    .admin-kpi-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+    @media (min-width: 1024px) {
+        .admin-kpi-grid {
+            grid-template-columns: repeat(4, 1fr);
+        }
+    }
+    .admin-kpi-card {
+        background: #ffffff;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 1rem;
+        padding: 1.25rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+        transition: all 0.2s ease;
+    }
+    .admin-kpi-card:hover {
+        box-shadow: 0 4px 6px -1px rgba(15, 23, 42, 0.06);
+        border-color: #cbd5e1;
+    }
+    .pro-section-card {
+        background: #ffffff;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 1rem;
+        padding: 1.5rem;
+        box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03);
+    }
+</style>
+
 <div class="space-y-8">
     
     <!-- Admin Header -->
@@ -32,9 +67,9 @@
     </div>
 
     <!-- Top KPI Business Intelligence Cards -->
-    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 admin-kpi-grid">
         <!-- Revenue -->
-        <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-xs flex items-center space-x-4">
+        <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-xs flex items-center space-x-4 admin-kpi-card">
             <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl font-black">
                 ₹
             </div>
@@ -46,7 +81,7 @@
         </div>
 
         <!-- Orders -->
-        <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-xs flex items-center space-x-4">
+        <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-xs flex items-center space-x-4 admin-kpi-card">
             <div class="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center text-xl">
                 <i class="fa-solid fa-truck-fast"></i>
             </div>
@@ -58,7 +93,7 @@
         </div>
 
         <!-- Customers -->
-        <a href="/admin/customers" class="bg-white hover:bg-purple-50/40 p-5 rounded-2xl border border-gray-100 shadow-xs flex items-center space-x-4 transition group" title="Open Dedicated Customers Directory">
+        <a href="/admin/customers" class="bg-white hover:bg-purple-50/40 p-5 rounded-2xl border border-gray-100 shadow-xs flex items-center space-x-4 transition group admin-kpi-card" title="Open Dedicated Customers Directory">
             <div class="w-12 h-12 rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center text-xl group-hover:scale-105 transition-transform">
                 <i class="fa-solid fa-users"></i>
             </div>
@@ -70,7 +105,7 @@
         </a>
 
         <!-- Low Stock -->
-        <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-xs flex items-center space-x-4">
+        <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-xs flex items-center space-x-4 admin-kpi-card">
             <div class="w-12 h-12 rounded-2xl {% if kpi.low_stock_count > 0 %}bg-amber-50 text-amber-600{% else %}bg-green-50 text-green-600{% endif %} flex items-center justify-center text-xl">
                 <i class="fa-solid fa-triangle-exclamation"></i>
             </div>

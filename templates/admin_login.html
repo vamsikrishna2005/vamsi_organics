@@ -2,118 +2,125 @@
 
 {% block content %}
 <style>
-    .admin-auth-container {
-        min-height: 85vh;
+    .admin-auth-wrapper {
+        min-height: 88vh;
         display: flex;
         align-items: center;
         justify-content: center;
         padding: 2.5rem 1rem;
-        position: relative;
+        background: radial-gradient(circle at 50% 0%, #1e293b 0%, #0f172a 100%);
     }
-    .admin-auth-card {
+    .admin-card-panel {
         width: 100%;
         max-width: 440px;
         background: #ffffff;
-        border-radius: 1.5rem;
-        box-shadow: 0 20px 25px -5px rgba(6, 78, 59, 0.08), 0 8px 10px -6px rgba(6, 78, 59, 0.04);
-        border: 1px solid #d1fae5;
-        padding: 2rem;
-        position: relative;
+        border-radius: 1.25rem;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        padding: 2.25rem 2rem;
         box-sizing: border-box;
     }
-    .admin-auth-emblem {
-        width: 4rem;
-        height: 4rem;
+    .admin-brand-icon {
+        width: 3.75rem;
+        height: 3.75rem;
         border-radius: 1rem;
-        background: linear-gradient(135deg, #047857, #16a34a);
+        background: linear-gradient(135deg, #0f172a 0%, #047857 100%);
         color: #ffffff;
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        font-size: 2rem;
         margin: 0 auto 0.75rem auto;
-        box-shadow: 0 10px 15px -3px rgba(4, 120, 87, 0.25);
+        box-shadow: 0 10px 15px -3px rgba(15, 23, 42, 0.3);
     }
-    .admin-auth-input {
+    .admin-input-group {
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
+    .admin-input-icon {
+        position: absolute;
+        left: 0.85rem;
+        color: #94a3b8;
+        font-size: 0.8125rem;
+        pointer-events: none;
+    }
+    .admin-text-input {
         width: 100%;
         padding: 0.875rem 1rem 0.875rem 2.75rem;
-        border: 1px solid #e2e8f0;
-        border-radius: 1rem;
         font-size: 0.875rem;
-        font-weight: 700;
-        color: #111827;
+        font-weight: 600;
+        color: #0f172a;
         background-color: #f8fafc;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 0.875rem;
+        outline: none;
         box-sizing: border-box;
         transition: all 0.15s ease;
     }
-    .admin-auth-input:focus {
-        outline: none;
+    .admin-text-input:focus {
+        background-color: #ffffff;
         border-color: #047857;
         box-shadow: 0 0 0 3px rgba(4, 120, 87, 0.15);
-        background-color: #ffffff;
     }
-    .admin-auth-btn {
+    .btn-admin-submit {
         width: 100%;
-        background-color: #047857;
-        color: #ffffff;
-        font-weight: 800;
+        padding: 0.95rem 1.25rem;
         font-size: 0.875rem;
-        padding: 1rem;
-        border-radius: 1rem;
-        border: none;
+        font-weight: 800;
+        color: #ffffff;
+        background: linear-gradient(135deg, #0f172a 0%, #047857 100%);
+        border: 1px solid #0f172a;
+        border-radius: 0.875rem;
         cursor: pointer;
         display: flex;
         align-items: center;
         justify-content: center;
         gap: 0.5rem;
-        box-shadow: 0 10px 15px -3px rgba(4, 120, 87, 0.25);
+        box-shadow: 0 4px 6px -1px rgba(15, 23, 42, 0.3);
         transition: all 0.15s ease;
-        margin-top: 0.75rem;
+        margin-top: 1.25rem;
     }
-    .admin-auth-btn:hover {
-        background-color: #065f46;
+    .btn-admin-submit:hover {
+        background: linear-gradient(135deg, #047857 0%, #065f46 100%);
+        box-shadow: 0 10px 15px -3px rgba(4, 120, 87, 0.3);
+        transform: translateY(-1px);
+    }
+    .btn-admin-submit:active {
+        transform: translateY(0);
     }
 </style>
 
-<div class="admin-auth-container min-h-[85vh] flex items-center justify-center py-10 px-4 sm:px-6 relative overflow-hidden">
-    <!-- Subtle Organic Glow -->
-    <div class="absolute -top-24 -left-24 w-96 h-96 bg-emerald-100/40 rounded-full blur-3xl pointer-events-none -z-10"></div>
-    <div class="absolute -bottom-24 -right-24 w-96 h-96 bg-green-100/40 rounded-full blur-3xl pointer-events-none -z-10"></div>
-
-    <div class="admin-auth-card w-full max-w-md bg-white rounded-3xl shadow-2xl shadow-emerald-950/8 border border-emerald-100/80 p-6 sm:p-8 space-y-6 relative transition-all duration-200">
-        <!-- Brand Header Emblem -->
-        <div class="text-center space-y-2">
-            <div class="admin-auth-emblem inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-tr from-emerald-700 to-green-600 text-white shadow-lg shadow-emerald-700/25 ring-4 ring-emerald-50 text-3xl">
-                🥬
+<div class="admin-auth-wrapper">
+    <div class="admin-card-panel">
+        
+        <!-- Header -->
+        <div style="text-align: center; margin-bottom: 1.5rem;">
+            <div class="admin-brand-icon">
+                <i class="fa-solid fa-shield-halved" style="font-size: 1.5rem; color: #34d399;"></i>
             </div>
-            <div>
-                <h1 class="font-black text-2xl tracking-tight text-gray-900 leading-snug">
-                    PPM <span class="text-emerald-700">ORGANIC FARMS</span>
-                </h1>
-                <p class="text-xs font-bold text-gray-500 mt-1">
-                    Store Manager & Operations Sign In
-                </p>
+            <h1 style="margin: 0; font-size: 1.35rem; font-weight: 900; color: #0f172a; letter-spacing: -0.02em;">
+                PPM <span style="color: #047857;">ORGANIC FARMS</span>
+            </h1>
+            <p style="margin: 0.25rem 0 0 0; font-size: 0.75rem; font-weight: 700; color: #64748b;">
+                Store Manager & Farm Operations Console
+            </p>
+            <div style="display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.25rem 0.75rem; background-color: #f1f5f9; border-radius: 9999px; margin-top: 0.65rem; border: 1px solid #e2e8f0; font-size: 0.6875rem; font-weight: 800; color: #475569;">
+                <i class="fa-solid fa-lock" style="font-size: 0.625rem; color: #047857;"></i>
+                <span>256-Bit SSL Encrypted Console</span>
             </div>
         </div>
 
-        <!-- Flash Notification Banner -->
+        <!-- Flash Messages -->
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
-                <div class="space-y-2">
+                <div style="margin-bottom: 1rem; display: flex; flex-direction: column; gap: 0.5rem;">
                     {% for category, message in messages %}
-                        <div class="p-3 text-xs font-bold rounded-2xl flex items-center justify-between animate-in fade-in
-                            {% if category == 'error' %}
-                                bg-red-50 text-red-800 border border-red-200
-                            {% elif category == 'info' %}
-                                bg-sky-50 text-sky-800 border border-sky-200
-                            {% else %}
-                                bg-emerald-50 text-emerald-800 border border-emerald-200
-                            {% endif %}">
-                            <span class="flex items-center gap-2">
-                                <i class="fa-solid {% if category == 'error' %}fa-triangle-exclamation text-red-600{% else %}fa-circle-check text-emerald-600{% endif %}"></i>
-                                {{ message }}
+                        <div style="padding: 0.65rem 0.85rem; border-radius: 0.65rem; font-size: 0.75rem; font-weight: 700; display: flex; justify-content: space-between; align-items: center; {% if category == 'error' %}background: #fff1f2; color: #9f1239; border: 1px solid #fecdd3;{% else %}background: #f0fdf4; color: #065f46; border: 1px solid #bbf7d0;{% endif %}">
+                            <span style="display: flex; align-items: center; gap: 0.35rem;">
+                                <i class="fa-solid {% if category == 'error' %}fa-triangle-exclamation{% else %}fa-circle-check{% endif %}"></i>
+                                <span>{{ message }}</span>
                             </span>
-                            <button type="button" onclick="this.parentElement.remove()" class="text-gray-400 hover:text-gray-600 ml-2">
+                            <button type="button" onclick="this.parentElement.remove()" style="background: none; border: none; cursor: pointer; color: #94a3b8;">
                                 <i class="fa-solid fa-xmark"></i>
                             </button>
                         </div>
@@ -122,52 +129,49 @@
             {% endif %}
         {% endwith %}
 
-        <form id="adminLoginForm" action="/admin/login" method="POST" autocomplete="off" class="space-y-4">
+        <form id="adminLoginForm" action="/admin/login" method="POST" autocomplete="off" style="display: flex; flex-direction: column; gap: 1rem;">
             <input type="hidden" name="login_type" value="admin">
             
             <div>
-                <label for="admin-username" class="block text-[11px] font-black text-gray-700 uppercase tracking-wider mb-1.5">
-                    Manager Username or Mobile Number
+                <label for="admin-username" style="display: block; font-size: 0.6875rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: #334155; margin-bottom: 0.35rem;">
+                    Manager Username or Admin Mobile
                 </label>
-                <div class="relative">
-                    <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-gray-400">
-                        <i class="fa-solid fa-user-tie text-xs"></i>
+                <div class="admin-input-group">
+                    <span class="admin-input-icon">
+                        <i class="fa-solid fa-user-shield"></i>
                     </span>
-                    <input type="text" id="admin-username" name="username" value="{{ request.args.get('username', '') }}" placeholder="Enter username or mobile (ppm, admin, or 7675960440)" required autofocus autocomplete="off"
-                           class="admin-auth-input pl-10 w-full px-4 py-3.5 border border-gray-200 rounded-2xl font-bold text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-600 bg-gray-50/60 transition">
+                    <input type="text" id="admin-username" name="username" value="{{ request.args.get('username', '') }}" placeholder="ppm, admin, or 7675960440" required autofocus autocomplete="off"
+                           class="admin-text-input">
                 </div>
             </div>
 
             <div>
-                <div class="flex items-center justify-between mb-1.5">
-                    <label for="admin-password" class="block text-[11px] font-black text-gray-700 uppercase tracking-wider">
-                        Manager Password
-                    </label>
-                </div>
-                <div class="relative">
-                    <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-gray-400">
-                        <i class="fa-solid fa-lock text-xs"></i>
+                <label for="admin-password" style="display: block; font-size: 0.6875rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: #334155; margin-bottom: 0.35rem;">
+                    Admin Password
+                </label>
+                <div class="admin-input-group">
+                    <span class="admin-input-icon">
+                        <i class="fa-solid fa-key"></i>
                     </span>
-                    <input type="password" id="admin-password" name="password" placeholder="Enter administrator password" required autocomplete="current-password"
-                           class="admin-auth-input pl-10 pr-10 w-full px-4 py-3.5 border border-gray-200 rounded-2xl font-bold text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-600 bg-gray-50/60 transition">
-                    <button type="button" onclick="toggleAdminPassword()" class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-gray-400 hover:text-gray-600 focus:outline-none" title="Toggle password visibility">
-                        <i id="admin-pw-eye" class="fa-solid fa-eye text-xs"></i>
+                    <input type="password" id="admin-password" name="password" placeholder="Enter password" required autocomplete="current-password"
+                           class="admin-text-input" style="padding-right: 2.75rem;">
+                    <button type="button" onclick="toggleAdminPassword()" style="position: absolute; right: 0.85rem; background: none; border: none; color: #94a3b8; cursor: pointer;">
+                        <i id="admin-pw-eye" class="fa-solid fa-eye" style="font-size: 0.8125rem;"></i>
                     </button>
                 </div>
             </div>
 
-            <button type="submit" id="adminSubmitBtn" class="admin-auth-btn w-full bg-emerald-700 hover:bg-emerald-800 text-white font-black py-4 rounded-2xl shadow-lg shadow-emerald-700/25 transition-all duration-150 focus:outline-none flex items-center justify-center space-x-2 active:scale-[0.99] text-sm mt-3">
-                <i class="fa-solid fa-sliders text-xs"></i>
-                <span id="adminSubmitText">Log In to Store Manager Panel</span>
-                <i id="adminSubmitSpinner" class="fa-solid fa-circle-notch fa-spin text-xs hidden ml-1.5"></i>
+            <button type="submit" id="adminSubmitBtn" class="btn-admin-submit">
+                <i class="fa-solid fa-shield-halved" style="font-size: 0.8125rem;"></i>
+                <span id="adminSubmitText">Authenticate & Open Console</span>
+                <i id="adminSubmitSpinner" class="fa-solid fa-circle-notch fa-spin hidden" style="font-size: 0.8125rem; margin-left: 0.35rem;"></i>
             </button>
         </form>
 
-        <!-- Navigation Return -->
-        <div class="pt-4 border-t border-gray-100 text-center">
-            <a href="/login" class="text-xs font-bold text-emerald-700 hover:text-emerald-800 hover:underline transition inline-flex items-center gap-1.5 py-1 px-3">
-                <i class="fa-solid fa-arrow-left text-[10px]"></i>
-                <span>Return to Customer Market</span>
+        <div style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid #f1f5f9; text-align: center;">
+            <a href="/login" style="font-size: 0.75rem; font-weight: 700; color: #047857; text-decoration: none; display: inline-flex; align-items: center; gap: 0.35rem;">
+                <i class="fa-solid fa-arrow-left" style="font-size: 0.65rem;"></i>
+                <span>Return to Customer Market Portal</span>
             </a>
         </div>
     </div>
@@ -196,8 +200,9 @@
     if (adminForm && adminBtn) {
         adminForm.addEventListener('submit', function() {
             adminBtn.disabled = true;
-            adminBtn.classList.add('opacity-80', 'cursor-wait');
-            if (adminText) adminText.textContent = 'Verifying credentials...';
+            adminBtn.style.opacity = '0.8';
+            adminBtn.style.cursor = 'wait';
+            if (adminText) adminText.textContent = 'Verifying security credentials...';
             if (adminSpinner) adminSpinner.classList.remove('hidden');
         });
     }
