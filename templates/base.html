@@ -2,10 +2,53 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="user-role" content="{{ current_user.role if current_user else 'guest' }}">
     <meta name="user-id" content="{{ current_user.id if current_user else '' }}">
     <title>PPM Organic Farms - Fresh & Smart 🥬</title>
+
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="PPM Organic Farms delivers 100% certified farm-fresh Indian vegetables, harvested daily at 5 AM with zero pesticides. Fast morning delivery in 15-30 minutes with 5% cashback coins.">
+    <meta name="keywords" content="organic vegetables, fresh farm produce, tomato, onion, palak, indian mandi, zero pesticide vegetables, Hyderabad, Andhra, PPM Organic Farms">
+    <meta name="author" content="PPM Organic Farms">
+    <meta name="robots" content="index, follow">
+
+    <!-- Open Graph / Facebook / WhatsApp Meta Tags -->
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="PPM Organic Farms">
+    <meta property="og:title" content="PPM Organic Farms - 100% Certified Farm-Fresh Mandi">
+    <meta property="og:description" content="Direct soil harvest daily at 5:00 AM. Zero chemical pesticides, 15-30 min express delivery & 5% cashback coins.">
+    <meta property="og:url" content="https://vamsi2005.pythonanywhere.com/">
+    <meta property="og:image" content="https://vamsi2005.pythonanywhere.com/static/icons/icon-512.png">
+
+    <!-- Twitter Cards -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="PPM Organic Farms - Farm Fresh Daily">
+    <meta name="twitter:description" content="100% Certified Farm-Fresh Mandi Vegetables Delivered Daily. Zero Pesticides.">
+    <meta name="twitter:image" content="https://vamsi2005.pythonanywhere.com/static/icons/icon-512.png">
+
+    <!-- Schema.org JSON-LD Structured Data for Organic Food Store -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "OrganicFoodStore",
+      "name": "PPM Organic Farms",
+      "description": "100% Certified Farm-Fresh Indian Vegetables Mandi. Harvested daily at 5 AM with zero chemical pesticides.",
+      "url": "https://vamsi2005.pythonanywhere.com/",
+      "logo": "https://vamsi2005.pythonanywhere.com/static/icons/icon-512.png",
+      "image": "https://vamsi2005.pythonanywhere.com/static/icons/icon-512.png",
+      "telephone": "+91-7675960440",
+      "priceRange": "₹",
+      "openingHours": "Mo-Su 05:00-21:00",
+      "currenciesAccepted": "INR",
+      "paymentAccepted": "Cash, UPI, Credit Card, Farm Coins",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://vamsi2005.pythonanywhere.com/shop?q={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
+    }
+    </script>
 
     <!-- PWA Web App Manifest & Mobile Web Tags -->
     <link rel="manifest" href="/static/manifest.json">
@@ -252,7 +295,7 @@
 
     <!-- Mobile-First Glassy Bottom Navigation Bar (Hidden on Auth and Admin Pages) -->
     {% if request.path not in ['/login', '/register', '/admin/login'] and not request.path.startswith('/admin') %}
-        <div class="sm:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-gray-200/80 z-40 px-6 py-2 flex items-center justify-between shadow-xl">
+        <div class="sm:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-gray-200/80 z-40 px-6 py-2 flex items-center justify-between shadow-xl" style="padding-bottom: max(0.5rem, env(safe-area-inset-bottom));">
             <a href="/dashboard#market" onclick="if (typeof switchDashboardTab === 'function') { switchDashboardTab('market'); return false; }" class="flex flex-col items-center text-emerald-700 font-extrabold">
                 <i class="fa-solid fa-store text-base"></i>
                 <span class="text-[10px] mt-0.5">Market</span>
@@ -298,7 +341,7 @@
     {% endif %}
 
     <!-- Main Content Container -->
-    <main class="flex-grow max-w-7xl w-full mx-auto {% if request.path in ['/login', '/register', '/admin/login'] %}p-0 flex items-center justify-center{% else %}px-4 sm:px-6 lg:px-8 py-6 pb-24 sm:pb-8{% endif %}">
+    <main class="flex-grow max-w-7xl w-full mx-auto {% if request.path in ['/login', '/register', '/admin/login'] %}p-0 flex items-center justify-center{% else %}px-4 sm:px-6 lg:px-8 py-6 pb-28 sm:pb-8{% endif %}">
         <!-- Toast Notification Container -->
         <div id="toast-container" class="fixed top-20 right-4 z-50 flex flex-col gap-2 max-w-sm pointer-events-none"></div>
 

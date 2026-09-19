@@ -46,10 +46,16 @@
         <!-- Quick Search & Cart Pill in Hero -->
         <div class="relative z-10 mt-8 pt-6 border-t border-white/15 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div class="relative flex-grow max-w-md">
-                <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-emerald-300">
+                <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-emerald-300 pointer-events-none">
                     <i class="fa-solid fa-magnifying-glass text-sm"></i>
                 </span>
-                <input type="text" id="search-input" name="vegetable_search" onkeyup="searchProducts()" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" value="" placeholder="Search 'టమోటా', 'tomato', 'palak', 'onion'..." class="w-full pl-10 pr-12 py-3 rounded-2xl bg-white/15 backdrop-blur-md border border-white/20 text-xs sm:text-sm font-bold text-white placeholder-emerald-200/60 focus:outline-none focus:ring-2 focus:ring-white focus:bg-white focus:text-gray-900 transition duration-200">
+                <input type="text" id="search-input" name="vegetable_search" onkeyup="searchProducts()" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" value="" placeholder="Search 'టమోటా', 'tomato', 'palak', 'onion'..." class="w-full pl-10 pr-20 py-3 rounded-2xl bg-white/15 backdrop-blur-md border border-white/20 text-xs sm:text-sm font-bold text-white placeholder-emerald-200/60 focus:outline-none focus:ring-2 focus:ring-white focus:bg-white focus:text-gray-900 transition duration-200">
+                
+                <!-- Clear Search Button -->
+                <button type="button" id="search-clear-btn" onclick="clearSearchInput()" class="hidden absolute inset-y-0 right-11 flex items-center pr-1 text-white/60 hover:text-white transition" title="Clear search">
+                    <i class="fa-solid fa-circle-xmark text-sm"></i>
+                </button>
+
                 <button type="button" id="voice-search-btn" onclick="startVoiceSearch()" title="Search by Voice (English / Telugu)" class="absolute inset-y-0 right-0 pr-3 flex items-center text-emerald-200 hover:text-white transition active:scale-95">
                     <span id="voice-mic-icon" class="w-8 h-8 rounded-xl bg-white/20 hover:bg-white/30 flex items-center justify-center text-xs shadow-xs" title="Click to speak (Telugu / English)">
                         <i class="fa-solid fa-microphone"></i>
@@ -183,6 +189,39 @@
                         </div>
                     </div>
                 {% endfor %}
+            </div>
+
+            <!-- Search Empty State (shown when 0 products match query) -->
+            <div id="search-empty-state" class="hidden p-8 sm:p-12 text-center bg-white rounded-3xl border border-dashed border-gray-200 shadow-xs space-y-4 my-6">
+                <div class="w-16 h-16 mx-auto rounded-2xl bg-emerald-50 text-emerald-700 flex items-center justify-center text-3xl">
+                    🥬
+                </div>
+                <div class="space-y-1">
+                    <h4 class="text-base font-black text-gray-900">No farm vegetables found for "<span id="empty-query-text" class="text-emerald-700"></span>"</h4>
+                    <p class="text-xs text-gray-500 max-w-md mx-auto">We couldn't find an exact harvest match. Try searching by Telugu name, category, or explore our popular daily harvests below:</p>
+                </div>
+                <div class="flex flex-wrap items-center justify-center gap-2 pt-2">
+                    <button type="button" onclick="setQuickSearch('Tomato')" class="px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold text-xs rounded-xl border border-emerald-200 transition">
+                        🍅 Tomato (టమోటా)
+                    </button>
+                    <button type="button" onclick="setQuickSearch('Palak')" class="px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold text-xs rounded-xl border border-emerald-200 transition">
+                        🥬 Palak (పాలకూర)
+                    </button>
+                    <button type="button" onclick="setQuickSearch('Onion')" class="px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold text-xs rounded-xl border border-emerald-200 transition">
+                        🧅 Onion (ఉల్లిపాయ)
+                    </button>
+                    <button type="button" onclick="setQuickSearch('Chilli')" class="px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold text-xs rounded-xl border border-emerald-200 transition">
+                        🌶️ Green Chilli (మిరపకాయ)
+                    </button>
+                    <button type="button" onclick="setQuickSearch('Potato')" class="px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold text-xs rounded-xl border border-emerald-200 transition">
+                        🥔 Potato (బంగాళాదుంప)
+                    </button>
+                </div>
+                <div class="pt-2">
+                    <button type="button" onclick="clearSearchInput()" class="px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white font-extrabold text-xs rounded-xl shadow-xs transition">
+                        Clear Search Filter
+                    </button>
+                </div>
             </div>
 
             <!-- Trust & Benefits Section -->
@@ -654,20 +693,22 @@
     }
 
     function searchProducts() {
-        const query = (document.getElementById("search-input") ? document.getElementById("search-input").value : "").toLowerCase().trim();
-        const cards = document.querySelectorAll(".product-card");
-        
-        cards.forEach(card => {
-            const name = (card.dataset.name || "").toLowerCase();
-            const tags = (card.dataset.tags || "").toLowerCase();
-            const category = (card.dataset.category || "").toLowerCase();
-            
-            if (query === "" || name.includes(query) || tags.includes(query) || category.includes(query)) {
-                card.style.display = "flex";
-            } else {
-                card.style.display = "none";
-            }
-        });
+        if (typeof performOptimizedSearch === 'function') {
+            performOptimizedSearch();
+        } else {
+            const query = (document.getElementById("search-input") ? document.getElementById("search-input").value : "").toLowerCase().trim();
+            const cards = document.querySelectorAll(".product-card");
+            cards.forEach(card => {
+                const name = (card.dataset.name || "").toLowerCase();
+                const tags = (card.dataset.tags || "").toLowerCase();
+                const category = (card.dataset.category || "").toLowerCase();
+                if (query === "" || name.includes(query) || tags.includes(query) || category.includes(query)) {
+                    card.style.display = "flex";
+                } else {
+                    card.style.display = "none";
+                }
+            });
+        }
     }
 
     // Payment Modal Controls

@@ -3178,3 +3178,218 @@ async function sendFarmAIMessage(userText) {
     }
 }
 
+// =========================================================================
+// MULTILINGUAL (ENGLISH + TELUGU PHONETIC) & FUZZY SEARCH OPTIMIZATION
+// =========================================================================
+
+const TELUGU_VEG_DICTIONARY = {
+    'tamata': ['tomato', 'టమోటా', 'tamato', 'thakkali'],
+    'tomato': ['tamata', 'టమోటా', 'thakkali'],
+    'టమోటా': ['tomato', 'tamata'],
+    'ullipaya': ['onion', 'ఉల్లిపాయ', 'ulli', 'eerulli', 'piyaz'],
+    'ulli': ['onion', 'ఉల్లిపాయ', 'ullipaya'],
+    'onion': ['ullipaya', 'ఉల్లిపాయ', 'ulli', 'piyaz'],
+    'ఉల్లిపాయ': ['onion', 'ullipaya'],
+    'aloo': ['potato', 'బంగాళాదుంప', 'bangaladumpa', 'batata'],
+    'potato': ['aloo', 'బంగాళాదుంప', 'bangaladumpa'],
+    'bangaladumpa': ['potato', 'aloo', 'బంగాళాదుంప'],
+    'బంగాళాదుంప': ['potato', 'aloo'],
+    'bendakaya': ['okra', 'బెండకాయ', 'bhendi', 'bhindi', 'ladies finger'],
+    'bhindi': ['okra', 'బెండకాయ', 'bendakaya'],
+    'okra': ['bendakaya', 'బెండకాయ', 'bhindi', 'bhendi'],
+    'బెండకాయ': ['okra', 'bendakaya', 'bhindi'],
+    'vankaya': ['brinjal', 'వంకాయ', 'baingan', 'eggplant'],
+    'baingan': ['brinjal', 'వంకాయ', 'vankaya'],
+    'brinjal': ['vankaya', 'వంకాయ', 'baingan', 'eggplant'],
+    'వంకాయ': ['brinjal', 'vankaya'],
+    'mirapa': ['chilli', 'మిరపకాయ', 'mirchi', 'chili'],
+    'mirchi': ['chilli', 'మిరపకాయ', 'mirapa', 'pachi mirchi'],
+    'chilli': ['mirchi', 'మిరపకాయ', 'mirapa', 'pachi mirchi'],
+    'chili': ['chilli', 'mirchi', 'మిరపకాయ'],
+    'మిరపకాయ': ['chilli', 'mirchi', 'mirapa'],
+    'palak': ['spinach', 'పాలకూర', 'palakoora'],
+    'palakoora': ['spinach', 'పాలకూర', 'palak'],
+    'spinach': ['palak', 'పాలకూర', 'palakoora'],
+    'పాలకూర': ['spinach', 'palak'],
+    'kothimeera': ['coriander', 'కొత్తిమీర', 'dhaniya'],
+    'coriander': ['kothimeera', 'కొత్తిమీర', 'dhaniya'],
+    'కొత్తిమీర': ['coriander', 'kothimeera'],
+    'pudina': ['mint', 'పుదీనా'],
+    'mint': ['pudina', 'పుదీనా'],
+    'పుదీనా': ['mint', 'pudina'],
+    'carrot': ['carret', 'క్యారెట్', 'gajjara'],
+    'క్యారెట్': ['carrot', 'carret'],
+    'sorakaya': ['bottle gourd', 'సొరకాయ', 'anapakaya', 'lauki'],
+    'anapakaya': ['bottle gourd', 'సొరకాయ', 'sorakaya'],
+    'bottle gourd': ['sorakaya', 'సొరకాయ', 'lauki'],
+    'సొరకాయ': ['bottle gourd', 'sorakaya'],
+    'kakarakaya': ['bitter gourd', 'కాకరకాయ', 'karela'],
+    'karela': ['bitter gourd', 'కాకరకాయ', 'kakarakaya'],
+    'bitter gourd': ['kakarakaya', 'కాకరకాయ', 'karela'],
+    'కాకరకాయ': ['bitter gourd', 'kakarakaya'],
+    'beerakaya': ['ridge gourd', 'బీరకాయ', 'turai'],
+    'ridge gourd': ['beerakaya', 'బీరకాయ', 'turai'],
+    'బీరకాయ': ['ridge gourd', 'beerakaya'],
+    'dosakaya': ['cucumber', 'దోసకాయ', 'keera', 'kheera'],
+    'cucumber': ['dosakaya', 'దోసకాయ', 'keera', 'kheera'],
+    'keera': ['cucumber', 'దోసకాయ', 'dosakaya'],
+    'దోసకాయ': ['cucumber', 'dosakaya'],
+    'chikkudukaya': ['beans', 'చిక్కుడుకాయ'],
+    'beans': ['chikkudukaya', 'చిక్కుడుకాయ'],
+    'చిక్కుడుకాయ': ['beans', 'chikkudukaya'],
+    'cauliflower': ['గోబీ', 'gobi', 'cauliflower'],
+    'cabbage': ['క్యాబేజీ', 'patta gobi', 'cabbage'],
+    'ginger': ['allam', 'అల్లం', 'adrak'],
+    'allam': ['ginger', 'అల్లం', 'adrak'],
+    'garlic': ['vellulli', 'వెల్లుల్లి', 'lahsun'],
+    'vellulli': ['garlic', 'వెల్లుల్లి', 'lahsun'],
+    'lemon': ['nimakaya', 'నిమ్మకాయ', 'nimbu'],
+    'nimakaya': ['lemon', 'నిమ్మకాయ', 'nimbu']
+};
+
+function calculateLevenshtein(a, b) {
+    if (!a || !b) return (a || b || '').length;
+    const m = a.length, n = b.length;
+    const dp = Array.from({ length: m + 1 }, () => new Array(n + 1).fill(0));
+    for (let i = 0; i <= m; i++) dp[i][0] = i;
+    for (let j = 0; j <= n; j++) dp[0][j] = j;
+    for (let i = 1; i <= m; i++) {
+        for (let j = 1; j <= n; j++) {
+            if (a[i - 1] === b[j - 1]) dp[i][j] = dp[i - 1][j - 1];
+            else dp[i][j] = Math.min(dp[i - 1][j - 1], dp[i - 1][j], dp[i][j - 1]) + 1;
+        }
+    }
+    return dp[m][n];
+}
+
+function performOptimizedSearch() {
+    const searchInput = document.getElementById("search-input");
+    const clearBtn = document.getElementById("search-clear-btn");
+    const countDisplay = document.getElementById("product-count-display");
+    const emptyState = document.getElementById("search-empty-state");
+    const emptyQueryText = document.getElementById("empty-query-text");
+
+    const rawQuery = (searchInput ? searchInput.value : "").trim();
+    const query = rawQuery.toLowerCase();
+
+    // Toggle clear button visibility
+    if (clearBtn) {
+        if (query.length > 0) {
+            clearBtn.classList.remove("hidden");
+            clearBtn.style.display = "flex";
+        } else {
+            clearBtn.classList.add("hidden");
+            clearBtn.style.display = "none";
+        }
+    }
+
+    const cards = document.querySelectorAll(".product-card");
+    if (!cards || cards.length === 0) return;
+
+    if (query === "") {
+        cards.forEach(card => card.style.display = "flex");
+        if (emptyState) {
+            emptyState.classList.add("hidden");
+            emptyState.style.display = "none";
+        }
+        if (countDisplay) {
+            countDisplay.innerHTML = `<strong>${cards.length}</strong> Farm Vegetables in Stock`;
+        }
+        return;
+    }
+
+    // Tokenize multi-word search
+    const tokens = query.split(/\s+/).filter(t => t.length > 0);
+    const expandedTokens = new Set(tokens);
+
+    tokens.forEach(tok => {
+        if (TELUGU_VEG_DICTIONARY[tok]) {
+            TELUGU_VEG_DICTIONARY[tok].forEach(syn => expandedTokens.add(syn.toLowerCase()));
+        }
+        for (const [key, syns] of Object.entries(TELUGU_VEG_DICTIONARY)) {
+            if (key.includes(tok) || tok.includes(key)) {
+                syns.forEach(s => expandedTokens.add(s.toLowerCase()));
+            }
+        }
+    });
+
+    let visibleCount = 0;
+
+    cards.forEach(card => {
+        const name = (card.dataset.name || "").toLowerCase();
+        const tags = (card.dataset.tags || "").toLowerCase();
+        const category = (card.dataset.category || "").toLowerCase();
+        const fullContent = `${name} ${tags} ${category}`;
+
+        let matches = false;
+
+        for (const token of expandedTokens) {
+            if (fullContent.includes(token)) {
+                matches = true;
+                break;
+            }
+            if (token.length >= 4) {
+                const words = fullContent.split(/\s+/);
+                for (const w of words) {
+                    if (w.length >= 4 && calculateLevenshtein(token, w) <= 1) {
+                        matches = true;
+                        break;
+                    }
+                }
+                if (matches) break;
+            }
+        }
+
+        if (matches) {
+            card.style.display = "flex";
+            visibleCount++;
+        } else {
+            card.style.display = "none";
+        }
+    });
+
+    if (countDisplay) {
+        if (visibleCount === cards.length) {
+            countDisplay.innerHTML = `<strong>${cards.length}</strong> Farm Vegetables in Stock`;
+        } else {
+            countDisplay.innerHTML = `Showing <strong>${visibleCount}</strong> of ${cards.length} vegetables`;
+        }
+    }
+
+    if (emptyState) {
+        if (visibleCount === 0) {
+            if (emptyQueryText) emptyQueryText.innerText = rawQuery;
+            emptyState.classList.remove("hidden");
+            emptyState.style.display = "block";
+        } else {
+            emptyState.classList.add("hidden");
+            emptyState.style.display = "none";
+        }
+    }
+}
+
+function clearSearchInput() {
+    const searchInput = document.getElementById("search-input");
+    if (searchInput) {
+        searchInput.value = "";
+        searchInput.focus();
+    }
+    performOptimizedSearch();
+}
+
+function setQuickSearch(term) {
+    const searchInput = document.getElementById("search-input");
+    if (searchInput) {
+        searchInput.value = term;
+        searchInput.focus();
+    }
+    performOptimizedSearch();
+}
+
+// Attach globally
+window.searchProducts = performOptimizedSearch;
+window.performOptimizedSearch = performOptimizedSearch;
+window.clearSearchInput = clearSearchInput;
+window.setQuickSearch = setQuickSearch;
+
+

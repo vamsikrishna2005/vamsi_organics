@@ -150,6 +150,71 @@
     .btn-submit-action:active {
         transform: translateY(0);
     }
+    .google-auth-btn {
+        width: 100%;
+        padding: 0.85rem 1.25rem;
+        font-size: 0.875rem;
+        font-weight: 700;
+        color: #1e293b;
+        background-color: #ffffff;
+        border: 1.5px solid #cbd5e1;
+        border-radius: 0.875rem;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.75rem;
+        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        transition: all 0.2s ease;
+    }
+    .google-auth-btn:hover {
+        background-color: #f8fafc;
+        border-color: #94a3b8;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.07);
+        transform: translateY(-1px);
+    }
+    .auth-divider {
+        display: flex;
+        align-items: center;
+        text-align: center;
+        margin: 1.15rem 0;
+        color: #94a3b8;
+        font-size: 0.6875rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+    .auth-divider::before,
+    .auth-divider::after {
+        content: '';
+        flex: 1;
+        border-bottom: 1px solid #e2e8f0;
+    }
+    .auth-divider span {
+        padding: 0 0.75rem;
+    }
+    @media (max-width: 480px) {
+        .auth-wrapper {
+            padding: 1.25rem 0.75rem;
+            min-height: 80vh;
+        }
+        .auth-card-panel {
+            padding: 1.5rem 1.15rem;
+            border-radius: 1rem;
+        }
+        .form-text-input {
+            padding: 0.85rem 0.75rem 0.85rem 4.5rem;
+            font-size: 0.875rem;
+        }
+        .phone-prefix-pill {
+            left: 0.5rem;
+            font-size: 0.75rem;
+        }
+        .segmented-btn {
+            padding: 0.55rem 0.35rem;
+            font-size: 0.7rem;
+        }
+    }
 </style>
 
 <div class="auth-wrapper">
@@ -210,6 +275,23 @@
 
         <!-- 1. Customer Login Form -->
         <div id="customer-login-section" style="display: block;">
+            <!-- Google Sign-In with Firebase -->
+            <div style="margin-bottom: 1.15rem;">
+                <button type="button" id="google-signin-btn" onclick="handleGoogleSignIn(this)" class="google-auth-btn">
+                    <svg class="google-icon" viewBox="0 0 24 24" width="18" height="18">
+                        <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.8-2.4 3.67v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.16z"/>
+                        <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.34 24 12 24z"/>
+                        <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.18 0 9.98 0 12s.45 3.82 1.25 5.42l4.03-3.15z"/>
+                        <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.34 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/>
+                    </svg>
+                    <span class="google-btn-text">Continue with Google</span>
+                </button>
+            </div>
+
+            <div class="auth-divider">
+                <span>or sign in with mobile</span>
+            </div>
+
             <form id="customer-login-form" action="/login" method="POST" autocomplete="off" style="display: flex; flex-direction: column; gap: 1rem;">
                 <input type="hidden" name="login_type" value="customer">
                 
@@ -246,6 +328,23 @@
 
         <!-- 2. Customer Registration Form -->
         <div id="customer-register-section" style="display: none;" class="hidden">
+            <!-- Google Sign-In with Firebase for Register -->
+            <div style="margin-bottom: 1.15rem;">
+                <button type="button" onclick="handleGoogleSignIn(this)" class="google-auth-btn">
+                    <svg class="google-icon" viewBox="0 0 24 24" width="18" height="18">
+                        <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.8-2.4 3.67v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.16z"/>
+                        <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.34 24 12 24z"/>
+                        <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.18 0 9.98 0 12s.45 3.82 1.25 5.42l4.03-3.15z"/>
+                        <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.34 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/>
+                    </svg>
+                    <span class="google-btn-text">Register with Google (+₹100)</span>
+                </button>
+            </div>
+
+            <div class="auth-divider">
+                <span>or register with mobile</span>
+            </div>
+
             <form id="customer-register-form" action="/register" method="POST" autocomplete="off" style="display: flex; flex-direction: column; gap: 0.85rem;">
                 <div>
                     <label for="reg-name" style="display: block; font-size: 0.6875rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: #334155; margin-bottom: 0.25rem;">
@@ -392,5 +491,86 @@
             switchLoginMode('customer');
         }
     });
+</script>
+
+<!-- Firebase Web SDK v10 (Compat for seamless cross-browser authentication) -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+
+<script>
+    // Initialize Firebase client credentials
+    const firebaseConfig = {
+        apiKey: "{{ firebase_config.apiKey or '' }}",
+        authDomain: "{{ firebase_config.authDomain or 'ppm-organic-farms.firebaseapp.com' }}",
+        projectId: "{{ firebase_config.projectId or 'ppm-organic-farms' }}",
+        storageBucket: "{{ firebase_config.storageBucket or 'ppm-organic-farms.appspot.com' }}",
+        messagingSenderId: "{{ firebase_config.messagingSenderId or '' }}",
+        appId: "{{ firebase_config.appId or '' }}"
+    };
+
+    let firebaseAuth = null;
+    if (typeof firebase !== 'undefined' && firebaseConfig.apiKey) {
+        try {
+            if (!firebase.apps.length) {
+                firebase.initializeApp(firebaseConfig);
+            }
+            firebaseAuth = firebase.auth();
+        } catch(err) {
+            console.warn("Firebase Auth init warning:", err);
+        }
+    }
+
+    async function handleGoogleSignIn(btnElement) {
+        let originalText = '';
+        if (btnElement) {
+            originalText = btnElement.innerHTML;
+            btnElement.disabled = true;
+            btnElement.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Connecting to Google...';
+        }
+
+        // If Firebase Auth is initialized and configured with an API key, authenticate via Firebase Popup
+        if (firebaseAuth && firebaseConfig.apiKey) {
+            try {
+                const provider = new firebase.auth.GoogleAuthProvider();
+                provider.setCustomParameters({ prompt: 'select_account' });
+                const result = await firebaseAuth.signInWithPopup(provider);
+                const user = result.user;
+                const idToken = await user.getIdToken();
+
+                const response = await fetch('/api/auth/firebase-login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        idToken: idToken,
+                        email: user.email,
+                        displayName: user.displayName,
+                        photoURL: user.photoURL
+                    })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    window.location.href = data.redirect || '/dashboard?tab=market';
+                    return;
+                } else {
+                    alert(data.error || 'Google sign-in could not be completed.');
+                }
+            } catch (fbErr) {
+                console.warn("Firebase popup sign-in encountered an issue, falling back to server Google flow:", fbErr);
+                window.location.href = '/auth/google';
+                return;
+            } finally {
+                if (btnElement) {
+                    btnElement.disabled = false;
+                    btnElement.innerHTML = originalText;
+                }
+            }
+        } else {
+            // Direct server-side Google OAuth / Account Chooser flow
+            window.location.href = '/auth/google';
+        }
+    }
 </script>
 {% endblock %}

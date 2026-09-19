@@ -110,14 +110,19 @@
         
         <!-- Search & Voice Recognition Bar -->
         <div class="bg-white p-4 sm:p-5 rounded-3xl border border-gray-100 shadow-xs flex flex-col md:flex-row gap-3 items-center justify-between">
-            <!-- Search Input with Voice Button -->
+            <!-- Search Input with Clear & Voice Buttons -->
             <div class="relative flex-grow w-full">
-                <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-gray-400">
+                <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-gray-400 pointer-events-none">
                     <i class="fa-solid fa-magnifying-glass text-sm"></i>
                 </span>
-                <input type="text" id="search-input" onkeyup="searchProducts()" placeholder="Search vegetables by English or Telugu names (e.g. Tomato, Palak, టమోటా)..."
+                <input type="text" id="search-input" onkeyup="searchProducts()" placeholder="Search vegetables by English or Telugu (e.g. Tomato, Palak, టమోటా)..."
                        class="pl-11 pr-24 w-full py-3 border border-gray-200 rounded-2xl font-bold text-xs sm:text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-gray-50/60 transition">
                 
+                <!-- Clear Search Button -->
+                <button type="button" id="search-clear-btn" onclick="clearSearchInput()" class="hidden absolute inset-y-0 right-20 flex items-center pr-2 text-gray-400 hover:text-gray-600 transition" title="Clear search">
+                    <i class="fa-solid fa-circle-xmark text-sm"></i>
+                </button>
+
                 <!-- Pulsing Voice Search Mic Button -->
                 <button type="button" id="voice-search-btn" onclick="startVoiceSearch()" title="Search using voice (English or Telugu)"
                         class="absolute inset-y-1.5 right-1.5 px-3 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-extrabold text-xs rounded-xl border border-emerald-200 transition flex items-center gap-1.5 active:scale-95">
@@ -127,9 +132,9 @@
             </div>
 
             <!-- Total Available Counter -->
-            <div class="flex items-center gap-2 text-xs font-bold text-gray-500 flex-shrink-0">
+            <div class="flex items-center gap-2 text-xs font-bold text-gray-500 flex-shrink-0" id="search-counter-badge">
                 <span>🥬</span>
-                <span><strong>{{ products | length }}</strong> Farm Vegetables in Stock</span>
+                <span id="product-count-display"><strong>{{ products | length }}</strong> Farm Vegetables in Stock</span>
             </div>
         </div>
 
@@ -242,6 +247,39 @@
 
                 </div>
             {% endfor %}
+        </div>
+
+        <!-- Search Empty State (shown when 0 products match query) -->
+        <div id="search-empty-state" class="hidden p-8 sm:p-12 text-center bg-white rounded-3xl border border-dashed border-gray-200 shadow-xs space-y-4 my-6">
+            <div class="w-16 h-16 mx-auto rounded-2xl bg-emerald-50 text-emerald-700 flex items-center justify-center text-3xl">
+                🥬
+            </div>
+            <div class="space-y-1">
+                <h4 class="text-base font-black text-gray-900">No farm vegetables found for "<span id="empty-query-text" class="text-emerald-700"></span>"</h4>
+                <p class="text-xs text-gray-500 max-w-md mx-auto">We couldn't find an exact harvest match. Try searching by Telugu name, category, or explore our popular daily harvests below:</p>
+            </div>
+            <div class="flex flex-wrap items-center justify-center gap-2 pt-2">
+                <button type="button" onclick="setQuickSearch('Tomato')" class="px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold text-xs rounded-xl border border-emerald-200 transition">
+                    🍅 Tomato (టమోటా)
+                </button>
+                <button type="button" onclick="setQuickSearch('Palak')" class="px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold text-xs rounded-xl border border-emerald-200 transition">
+                    🥬 Palak (పాలకూర)
+                </button>
+                <button type="button" onclick="setQuickSearch('Onion')" class="px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold text-xs rounded-xl border border-emerald-200 transition">
+                    🧅 Onion (ఉల్లిపాయ)
+                </button>
+                <button type="button" onclick="setQuickSearch('Chilli')" class="px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold text-xs rounded-xl border border-emerald-200 transition">
+                    🌶️ Green Chilli (మిరపకాయ)
+                </button>
+                <button type="button" onclick="setQuickSearch('Potato')" class="px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold text-xs rounded-xl border border-emerald-200 transition">
+                    🥔 Potato (బంగాళాదుంప)
+                </button>
+            </div>
+            <div class="pt-2">
+                <button type="button" onclick="clearSearchInput()" class="px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white font-extrabold text-xs rounded-xl shadow-xs transition">
+                    Clear Search Filter
+                </button>
+            </div>
         </div>
 
         <!-- Trust & Benefits Section -->
@@ -423,7 +461,7 @@
                         <span class="text-xs font-black text-gray-700 uppercase tracking-wider flex items-center gap-1.5">
                             <i class="fa-solid fa-clock text-emerald-600"></i> Delivery Schedule
                         </span>
-                        <div class="grid grid-cols-2 gap-2 text-xs">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
                             <div>
                                 <label for="delivery-date" class="block text-[10px] text-gray-400 font-bold uppercase mb-1">Harvest Date</label>
                                 <input type="date" id="delivery-date" required class="w-full px-3 py-2 border border-gray-200 rounded-xl font-bold text-gray-800 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 text-xs">
@@ -576,7 +614,64 @@
                     </button>
                 </div>
             {% else %}
-                <div class="overflow-x-auto">
+                <!-- Mobile Orders Card View (< 640px) -->
+                <div class="block sm:hidden space-y-3">
+                    {% for p in purchases %}
+                        <div class="p-4 rounded-2xl border border-gray-100 bg-gray-50/50 space-y-3">
+                            <div class="flex items-start justify-between gap-2">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-11 h-11 rounded-xl bg-white border border-gray-100 flex items-center justify-center text-2xl flex-shrink-0 shadow-xs">
+                                        {{ p.image_url }}
+                                    </div>
+                                    <div>
+                                        <span class="text-[9px] font-extrabold font-mono text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-100">
+                                            {{ p.order_id or 'VOF-HISTORIC' }}
+                                        </span>
+                                        <h4 class="font-extrabold text-xs text-gray-900 leading-tight mt-0.5">{{ p.name.split('[')[0].strip() }}</h4>
+                                        {% if '[' in p.name %}
+                                            <span class="inline-block text-[9px] font-extrabold text-emerald-800 bg-emerald-100 px-1.5 py-0.5 rounded my-0.5">
+                                                తెలుగు: [ {{ p.name.split('[')[1].replace(']', '').strip() }} ]
+                                            </span>
+                                        {% endif %}
+                                        <p class="text-[10px] text-gray-400 font-semibold">{{ p.quantity }} {{ p.unit }} • ₹{{ "%.2f" | format(p.price) }} / {{ p.unit }}</p>
+                                    </div>
+                                </div>
+                                <div class="text-right flex-shrink-0">
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[9px] font-extrabold {% if p.status == 'Delivered' %}bg-green-100 text-green-800{% elif p.status == 'Cancelled' %}bg-red-100 text-red-800{% else %}bg-amber-100 text-amber-800 animate-pulse{% endif %}">
+                                        {{ p.status or 'Confirmed' }}
+                                    </span>
+                                    <p class="text-xs font-black text-emerald-800 mt-1">₹{{ "%.2f" | format(p.total_price) }}</p>
+                                </div>
+                            </div>
+
+                            <div class="text-[10px] text-gray-500 font-bold bg-white p-2.5 rounded-xl border border-gray-100 flex items-center justify-between">
+                                <span>📅 {{ p.delivery_date or p.purchase_date.split(' ')[0] }}</span>
+                                <span class="text-gray-400">{{ p.delivery_slot or 'Morning (8-11 AM)' }}</span>
+                            </div>
+
+                            <div class="flex items-center justify-end gap-2 pt-1 border-t border-gray-100">
+                                <button onclick="viewInvoice('{{ p.order_id or ('VOF-LEGACY-' ~ p.id) }}')" 
+                                        class="text-[10px] font-black bg-white hover:bg-emerald-50 text-gray-700 hover:text-emerald-800 px-3 py-1.5 rounded-xl border border-gray-200 transition active:scale-95 flex items-center gap-1">
+                                    <i class="fa-solid fa-file-invoice text-emerald-600"></i> Invoice
+                                </button>
+                                {% if p.status == 'Delivered' %}
+                                    <button onclick="openReviewModal({{ p.product_id }}, '{{ p.name }}')" 
+                                            class="text-[10px] font-black bg-amber-50 hover:bg-amber-100 text-amber-800 px-3 py-1.5 rounded-xl border border-amber-200 transition active:scale-95">
+                                        ★ Rate
+                                    </button>
+                                {% elif p.status != 'Cancelled' %}
+                                    <button onclick="cancelOrder('{{ p.order_id }}', {{ p.id }})" 
+                                            class="text-[10px] font-bold bg-red-50 hover:bg-red-100 text-red-600 px-3 py-1.5 rounded-xl border border-red-200 transition active:scale-95">
+                                        Cancel
+                                    </button>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Desktop Orders Table View (>= 640px) -->
+                <div class="hidden sm:block overflow-x-auto">
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead>
                             <tr>
@@ -1319,15 +1414,18 @@
 
     // Live Product Search
     function searchProducts() {
-        const query = (document.getElementById("search-input") ? document.getElementById("search-input").value : "").toLowerCase().trim();
-        const cards = document.querySelectorAll(".product-card");
-        
-        cards.forEach(card => {
-            const name = (card.dataset.name || "").toLowerCase();
-            const tags = (card.dataset.tags || "").toLowerCase();
-            const category = (card.dataset.category || "").toLowerCase();
-            card.style.display = (query === "" || name.includes(query) || tags.includes(query) || category.includes(query)) ? "flex" : "none";
-        });
+        if (typeof performOptimizedSearch === 'function') {
+            performOptimizedSearch();
+        } else {
+            const query = (document.getElementById("search-input") ? document.getElementById("search-input").value : "").toLowerCase().trim();
+            const cards = document.querySelectorAll(".product-card");
+            cards.forEach(card => {
+                const name = (card.dataset.name || "").toLowerCase();
+                const tags = (card.dataset.tags || "").toLowerCase();
+                const category = (card.dataset.category || "").toLowerCase();
+                card.style.display = (query === "" || name.includes(query) || tags.includes(query) || category.includes(query)) ? "flex" : "none";
+            });
+        }
     }
 
     // Voice Search Support (Bilingual English & Telugu)

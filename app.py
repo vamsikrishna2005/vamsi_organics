@@ -36,6 +36,16 @@ GOOGLE_AUTH_ENDPOINT = "https://accounts.google.com/o/oauth2/v2/auth"
 GOOGLE_TOKEN_ENDPOINT = "https://oauth2.googleapis.com/token"
 GOOGLE_USERINFO_ENDPOINT = "https://www.googleapis.com/oauth2/v3/userinfo"
 
+# Firebase Authentication Web SDK Configuration
+FIREBASE_CONFIG = {
+    'apiKey': os.environ.get('FIREBASE_API_KEY', '').strip(),
+    'authDomain': os.environ.get('FIREBASE_AUTH_DOMAIN', 'ppm-organic-farms.firebaseapp.com').strip(),
+    'projectId': os.environ.get('FIREBASE_PROJECT_ID', 'ppm-organic-farms').strip(),
+    'storageBucket': os.environ.get('FIREBASE_STORAGE_BUCKET', 'ppm-organic-farms.appspot.com').strip(),
+    'messagingSenderId': os.environ.get('FIREBASE_MESSAGING_SENDER_ID', '').strip(),
+    'appId': os.environ.get('FIREBASE_APP_ID', '').strip()
+}
+
 # Helper to get DB connection
 def get_db_connection():
     conn = sqlite3.connect(database.DB_PATH)
@@ -64,7 +74,8 @@ def inject_global_data():
     return {
         'all_users': users,
         'current_user': current_user,
-        'unread_notification_count': unread_count
+        'unread_notification_count': unread_count,
+        'firebase_config': FIREBASE_CONFIG
     }
 
 @app.route('/')
@@ -767,14 +778,15 @@ def verify_otp():
 # =====================================================================
 # Google OAuth 2.0 Authentication Handlers
 # =====================================================================
-def process_google_user(email, name, picture=''):
-    from flask import flash
+# Google OAuth 2.0 & Firebase Authentication Handlers
+# =====================================================================
+def authenticate_or_register_google_user(email, name, picture=''):
+    """Core business logic for authenticating or provisioning a Google user."""
     email = (email or '').strip().lower()
     name = (name or '').strip() or email.split('@')[0].capitalize()
     
     if not email:
-        flash("Google sign-in error: Email address was not provided by Google.", "error")
-        return redirect(url_for('login'))
+        return None, False, "Email address was not provided."
         
     conn = get_db_connection()
     try:
@@ -794,8 +806,7 @@ def process_google_user(email, name, picture=''):
             session['name'] = user['name']
             session['auth_provider'] = 'google'
             session['profile_picture'] = picture or (user['profile_picture'] if 'profile_picture' in user.keys() else '')
-            flash(f"Welcome back, {user['name']}! Signed in with Google.", "success")
-            return redirect(url_for('dashboard', tab='market'))
+            return dict(user), False, None
         else:
             # Generate a distinct phone placeholder for new Google customer
             import time
@@ -822,14 +833,27 @@ def process_google_user(email, name, picture=''):
             session['auth_provider'] = 'google'
             session['profile_picture'] = picture or ''
             
-            flash(f"Welcome to PPM Organic Farms, {name}! ₹100 Welcome Coins added to your wallet.", "success")
-            return redirect(url_for('dashboard', tab='market'))
+            new_user = conn.execute("SELECT * FROM users WHERE id = ?", (new_uid,)).fetchone()
+            return dict(new_user), True, None
     except Exception as e:
         conn.rollback()
-        flash(f"Google sign-in error: {str(e)}", "error")
-        return redirect(url_for('login'))
+        return None, False, str(e)
     finally:
         conn.close()
+
+def process_google_user(email, name, picture=''):
+    from flask import flash
+    user, is_new, err = authenticate_or_register_google_user(email, name, picture)
+    if err:
+        flash(f"Google sign-in error: {err}", "error")
+        return redirect(url_for('login'))
+        
+    if is_new:
+        flash(f"Welcome to PPM Organic Farms, {user['name']}! ₹100 Welcome Coins added to your wallet.", "success")
+    else:
+        flash(f"Welcome back, {user['name']}! Signed in with Google.", "success")
+        
+    return redirect(url_for('dashboard', tab='market'))
 
 @app.route('/auth/google')
 def auth_google():
@@ -916,6 +940,168 @@ def auth_google_demo():
         name = "Vamsi Krishna (Google)"
         
     return process_google_user(email=email, name=name, picture=picture)
+
+# =====================================================================
+# Firebase Authentication API Endpoint
+# =====================================================================
+@app.route('/api/auth/firebase-login', methods=['POST'])
+def api_firebase_login():
+    """Validates Firebase Google authenticated credentials and starts session."""
+    data = request.get_json(silent=True) or request.form.to_dict() or {}
+    email = data.get('email', '').strip()
+    name = data.get('displayName') or data.get('name') or ''
+    picture = data.get('photoURL') or data.get('picture') or ''
+    id_token = data.get('idToken', '').strip()
+    
+    if not email:
+        return jsonify({"success": False, "error": "Email address is required for authentication."}), 400
+        
+    user, is_new, err = authenticate_or_register_google_user(email, name, picture)
+    if err:
+        return jsonify({"success": False, "error": err}), 400
+        
+    return jsonify({
+        "success": True,
+        "message": f"Welcome {'back, ' if not is_new else 'to PPM Organic Farms, '}{user['name']}!",
+        "is_new": is_new,
+        "redirect": url_for('dashboard', tab='market'),
+        "user": {
+            "id": user['id'],
+            "name": user['name'],
+            "email": user['email'],
+            "role": user['role']
+        }
+    })
+
+# =====================================================================
+# Search Engine Optimization (SEO) & Sitemap Directives
+# =====================================================================
+@app.route('/robots.txt')
+def robots_txt():
+    """Dynamic robots.txt for search engines (Googlebot, Bingbot, etc.)."""
+    content = """User-agent: *
+Allow: /
+Allow: /shop
+Allow: /privacy-policy
+Disallow: /admin
+Disallow: /admin/*
+Disallow: /api/admin/*
+
+Sitemap: https://vamsi2005.pythonanywhere.com/sitemap.xml
+"""
+    return Response(content, mimetype='text/plain')
+
+@app.route('/sitemap.xml')
+def sitemap_xml():
+    """XML sitemap for Google Search Console and SEO indexing."""
+    base_url = "https://vamsi2005.pythonanywhere.com"
+    today = datetime.now().strftime('%Y-%m-%d')
+    xml_content = f"""<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>{base_url}/</loc>
+    <lastmod>{today}</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>{base_url}/shop</loc>
+    <lastmod>{today}</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>{base_url}/login</loc>
+    <lastmod>{today}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>{base_url}/privacy-policy</loc>
+    <lastmod>{today}</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+</urlset>"""
+    return Response(xml_content, mimetype='application/xml')
+
+# =====================================================================
+# Optimized Vernacular & Phonetic Produce Search API
+# =====================================================================
+@app.route('/api/products/search')
+def api_products_search():
+    """Fast multilingual and phonetic search API for farm produce."""
+    query = request.args.get('q', '').strip().lower()
+    category = request.args.get('category', '').strip()
+    
+    conn = get_db_connection()
+    sql = "SELECT id, name, category, price, stock, unit, description, image_url, tags, rating, review_count, nutrition_info FROM products WHERE 1=1"
+    params = []
+    
+    if category and category.lower() != 'all':
+        sql += " AND LOWER(category) = ?"
+        params.append(category.lower())
+        
+    products = conn.execute(sql, params).fetchall()
+    conn.close()
+    
+    # Vernacular Telugu & Hindi transliteration dictionary
+    translit_map = {
+        'tamata': 'tomato', 'thakkali': 'tomato', 'tamato': 'tomato',
+        'ullipaya': 'onion', 'ulli': 'onion', 'eerulli': 'onion', 'piyaz': 'onion',
+        'aloo': 'potato', 'bangaladumpa': 'potato', 'batata': 'potato',
+        'bendakaya': 'okra', 'bhendi': 'okra', 'bhindi': 'okra', 'ladies finger': 'okra',
+        'vankaya': 'brinjal', 'baingan': 'brinjal', 'eggplant': 'brinjal',
+        'mirapa': 'chilli', 'mirapakaya': 'chilli', 'pachi mirchi': 'chilli', 'mirchi': 'chilli',
+        'palak': 'spinach', 'palakoora': 'spinach',
+        'kothimeera': 'coriander', 'dhaniya': 'coriander',
+        'pudina': 'mint',
+        'carret': 'carrot', 'gajjara': 'carrot',
+        'sorakaya': 'bottle gourd', 'anapakaya': 'bottle gourd', 'lauki': 'bottle gourd',
+        'kakarakaya': 'bitter gourd', 'karela': 'bitter gourd',
+        'beerakaya': 'ridge gourd', 'turai': 'ridge gourd',
+        'dosakaya': 'cucumber', 'keera': 'cucumber', 'kheera': 'cucumber',
+        'chikkudukaya': 'beans', 'beans': 'beans',
+        'cauliflower': 'cauliflower', 'gobi': 'cauliflower',
+        'cabbage': 'cabbage', 'patta gobi': 'cabbage',
+        'chintakaya': 'tamarind', 'adrak': 'ginger', 'allam': 'ginger',
+        'vellulli': 'garlic', 'lahsun': 'garlic',
+        'lemon': 'lemon', 'nimakaya': 'lemon', 'nimbu': 'lemon'
+    }
+    
+    search_terms = query.split()
+    expanded_terms = set(search_terms)
+    for term in search_terms:
+        if term in translit_map:
+            expanded_terms.add(translit_map[term])
+        for k, v in translit_map.items():
+            if term in k or k in term:
+                expanded_terms.add(v)
+                
+    results = []
+    for prod in products:
+        p_dict = dict(prod)
+        name_lower = (p_dict['name'] or '').lower()
+        desc_lower = (p_dict['description'] or '').lower()
+        cat_lower = (p_dict['category'] or '').lower()
+        
+        match = False
+        if not query:
+            match = True
+        else:
+            for term in expanded_terms:
+                if term in name_lower or term in desc_lower or term in cat_lower:
+                    match = True
+                    break
+        if match:
+            results.append(p_dict)
+            
+    return jsonify({
+        "success": True,
+        "query": query,
+        "count": len(results),
+        "products": results
+    })
 
 # Dedicated Store Operations / Administrator Login Portal
 @app.route('/admin/login', methods=['GET', 'POST'])
