@@ -5,48 +5,112 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="user-role" content="{{ current_user.role if current_user else 'guest' }}">
     <meta name="user-id" content="{{ current_user.id if current_user else '' }}">
-    <title>PPM Organic Farms - Fresh & Smart 🥬</title>
+    <title>PPM Organic Farms Puttur 517583 - 100% Farm-Fresh Vegetables Mandi 🥬</title>
 
-    <!-- SEO Meta Tags -->
-    <meta name="description" content="PPM Organic Farms delivers 100% certified farm-fresh Indian vegetables, harvested daily at 5 AM with zero pesticides. Fast morning delivery in 15-30 minutes with 5% cashback coins.">
-    <meta name="keywords" content="organic vegetables, fresh farm produce, tomato, onion, palak, indian mandi, zero pesticide vegetables, Hyderabad, Andhra, PPM Organic Farms">
-    <meta name="author" content="PPM Organic Farms">
-    <meta name="robots" content="index, follow">
+    <!-- SEO Meta Tags - Localized for Puttur 517583 -->
+    <meta name="description" content="Order 100% certified farm-fresh organic vegetables in Puttur (517583) directly from PPM Organic Farms. Harvested daily at 5:00 AM with zero pesticides. Fast 15-30 min delivery across Puttur with 5% cashback coins.">
+    <meta name="keywords" content="PPM Organic Farms, organic vegetables Puttur, fresh vegetables Puttur 517583, vegetable mandi Puttur, buy vegetables online Puttur, farm fresh vegetables 517583, zero pesticide vegetables Puttur, tomato Puttur, palak Puttur, onion Puttur">
+    <meta name="author" content="PPM Organic Farms Puttur">
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+    <link rel="canonical" href="https://vamsi2005.pythonanywhere.com/">
 
-    <!-- Open Graph / Facebook / WhatsApp Meta Tags -->
+    <!-- Local SEO Geo-Targeting Tags (Puttur 517583, Andhra Pradesh) -->
+    <meta name="geo.region" content="IN-AP">
+    <meta name="geo.placename" content="Puttur, Andhra Pradesh 517583">
+    <meta name="geo.position" content="13.4428;79.5539">
+    <meta name="ICBM" content="13.4428, 79.5539">
+
+    <!-- Google Search Console Site Verification -->
+    {% if google_site_verification %}
+    <meta name="google-site-verification" content="{{ google_site_verification }}">
+    {% endif %}
+
+    <!-- Open Graph / WhatsApp / Facebook Rich Preview Tags -->
     <meta property="og:type" content="website">
-    <meta property="og:site_name" content="PPM Organic Farms">
-    <meta property="og:title" content="PPM Organic Farms - 100% Certified Farm-Fresh Mandi">
-    <meta property="og:description" content="Direct soil harvest daily at 5:00 AM. Zero chemical pesticides, 15-30 min express delivery & 5% cashback coins.">
+    <meta property="og:site_name" content="PPM Organic Farms Puttur 517583">
+    <meta property="og:title" content="PPM Organic Farms - Fresh Vegetable Mandi in Puttur 517583">
+    <meta property="og:description" content="100% pesticide-free vegetables harvested daily at 5:00 AM. 15-30 min express delivery across Puttur (517583) + ₹100 Welcome Farm Coins.">
     <meta property="og:url" content="https://vamsi2005.pythonanywhere.com/">
     <meta property="og:image" content="https://vamsi2005.pythonanywhere.com/static/icons/icon-512.png">
 
-    <!-- Twitter Cards -->
+    <!-- Twitter Card Meta Tags -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="PPM Organic Farms - Farm Fresh Daily">
-    <meta name="twitter:description" content="100% Certified Farm-Fresh Mandi Vegetables Delivered Daily. Zero Pesticides.">
+    <meta name="twitter:title" content="PPM Organic Farms Puttur 517583">
+    <meta name="twitter:description" content="100% Certified Farm-Fresh Vegetables Delivered Daily in Puttur 517583. Zero Pesticides.">
     <meta name="twitter:image" content="https://vamsi2005.pythonanywhere.com/static/icons/icon-512.png">
 
-    <!-- Schema.org JSON-LD Structured Data for Organic Food Store -->
+    <!-- Schema.org JSON-LD Structured Data: Local Organic Store + FAQ Rich Snippets -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
-      "@type": "OrganicFoodStore",
-      "name": "PPM Organic Farms",
-      "description": "100% Certified Farm-Fresh Indian Vegetables Mandi. Harvested daily at 5 AM with zero chemical pesticides.",
-      "url": "https://vamsi2005.pythonanywhere.com/",
-      "logo": "https://vamsi2005.pythonanywhere.com/static/icons/icon-512.png",
-      "image": "https://vamsi2005.pythonanywhere.com/static/icons/icon-512.png",
-      "telephone": "+91-7675960440",
-      "priceRange": "₹",
-      "openingHours": "Mo-Su 05:00-21:00",
-      "currenciesAccepted": "INR",
-      "paymentAccepted": "Cash, UPI, Credit Card, Farm Coins",
-      "potentialAction": {
-        "@type": "SearchAction",
-        "target": "https://vamsi2005.pythonanywhere.com/shop?q={search_term_string}",
-        "query-input": "required name=search_term_string"
-      }
+      "@graph": [
+        {
+          "@type": "OrganicFoodStore",
+          "@id": "https://vamsi2005.pythonanywhere.com/#store",
+          "name": "PPM Organic Farms",
+          "description": "100% Certified Farm-Fresh Indian Vegetables Mandi serving Puttur (517583). Harvested daily at 5:00 AM with zero chemical pesticides.",
+          "url": "https://vamsi2005.pythonanywhere.com/",
+          "logo": "https://vamsi2005.pythonanywhere.com/static/icons/icon-512.png",
+          "image": "https://vamsi2005.pythonanywhere.com/static/icons/icon-512.png",
+          "telephone": "+91-7675960440",
+          "priceRange": "₹",
+          "openingHours": "Mo-Su 05:00-21:00",
+          "currenciesAccepted": "INR",
+          "paymentAccepted": "Cash, UPI, Credit Card, Farm Coins",
+          "address": {
+            "@type": "PostalAddress",
+            "streetAddress": "PPM Farm Operations Center",
+            "addressLocality": "Puttur",
+            "addressRegion": "Andhra Pradesh",
+            "postalCode": "517583",
+            "addressCountry": "IN"
+          },
+          "geo": {
+            "@type": "GeoCoordinates",
+            "latitude": 13.4428,
+            "longitude": 79.5539
+          },
+          "areaServed": {
+            "@type": "AdministrativeArea",
+            "name": "Puttur - 517583"
+          },
+          "potentialAction": {
+            "@type": "SearchAction",
+            "target": "https://vamsi2005.pythonanywhere.com/shop?q={search_term_string}",
+            "query-input": "required name=search_term_string"
+          }
+        },
+        {
+          "@type": "FAQPage",
+          "@id": "https://vamsi2005.pythonanywhere.com/#faq",
+          "mainEntity": [
+            {
+              "@type": "Question",
+              "name": "How fast does PPM Organic Farms deliver vegetables in Puttur (517583)?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "PPM Organic Farms delivers fresh morning harvest vegetables in 15 to 30 minutes across all areas in Puttur (Pincode: 517583)."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Are vegetables from PPM Organic Farms 100% chemical and pesticide-free?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Yes, all vegetables are 100% organically cultivated using natural compost, jeevamrutham, and clean well water with zero synthetic pesticides."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Is Cash on Delivery (COD) and UPI available in Puttur?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Yes! We offer 100% Cash on Delivery with zero convenience fee, plus instant UPI on delivery across Puttur 517583."
+              }
+            }
+          ]
+        }
+      ]
     }
     </script>
 
@@ -223,6 +287,12 @@
                     </div>
 
                     <div class="flex items-center space-x-3">
+                        <!-- PWA 1-Click App Install Navbar Button -->
+                        <button id="pwa-install-nav-btn" onclick="triggerPwaInstall()" class="hidden items-center gap-1.5 text-xs bg-emerald-600 hover:bg-emerald-700 text-white font-black px-3 py-1.5 rounded-xl shadow-xs transition duration-200 cursor-pointer" title="Install PPM Farms App on your phone/computer">
+                            <i class="fa-solid fa-mobile-screen-button text-xs"></i>
+                            <span class="hidden md:inline">Install App</span>
+                        </button>
+
                         {% if not request.path.startswith('/admin') %}
                         <a href="https://wa.me/917675960440?text=Hello%20PPM%20Organic%20Farms%2C%20I%20have%20an%20inquiry%20about%20fresh%20vegetables!" 
                            target="_blank" 
@@ -513,6 +583,74 @@
         </div>
     </footer>
     {% endif %}
+
+    <!-- PWA Smart 1-Click Install Banner (Mobile & Desktop) -->
+    <div id="pwa-install-banner" class="hidden fixed bottom-20 sm:bottom-6 left-3 right-3 sm:left-auto sm:right-6 sm:max-w-sm z-50 bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl border border-emerald-200/80 p-3.5 transition-all duration-300">
+        <div class="flex items-start gap-3">
+            <div class="w-10 h-10 rounded-xl bg-emerald-600 flex-shrink-0 flex items-center justify-center text-white shadow-md shadow-emerald-600/30">
+                <i class="fa-solid fa-leaf text-lg"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-1.5 flex-wrap">
+                    <h4 class="text-xs font-black text-gray-900 leading-tight">Install PPM Farms App</h4>
+                    <span class="text-[9px] font-black bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded-md">Puttur 517583</span>
+                </div>
+                <p class="text-[11px] text-gray-500 mt-1 leading-snug">Get fast 15-min delivery notifications & instant 1-tap checkout on your phone!</p>
+                <div class="flex items-center gap-2 mt-2.5">
+                    <button onclick="triggerPwaInstall()" class="flex-1 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white text-xs font-bold py-1.5 px-3 rounded-xl transition shadow-xs flex items-center justify-center gap-1.5 cursor-pointer">
+                        <i class="fa-solid fa-download text-[11px]"></i>
+                        <span>Install App</span>
+                    </button>
+                    <button onclick="dismissPwaBanner()" class="text-gray-400 hover:text-gray-600 text-xs font-bold py-1.5 px-2.5 rounded-xl hover:bg-gray-100 transition cursor-pointer" title="Dismiss for now">
+                        Later
+                    </button>
+                </div>
+            </div>
+            <button onclick="dismissPwaBanner()" class="text-gray-400 hover:text-gray-600 -mt-1 -mr-1 p-1 rounded-lg cursor-pointer" title="Close">
+                <i class="fa-solid fa-xmark text-xs"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- iOS Add to Home Screen Instructions Modal -->
+    <div id="ios-install-modal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-end sm:items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-gray-100 space-y-4 animate-in fade-in zoom-in duration-200">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-9 h-9 rounded-xl bg-emerald-600 flex items-center justify-center text-white">
+                        <i class="fa-solid fa-apple-whole text-base"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-black text-sm text-gray-900">Install on iPhone / iPad</h3>
+                        <p class="text-[10px] text-gray-500 font-medium">PPM Organic Farms • Puttur 517583</p>
+                    </div>
+                </div>
+                <button onclick="closeIosInstallModal()" class="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-500 flex items-center justify-center transition cursor-pointer">
+                    <i class="fa-solid fa-xmark text-sm"></i>
+                </button>
+            </div>
+            <p class="text-xs text-gray-600 leading-relaxed">
+                To install this app on your Apple device without the App Store:
+            </p>
+            <div class="space-y-2.5 text-xs text-gray-700 bg-gray-50 p-3.5 rounded-2xl border border-gray-200/60">
+                <div class="flex items-start gap-2.5">
+                    <span class="w-5 h-5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-black flex items-center justify-center flex-shrink-0 mt-0.5">1</span>
+                    <span>Tap the <strong>Share</strong> button <i class="fa-solid fa-arrow-up-from-bracket text-blue-600"></i> in Safari's bottom toolbar.</span>
+                </div>
+                <div class="flex items-start gap-2.5">
+                    <span class="w-5 h-5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-black flex items-center justify-center flex-shrink-0 mt-0.5">2</span>
+                    <span>Scroll down and tap <strong>Add to Home Screen</strong> <i class="fa-regular fa-square-plus text-gray-700"></i>.</span>
+                </div>
+                <div class="flex items-start gap-2.5">
+                    <span class="w-5 h-5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-black flex items-center justify-center flex-shrink-0 mt-0.5">3</span>
+                    <span>Tap <strong>Add</strong> in the top-right corner to finish.</span>
+                </div>
+            </div>
+            <button onclick="closeIosInstallModal()" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs transition cursor-pointer">
+                Got it!
+            </button>
+        </div>
+    </div>
 
     <!-- Store JS Scripts -->
     <script src="/static/js/store.js"></script>

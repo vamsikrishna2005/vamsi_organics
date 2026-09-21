@@ -39,7 +39,7 @@ class TestAIChatbotAndAdminUI(unittest.TestCase):
         self.assertEqual(data['intent'], 'track_order')
         self.assertIn("VOF-20260829-1003", data['reply'])
         self.assertIn("Out for Delivery", data['reply'])
-        self.assertIn("Flat 301, Sri Sai Residency", data['reply'])
+        self.assertIn("Door No. 12-4, Gandhi Road, Puttur", data['reply'])
 
     def test_03_ai_chat_track_logged_in_user_orders(self):
         """Verify general order tracking retrieves the logged-in user's latest delivery."""

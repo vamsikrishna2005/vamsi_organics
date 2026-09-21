@@ -62,6 +62,9 @@ document.addEventListener("DOMContentLoaded", () => {
             localStorage.removeItem("vegi_market_cart_guest");
         });
     });
+
+    // Initialize Progressive Web App (PWA) 1-click install prompt and badges
+    initPwaInstaller();
 });
 
 // Fetch and initialize customer's saved default delivery address
@@ -3391,5 +3394,146 @@ window.searchProducts = performOptimizedSearch;
 window.performOptimizedSearch = performOptimizedSearch;
 window.clearSearchInput = clearSearchInput;
 window.setQuickSearch = setQuickSearch;
+
+// ==========================================
+// 📱 PWA (Progressive Web App) Install Engine
+// ==========================================
+let pwaDeferredPrompt = null;
+
+function isAppStandalone() {
+    return window.matchMedia('(display-mode: standalone)').matches ||
+           window.navigator.standalone === true ||
+           document.referrer.includes('android-app://');
+}
+
+function isIosDevice() {
+    return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+}
+
+function initPwaInstaller() {
+    // If already launched as installed standalone PWA app, keep install prompts hidden
+    if (isAppStandalone()) {
+        const banner = document.getElementById("pwa-install-banner");
+        const navBtn = document.getElementById("pwa-install-nav-btn");
+        if (banner) banner.classList.add("hidden");
+        if (navBtn) navBtn.classList.add("hidden");
+        return;
+    }
+
+    // Capture the beforeinstallprompt event (Chrome, Edge, Android, Chromium browsers)
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        pwaDeferredPrompt = e;
+
+        // Show header navbar install button
+        const navBtn = document.getElementById("pwa-install-nav-btn");
+        if (navBtn) {
+            navBtn.classList.remove("hidden");
+            navBtn.classList.add("inline-flex");
+        }
+
+        // Show floating install banner if not dismissed in last 24 hours
+        const banner = document.getElementById("pwa-install-banner");
+        const dismissedAt = localStorage.getItem("pwa_banner_dismissed_at");
+        const now = Date.now();
+        const oneDay = 24 * 60 * 60 * 1000;
+
+        if (banner && (!dismissedAt || (now - parseInt(dismissedAt, 10)) > oneDay)) {
+            setTimeout(() => {
+                banner.classList.remove("hidden");
+            }, 2000);
+        }
+    });
+
+    // On iOS Safari: show nav button & polite banner
+    if (isIosDevice() && !isAppStandalone()) {
+        const navBtn = document.getElementById("pwa-install-nav-btn");
+        if (navBtn) {
+            navBtn.classList.remove("hidden");
+            navBtn.classList.add("inline-flex");
+        }
+
+        const banner = document.getElementById("pwa-install-banner");
+        const dismissedAt = localStorage.getItem("pwa_banner_dismissed_at");
+        const now = Date.now();
+        const oneDay = 24 * 60 * 60 * 1000;
+
+        if (banner && (!dismissedAt || (now - parseInt(dismissedAt, 10)) > oneDay)) {
+            setTimeout(() => {
+                banner.classList.remove("hidden");
+            }, 2500);
+        }
+    }
+
+    // Detect when user successfully installs
+    window.addEventListener('appinstalled', () => {
+        pwaDeferredPrompt = null;
+        const banner = document.getElementById("pwa-install-banner");
+        const navBtn = document.getElementById("pwa-install-nav-btn");
+        if (banner) banner.classList.add("hidden");
+        if (navBtn) navBtn.classList.add("hidden");
+        if (typeof showToast === 'function') {
+            showToast("🎉 PPM Organic Farms App installed successfully! Enjoy 1-tap fresh vegetable delivery.", "success");
+        }
+    });
+}
+
+async function triggerPwaInstall() {
+    if (pwaDeferredPrompt) {
+        // Show native browser install prompt
+        pwaDeferredPrompt.prompt();
+        const choiceResult = await pwaDeferredPrompt.userChoice;
+        if (choiceResult && choiceResult.outcome === 'accepted') {
+            const banner = document.getElementById("pwa-install-banner");
+            const navBtn = document.getElementById("pwa-install-nav-btn");
+            if (banner) banner.classList.add("hidden");
+            if (navBtn) navBtn.classList.add("hidden");
+            if (typeof showToast === 'function') {
+                showToast("Installing PPM Organic Farms App...", "success");
+            }
+        }
+        pwaDeferredPrompt = null;
+    } else if (isIosDevice()) {
+        // Show iOS Add to Home Screen step-by-step modal
+        const modal = document.getElementById("ios-install-modal");
+        if (modal) {
+            modal.classList.remove("hidden");
+        }
+    } else if (isAppStandalone()) {
+        if (typeof showToast === 'function') {
+            showToast("✅ PPM Organic Farms is already installed as an app on this device!", "success");
+        } else {
+            alert("PPM Organic Farms is already installed on your device!");
+        }
+    } else {
+        // Fallback for desktop Safari/Firefox or when prompt cannot be shown directly
+        if (typeof showToast === 'function') {
+            showToast("📲 To install this app, open your browser menu (⋮ or Share) and select 'Install' or 'Add to Home Screen'.", "info");
+        } else {
+            alert("To install this app, open your browser menu and select 'Install app' or 'Add to Home screen'.");
+        }
+    }
+}
+
+function dismissPwaBanner() {
+    const banner = document.getElementById("pwa-install-banner");
+    if (banner) {
+        banner.classList.add("hidden");
+    }
+    localStorage.setItem("pwa_banner_dismissed_at", Date.now().toString());
+}
+
+function closeIosInstallModal() {
+    const modal = document.getElementById("ios-install-modal");
+    if (modal) {
+        modal.classList.add("hidden");
+    }
+}
+
+// Wire functions globally
+window.initPwaInstaller = initPwaInstaller;
+window.triggerPwaInstall = triggerPwaInstall;
+window.dismissPwaBanner = dismissPwaBanner;
+window.closeIosInstallModal = closeIosInstallModal;
 
 

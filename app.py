@@ -75,7 +75,8 @@ def inject_global_data():
         'all_users': users,
         'current_user': current_user,
         'unread_notification_count': unread_count,
-        'firebase_config': FIREBASE_CONFIG
+        'firebase_config': FIREBASE_CONFIG,
+        'google_site_verification': os.environ.get('GOOGLE_SITE_VERIFICATION', '').strip()
     }
 
 @app.route('/')

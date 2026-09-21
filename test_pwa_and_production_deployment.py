@@ -181,5 +181,55 @@ class TestPWAAndProductionDeployment(unittest.TestCase):
             # Admin must be denied consumer OTP login
             self.assertEqual(res.status_code, 403)
 
+    def test_08_pwa_interactive_installer_ui_and_js(self):
+        """Verify 1-click PWA installer banner, navbar button, iOS modal, and JavaScript engine"""
+        base_path = os.path.join(r"C:\vamsi_vegi_market", "templates", "base.html")
+        with open(base_path, "r", encoding="utf-8") as f:
+            html = f.read()
+
+        # Elements in base.html
+        self.assertIn('id="pwa-install-nav-btn"', html)
+        self.assertIn('id="pwa-install-banner"', html)
+        self.assertIn('id="ios-install-modal"', html)
+        self.assertIn('triggerPwaInstall()', html)
+        self.assertIn('dismissPwaBanner()', html)
+        self.assertIn('closeIosInstallModal()', html)
+
+        # Functions in static/js/store.js
+        js_path = os.path.join(r"C:\vamsi_vegi_market", "static", "js", "store.js")
+        with open(js_path, "r", encoding="utf-8") as f:
+            js = f.read()
+
+        self.assertIn('function initPwaInstaller', js)
+        self.assertIn('function triggerPwaInstall', js)
+        self.assertIn('function dismissPwaBanner', js)
+        self.assertIn('function closeIosInstallModal', js)
+        self.assertIn('beforeinstallprompt', js)
+        self.assertIn('appinstalled', js)
+
+    def test_09_puttur_517583_local_seo_and_zero_hyderabad(self):
+        """Verify meta tags, geo coordinates, Schema.org are targeted to Puttur 517583 and no Hyderabad in store templates"""
+        base_path = os.path.join(r"C:\vamsi_vegi_market", "templates", "base.html")
+        with open(base_path, "r", encoding="utf-8") as f:
+            base_html = f.read()
+
+        # Puttur SEO tags
+        self.assertIn('517583', base_html)
+        self.assertIn('Puttur', base_html)
+        self.assertIn('name="geo.placename" content="Puttur, Andhra Pradesh 517583"', base_html)
+        self.assertIn('name="geo.position" content="13.4428;79.5539"', base_html)
+        self.assertIn('"postalCode": "517583"', base_html)
+        self.assertIn('"addressLocality": "Puttur"', base_html)
+        self.assertIn('"OrganicFoodStore"', base_html)
+
+        # Check storefront templates for zero Hyderabad mentions
+        storefront_templates = ['base.html', 'shop.html', 'dashboard.html', 'cart.html', 'privacy_policy.html']
+        for tpl in storefront_templates:
+            tpl_path = os.path.join(r"C:\vamsi_vegi_market", "templates", tpl)
+            with open(tpl_path, "r", encoding="utf-8") as f:
+                content = f.read()
+            self.assertNotIn("Hyderabad", content, f"Found Hyderabad reference in templates/{tpl}")
+            self.assertNotIn("Telangana", content, f"Found Telangana reference in templates/{tpl}")
+
 if __name__ == '__main__':
     unittest.main()

@@ -108,7 +108,7 @@ def init_db():
             purchase_date TEXT NOT NULL,
             delivery_date TEXT,
             delivery_slot TEXT,
-            delivery_address TEXT DEFAULT 'Door #12, Green Avenue, Hyderabad',
+            delivery_address TEXT DEFAULT 'Door No. 4-21, Gandhi Road, Puttur - 517583',
             status TEXT DEFAULT 'Placed', -- 'Placed', 'Packed at Farm', 'Out for Delivery', 'Delivered', 'Cancelled'
             coupon_code TEXT DEFAULT '',
             discount_amount REAL DEFAULT 0.0,
@@ -208,9 +208,9 @@ def init_db():
     # User 1 (Vamsi Vegi): Loves greens and cooking essentials.
     # Product IDs: 9 (Spinach ₹25), 7 (Coriander ₹15), 1 (Tomatoes ₹35)
     purchases_user1 = [
-        ('VOF-20260826-1001', 1, 9, 2, 50.00, (now - timedelta(days=6)).strftime('%Y-%m-%d %H:%M:%S'), '2026-08-27', 'Morning (8:00 AM - 11:00 AM)', 'Flat 301, Sri Sai Residency, Madhapur, Hyderabad', 'Delivered'),
-        ('VOF-20260827-1002', 1, 7, 1, 15.00, (now - timedelta(days=5)).strftime('%Y-%m-%d %H:%M:%S'), '2026-08-28', 'Morning (8:00 AM - 11:00 AM)', 'Flat 301, Sri Sai Residency, Madhapur, Hyderabad', 'Delivered'),
-        ('VOF-20260829-1003', 1, 1, 3, 105.00, (now - timedelta(days=3)).strftime('%Y-%m-%d %H:%M:%S'), '2026-08-30', 'Morning (8:00 AM - 11:00 AM)', 'Flat 301, Sri Sai Residency, Madhapur, Hyderabad', 'Out for Delivery')
+        ('VOF-20260826-1001', 1, 9, 2, 50.00, (now - timedelta(days=6)).strftime('%Y-%m-%d %H:%M:%S'), '2026-08-27', 'Morning (8:00 AM - 11:00 AM)', 'Door No. 12-4, Gandhi Road, Puttur - 517583', 'Delivered'),
+        ('VOF-20260827-1002', 1, 7, 1, 15.00, (now - timedelta(days=5)).strftime('%Y-%m-%d %H:%M:%S'), '2026-08-28', 'Morning (8:00 AM - 11:00 AM)', 'Door No. 12-4, Gandhi Road, Puttur - 517583', 'Delivered'),
+        ('VOF-20260829-1003', 1, 1, 3, 105.00, (now - timedelta(days=3)).strftime('%Y-%m-%d %H:%M:%S'), '2026-08-30', 'Morning (8:00 AM - 11:00 AM)', 'Door No. 12-4, Gandhi Road, Puttur - 517583', 'Out for Delivery')
     ]
 
     all_purchases = purchases_user1
@@ -222,8 +222,8 @@ def init_db():
     # 4. Seed Saved Addresses (Pre-populate default address for customers)
     now_str = now.strftime('%Y-%m-%d %H:%M:%S')
     addresses = [
-        (1, 'Home', 'Flat 301, Sri Sai Residency, Madhapur, Hyderabad - 500081', 1, now_str),
-        (1, 'Office', 'Cyber Towers, 4th Floor, Hitech City, Hyderabad - 500081', 0, now_str)
+        (1, 'Home', 'Door No. 12-4, Gandhi Road, Puttur - 517583', 1, now_str),
+        (1, 'Shop / Office', 'Near Old Bus Stand, Bypass Road, Puttur - 517583', 0, now_str)
     ]
     cursor.executemany("""
         INSERT INTO user_addresses (user_id, label, address, is_default, created_at)
