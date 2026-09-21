@@ -231,5 +231,13 @@ class TestPWAAndProductionDeployment(unittest.TestCase):
             self.assertNotIn("Hyderabad", content, f"Found Hyderabad reference in templates/{tpl}")
             self.assertNotIn("Telangana", content, f"Found Telangana reference in templates/{tpl}")
 
+    def test_10_google_search_console_html_file_verification(self):
+        """Verify dynamic Google Search Console HTML verification file response"""
+        test_token = "a1b2c3d4e5f67890"
+        res = self.client.get(f'/google{test_token}.html')
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(res.data.decode('utf-8'), f"google-site-verification: google{test_token}.html")
+        self.assertIn("text/html", res.content_type)
+
 if __name__ == '__main__':
     unittest.main()

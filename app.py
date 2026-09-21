@@ -1026,6 +1026,11 @@ def sitemap_xml():
 </urlset>"""
     return Response(xml_content, mimetype='application/xml')
 
+@app.route('/google<string:token>.html')
+def google_verification_file(token):
+    """Dynamic responder for Google Search Console HTML verification files."""
+    return f"google-site-verification: google{token}.html", 200, {'Content-Type': 'text/html; charset=utf-8'}
+
 # =====================================================================
 # Optimized Vernacular & Phonetic Produce Search API
 # =====================================================================
