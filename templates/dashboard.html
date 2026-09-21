@@ -575,6 +575,12 @@
                         <span>Proceed to Express Checkout</span>
                     </button>
 
+                    <!-- WhatsApp Direct Basket Order Option -->
+                    <button type="button" onclick="openSmartWhatsApp(event)" class="w-full bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-extrabold py-3 px-4 rounded-2xl border border-emerald-200 transition duration-200 flex items-center justify-center space-x-2 text-xs active:scale-98 cursor-pointer mt-2" title="Send your vegetable basket directly to Farm Support on WhatsApp">
+                        <i class="fa-brands fa-whatsapp text-emerald-600 text-base"></i>
+                        <span>Send Basket to WhatsApp</span>
+                    </button>
+
                     <div class="flex items-center justify-center space-x-4 text-[10px] text-gray-400 font-semibold">
                         <span>🔒 100% Secure Checkout</span>
                         <span>⚡ 15-30 Min Delivery</span>
@@ -650,6 +656,11 @@
                             </div>
 
                             <div class="flex items-center justify-end gap-2 pt-1 border-t border-gray-100">
+                                <button onclick="openSmartWhatsApp(event, { order_id: '{{ p.order_id or ('VOF-' ~ p.id) }}', name: '{{ p.name.split('[')[0].strip() }}', quantity: '{{ p.quantity }} {{ p.unit }}', total_price: {{ p.total_price }}, status: '{{ p.status or 'Confirmed' }}', delivery_date: '{{ p.delivery_date or '' }}', delivery_slot: '{{ p.delivery_slot or '' }}', delivery_address: '{{ p.delivery_address or '' }}' })"
+                                        class="text-[10px] font-black bg-emerald-50 hover:bg-emerald-100 text-emerald-800 px-2.5 py-1.5 rounded-xl border border-emerald-200 transition active:scale-95 flex items-center gap-1 cursor-pointer"
+                                        title="Send order details to WhatsApp">
+                                    <i class="fa-brands fa-whatsapp text-emerald-600 text-xs"></i> WhatsApp
+                                </button>
                                 <button onclick="viewInvoice('{{ p.order_id or ('VOF-LEGACY-' ~ p.id) }}')" 
                                         class="text-[10px] font-black bg-white hover:bg-emerald-50 text-gray-700 hover:text-emerald-800 px-3 py-1.5 rounded-xl border border-gray-200 transition active:scale-95 flex items-center gap-1">
                                     <i class="fa-solid fa-file-invoice text-emerald-600"></i> Invoice
@@ -724,6 +735,11 @@
                                         ₹{{ "%.2f" | format(p.total_price) }}
                                     </td>
                                     <td class="px-5 py-4 text-center whitespace-nowrap space-x-1.5">
+                                        <button onclick="openSmartWhatsApp(event, { order_id: '{{ p.order_id or ('VOF-' ~ p.id) }}', name: '{{ p.name.split('[')[0].strip() }}', quantity: '{{ p.quantity }} {{ p.unit }}', total_price: {{ p.total_price }}, status: '{{ p.status or 'Confirmed' }}', delivery_date: '{{ p.delivery_date or '' }}', delivery_slot: '{{ p.delivery_slot or '' }}', delivery_address: '{{ p.delivery_address or '' }}' })" 
+                                                class="text-[11px] font-black bg-emerald-50 hover:bg-emerald-100 text-emerald-800 px-3 py-1.5 rounded-xl border border-emerald-200 transition active:scale-95 inline-flex items-center gap-1 cursor-pointer"
+                                                title="Contact Support on WhatsApp for this Order">
+                                            <i class="fa-brands fa-whatsapp text-emerald-600"></i> WhatsApp
+                                        </button>
                                         <button onclick="viewInvoice('{{ p.order_id or ('VOF-LEGACY-' ~ p.id) }}')" 
                                                 class="text-[11px] font-black bg-gray-100 hover:bg-emerald-50 text-gray-700 hover:text-emerald-800 px-3 py-1.5 rounded-xl border border-gray-200 transition active:scale-95">
                                             <i class="fa-solid fa-file-invoice text-emerald-600"></i> Invoice

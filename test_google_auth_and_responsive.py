@@ -12,14 +12,16 @@ class TestGoogleAuthAndResponsive(unittest.TestCase):
         self.app = app.test_client()
         self.app.testing = True
 
-    def test_01_login_page_renders_firebase_google_auth_button(self):
-        """Verify that the login page provides Firebase Google authentication."""
+    def test_01_login_page_phone_auth_and_no_google_login(self):
+        """Verify that Google sign-in is removed and phone authentication is the primary login."""
         res = self.app.get('/login')
         self.assertEqual(res.status_code, 200)
         html = res.data.decode('utf-8')
-        self.assertIn("Continue with Google", html)
-        self.assertIn("firebase", html.lower())
-        self.assertIn("handleGoogleSignIn", html)
+        self.assertNotIn("Continue with Google", html)
+        self.assertNotIn("firebase-app-compat.js", html)
+        self.assertNotIn("handleGoogleSignIn", html)
+        self.assertIn('name="phone"', html)
+        self.assertIn("+91", html)
 
     def test_02_auth_google_endpoint_accessible(self):
         """Verify /auth/google initiates flow or shows Google Account Chooser."""
@@ -167,6 +169,28 @@ class TestGoogleAuthAndResponsive(unittest.TestCase):
         self.assertGreater(data_onion['count'], 0)
         matched_onion_names = [p['name'].lower() for p in data_onion['products']]
         self.assertTrue(any('onion' in n for n in matched_onion_names))
+
+    def test_11_whatsapp_order_synchronization(self):
+        """Verify that WhatsApp order synchronization helpers and UI triggers exist."""
+        # 1. Check store.js has buildWhatsAppOrderMessage and openSmartWhatsApp
+        with open('static/js/store.js', 'r', encoding='utf-8') as f:
+            store_js = f.read()
+        self.assertIn("buildWhatsAppOrderMessage", store_js)
+        self.assertIn("openSmartWhatsApp", store_js)
+        self.assertIn("ppm_latest_order", store_js)
+        self.assertIn("7675960440", store_js)
+
+        # 2. Check base.html has openSmartWhatsApp handlers
+        with open('templates/base.html', 'r', encoding='utf-8') as f:
+            base_html = f.read()
+        self.assertIn("openSmartWhatsApp(event)", base_html)
+        self.assertIn("google-site-verification", base_html)
+
+        # 3. Check dashboard.html has WhatsApp actions for orders & basket
+        with open('templates/dashboard.html', 'r', encoding='utf-8') as f:
+            dash_html = f.read()
+        self.assertIn("openSmartWhatsApp", dash_html)
+        self.assertIn("Send Basket to WhatsApp", dash_html)
 
 if __name__ == '__main__':
     unittest.main()

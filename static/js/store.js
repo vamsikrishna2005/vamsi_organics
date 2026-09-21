@@ -1015,6 +1015,7 @@ function addRecipeBundle(bundleType) {
 async function executeSecureCheckout() {
     if (cart.length === 0) return;
     
+    const orderedSnapshot = cart.map(item => ({ ...item }));
     const items = cart.map(item => ({
         product_id: item.id,
         quantity: item.quantity
@@ -1087,8 +1088,8 @@ async function executeSecureCheckout() {
             const drawer = document.getElementById("cart-drawer");
             if (drawer) drawer.classList.add("translate-x-full");
             
-            // Open Celebratory Thank You & Delivery Assurance Popup
-            openOrderSuccessModal(result, deliverySlot, deliveryAddress);
+            // Open Celebratory Thank You & Delivery Assurance Popup with itemized order details
+            openOrderSuccessModal(result, deliverySlot, deliveryAddress, orderedSnapshot, deliveryDate);
         } else {
             showToast(result.error || "Checkout failed", "error");
         }
@@ -1100,7 +1101,7 @@ async function executeSecureCheckout() {
 }
 
 // Celebratory Order Success & Thank You Modal Controllers
-function openOrderSuccessModal(result, deliverySlot, deliveryAddress) {
+function openOrderSuccessModal(result, deliverySlot, deliveryAddress, orderedItems = null, deliveryDate = null) {
     const modal = document.getElementById("order-success-modal");
     if (!modal) {
         // Fallback for pages without the modal
@@ -1120,10 +1121,24 @@ function openOrderSuccessModal(result, deliverySlot, deliveryAddress) {
     if (slotEl) slotEl.innerText = deliverySlot || "Tomorrow • Standard Morning Slot (8:00 AM - 11:00 AM)";
     if (addrEl) addrEl.innerText = deliveryAddress || "Saved Delivery Address";
     
+    // Store latest order for WhatsApp synchronization across the entire web app
+    const orderInfo = {
+        order_id: result.order_id,
+        items: orderedItems || [],
+        delivery_slot: deliverySlot,
+        delivery_date: deliveryDate,
+        delivery_address: deliveryAddress,
+        total_price: result.total_amount || (orderedItems ? orderedItems.reduce((acc, it) => acc + (it.price * it.quantity), 0) : 0),
+        status: 'Placed'
+    };
+    try {
+        localStorage.setItem("ppm_latest_order", JSON.stringify(orderInfo));
+    } catch(e) {}
+
     const waBtn = document.getElementById("success-modal-whatsapp-btn");
     if (waBtn && result.order_id) {
-        const msg = encodeURIComponent(`Hello PPM Organic Farms, I have an inquiry about my recent Order #${result.order_id}!`);
-        waBtn.href = `https://wa.me/917675960440?text=${msg}`;
+        const msg = buildWhatsAppOrderMessage(orderInfo);
+        waBtn.href = `https://wa.me/917675960440?text=${encodeURIComponent(msg)}`;
     }
     
     if (cashbackRow && cashbackVal) {
@@ -3535,5 +3550,76 @@ window.initPwaInstaller = initPwaInstaller;
 window.triggerPwaInstall = triggerPwaInstall;
 window.dismissPwaBanner = dismissPwaBanner;
 window.closeIosInstallModal = closeIosInstallModal;
+
+// ==========================================
+// 💬 Smart WhatsApp Order Synchronization
+// ==========================================
+function getStoredLatestOrder() {
+    try {
+        const raw = localStorage.getItem("ppm_latest_order");
+        if (raw) return JSON.parse(raw);
+    } catch(e) {}
+    return null;
+}
+
+function buildWhatsAppOrderMessage(orderData = null) {
+    let msg = "Namaste PPM Organic Farms! 🥬\n\n";
+    const order = orderData || getStoredLatestOrder();
+    
+    if (order && (order.order_id || order.name)) {
+        msg += `I would like an update / support regarding my Order:\n`;
+        if (order.order_id) msg += `📦 Order ID: #${order.order_id}\n`;
+        if (order.status) msg += `📊 Status: ${order.status}\n`;
+        if (order.total_price) msg += `💰 Total: ₹${parseFloat(order.total_price).toFixed(2)}\n`;
+        if (order.delivery_slot) msg += `⏰ Slot: ${order.delivery_slot}\n`;
+        if (order.delivery_date) msg += `📅 Date: ${order.delivery_date}\n`;
+        if (order.delivery_address) msg += `📍 Address: ${order.delivery_address}\n`;
+        
+        if (order.items && order.items.length > 0) {
+            msg += `\nVegetables Ordered:\n`;
+            order.items.forEach(it => {
+                const name = (it.name || '').split('[')[0].trim();
+                msg += `• ${name} (${it.quantity} ${it.unit || ''}) - ₹${(it.price * it.quantity).toFixed(2)}\n`;
+            });
+        } else if (order.name) {
+            const name = (order.name || '').split('[')[0].trim();
+            msg += `\nItem: • ${name} (x${order.quantity || 1}) - ₹${parseFloat(order.total_price || 0).toFixed(2)}\n`;
+        }
+        msg += `\nPlease provide a status update on this delivery. Thank you!`;
+        return msg;
+    }
+    
+    if (cart && cart.length > 0) {
+        msg += `I would like to place an order for the following fresh vegetables from Puttur:\n\n`;
+        let total = 0;
+        cart.forEach(item => {
+            const name = (item.name || '').split('[')[0].trim();
+            const sub = item.price * item.quantity;
+            total += sub;
+            msg += `• ${name} (${item.unit || 'kg'}) x ${item.quantity} = ₹${sub.toFixed(2)}\n`;
+        });
+        msg += `\n💰 Total Cart: ₹${total.toFixed(2)}`;
+        const savedAddr = localStorage.getItem("vof_customer_address") || "Puttur - 517583";
+        msg += `\n📍 Delivery Location: ${savedAddr}`;
+        msg += `\n\nPlease confirm availability and harvest delivery time!`;
+        return msg;
+    }
+    
+    msg += `I am reaching out regarding fresh organic vegetables in Puttur (517583). Please let me know today's fresh harvest availability!`;
+    return msg;
+}
+
+function openSmartWhatsApp(e, customOrder = null) {
+    if (e && e.preventDefault) e.preventDefault();
+    const message = buildWhatsAppOrderMessage(customOrder);
+    const url = `https://wa.me/917675960440?text=${encodeURIComponent(message)}`;
+    window.open(url, '_blank');
+    return false;
+}
+
+// Attach globally
+window.buildWhatsAppOrderMessage = buildWhatsAppOrderMessage;
+window.openSmartWhatsApp = openSmartWhatsApp;
+window.getStoredLatestOrder = getStoredLatestOrder;
 
 
