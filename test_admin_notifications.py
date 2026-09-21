@@ -11,15 +11,15 @@ class TestAdminOrderNotifications(unittest.TestCase):
         self.app = app.test_client()
         self.app.testing = True
 
-    def test_01_landing_page_redirect_to_login(self):
-        """Verify that visitors landing on / or /shop without session are redirected to /login."""
+    def test_01_landing_page_serves_public_storefront(self):
+        """Verify that visitors and search crawlers landing on / or /shop get 200 OK storefront."""
         response = self.app.get('/', follow_redirects=False)
-        self.assertEqual(response.status_code, 302)
-        self.assertIn('/login', response.headers['Location'])
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("PPM Organic Farms", response.data.decode('utf-8'))
 
         response_shop = self.app.get('/shop', follow_redirects=False)
-        self.assertEqual(response_shop.status_code, 302)
-        self.assertIn('/login', response_shop.headers['Location'])
+        self.assertEqual(response_shop.status_code, 200)
+        self.assertIn("PPM Organic Farms", response_shop.data.decode('utf-8'))
 
     def test_02_customer_order_triggers_admin_notification(self):
         """Verify that placing an order generates a real-time notification for admins."""

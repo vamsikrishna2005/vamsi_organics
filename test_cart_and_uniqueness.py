@@ -134,12 +134,12 @@ class TestCartAndUniqueness(unittest.TestCase):
         self.assertGreater(len(poll_data['notifications']), 0)
         self.assertIn(order_id, poll_data['notifications'][0]['message'])
 
-    def test_08_landing_page_redirects_to_login(self):
-        """Verify visiting the root URL / always redirects to /login as the landing page."""
+    def test_08_landing_page_serves_storefront(self):
+        """Verify visiting the root URL / serves the public farm storefront (200 OK) for SEO."""
         self.app.get('/logout')
         res = self.app.get('/', follow_redirects=False)
-        self.assertEqual(res.status_code, 302)
-        self.assertIn('/login', res.headers['Location'])
+        self.assertEqual(res.status_code, 200)
+        self.assertIn("PPM Organic Farms", res.data.decode('utf-8'))
 
     def test_09_customer_login_redirects_to_dashboard(self):
         """Verify successful customer login redirects to unified /dashboard."""

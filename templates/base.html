@@ -11,8 +11,13 @@
     <meta name="description" content="Order 100% certified farm-fresh organic vegetables in Puttur (517583) directly from PPM Organic Farms. Harvested daily at 5:00 AM with zero pesticides. Fast 15-30 min delivery across Puttur with 5% cashback coins.">
     <meta name="keywords" content="PPM Organic Farms, organic vegetables Puttur, fresh vegetables Puttur 517583, vegetable mandi Puttur, buy vegetables online Puttur, farm fresh vegetables 517583, zero pesticide vegetables Puttur, tomato Puttur, palak Puttur, onion Puttur">
     <meta name="author" content="PPM Organic Farms Puttur">
+    {% if request.path in ['/login', '/register', '/admin/login'] or request.path.startswith('/admin') %}
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="canonical" href="https://vamsi2005.pythonanywhere.com{{ request.path }}">
+    {% else %}
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
-    <link rel="canonical" href="https://vamsi2005.pythonanywhere.com/">
+    <link rel="canonical" href="https://vamsi2005.pythonanywhere.com{{ '/shop' if request.path == '/shop' else '/' }}">
+    {% endif %}
 
     <!-- Local SEO Geo-Targeting Tags (Puttur 517583, Andhra Pradesh) -->
     <meta name="geo.region" content="IN-AP">

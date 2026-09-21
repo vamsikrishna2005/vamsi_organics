@@ -81,8 +81,8 @@ def inject_global_data():
 
 @app.route('/')
 def index():
-    # Landing page is always the Login page as requested
-    return redirect(url_for('login'))
+    """Public storefront homepage (200 OK) for customers & search engines (Googlebot)."""
+    return dashboard()
 
 @app.route('/privacy-policy')
 def privacy_policy():
@@ -91,16 +91,23 @@ def privacy_policy():
 
 @app.route('/shop')
 def shop():
-    uid = session.get('user_id')
-    if not uid:
-        return redirect(url_for('login'))
+    """Direct shop route showing all fresh farm produce."""
     return dashboard()
 
 @app.route('/dashboard')
 def dashboard():
     uid = session.get('user_id')
     role = session.get('role')
-    if not uid or role != 'customer':
+    
+    active_tab = request.args.get('tab')
+    if not active_tab:
+        if request.path == '/cart':
+            active_tab = 'basket'
+        else:
+            active_tab = 'market'
+            
+    # If accessing private dashboard route directly without being logged in, redirect to login
+    if request.path == '/dashboard' and (not uid or role != 'customer'):
         from flask import flash
         flash("Please log in as a customer to access your smart dashboard.", "error")
         return redirect(url_for('login'))
@@ -111,50 +118,54 @@ def dashboard():
     products = conn.execute("SELECT * FROM products ORDER BY id ASC").fetchall()
     categories = sorted(list(set(p['category'] for p in products)))
     
-    # 2. Fetch saved delivery addresses for Farm Basket & Checkout
-    addresses = conn.execute("SELECT * FROM user_addresses WHERE user_id = ? ORDER BY is_default DESC, id DESC", (uid,)).fetchall()
+    addresses = []
+    purchases = []
+    notifications = []
+    wallet_balance = 0.0
+    wallet_txs = []
+    ai_recs = []
+    predictive_alerts = []
     
-    # 3. Fetch user purchase history for Orders & Tracking
-    purchases = conn.execute("""
-        SELECT p.*, prod.name, prod.category, prod.price, prod.unit, prod.image_url
-        FROM purchases p
-        JOIN products prod ON p.product_id = prod.id
-        WHERE p.user_id = ?
-        ORDER BY p.purchase_date DESC
-    """, (uid,)).fetchall()
-    
-    # 4. Fetch notifications from SQLite database
-    notifications = conn.execute("""
-        SELECT * FROM notifications 
-        WHERE user_id = ? 
-        ORDER BY timestamp DESC
-    """, (uid,)).fetchall()
+    if uid and role == 'customer':
+        # 2. Fetch saved delivery addresses for Farm Basket & Checkout
+        addresses = conn.execute("SELECT * FROM user_addresses WHERE user_id = ? ORDER BY is_default DESC, id DESC", (uid,)).fetchall()
+        
+        # 3. Fetch user purchase history for Orders & Tracking
+        purchases = conn.execute("""
+            SELECT p.*, prod.name, prod.category, prod.price, prod.unit, prod.image_url
+            FROM purchases p
+            JOIN products prod ON p.product_id = prod.id
+            WHERE p.user_id = ?
+            ORDER BY p.purchase_date DESC
+        """, (uid,)).fetchall()
+        
+        # 4. Fetch notifications from SQLite database
+        notifications = conn.execute("""
+            SELECT * FROM notifications 
+            WHERE user_id = ? 
+            ORDER BY timestamp DESC
+        """, (uid,)).fetchall()
 
-    # 5. Fetch user wallet balance & recent transactions
-    user_row = conn.execute("SELECT wallet_balance FROM users WHERE id = ?", (uid,)).fetchone()
-    wallet_balance = float(user_row['wallet_balance'] if user_row and user_row['wallet_balance'] is not None else 100.0)
-    wallet_txs = conn.execute("""
-        SELECT * FROM wallet_transactions 
-        WHERE user_id = ? 
-        ORDER BY created_at DESC LIMIT 10
-    """, (uid,)).fetchall()
+        # 5. Fetch user wallet balance & recent transactions
+        user_row = conn.execute("SELECT wallet_balance FROM users WHERE id = ?", (uid,)).fetchone()
+        wallet_balance = float(user_row['wallet_balance'] if user_row and user_row['wallet_balance'] is not None else 100.0)
+        wallet_txs = conn.execute("""
+            SELECT * FROM wallet_transactions 
+            WHERE user_id = ? 
+            ORDER BY created_at DESC LIMIT 10
+        """, (uid,)).fetchall()
+        
+        # 6. Fetch dynamically calculated AI recommendations (hybrid content/co-occurrence)
+        ai_recs = recommender.get_ai_recommendations(uid, limit=4)
+        
+        # 7. Fetch dynamically calculated AI predictive restock alerts
+        predictive_alerts = recommender.get_predictive_notifications(uid)
+    else:
+        # Unauthenticated guests and Googlebot crawl: showcase top popular produce
+        ai_recs = recommender.get_ai_recommendations(None, limit=4)
+        predictive_alerts = []
     
     conn.close()
-    
-    # 6. Fetch dynamically calculated AI recommendations (hybrid content/co-occurrence)
-    ai_recs = recommender.get_ai_recommendations(uid, limit=4)
-    
-    # 7. Fetch dynamically calculated AI predictive restock alerts
-    predictive_alerts = recommender.get_predictive_notifications(uid)
-    
-    active_tab = request.args.get('tab')
-    if not active_tab:
-        if request.path == '/cart':
-            active_tab = 'basket'
-        elif request.path == '/shop':
-            active_tab = 'market'
-        else:
-            active_tab = 'market'
     
     return render_template(
         'dashboard.html', 
