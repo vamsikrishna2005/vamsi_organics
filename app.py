@@ -1031,32 +1031,53 @@ def sitemap_xml():
     """XML sitemap for Google Search Console and SEO indexing."""
     base_url = get_site_url()
     today = datetime.now().strftime('%Y-%m-%d')
-    xml_content = f"""<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
+    
+    conn = get_db_connection()
+    categories = conn.execute("SELECT DISTINCT category FROM products WHERE category IS NOT NULL").fetchall()
+    conn.close()
+    
+    xml_entries = [
+        f"""  <url>
     <loc>{base_url}/</loc>
     <lastmod>{today}</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
-  </url>
-  <url>
+  </url>""",
+        f"""  <url>
     <loc>{base_url}/shop</loc>
     <lastmod>{today}</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
-  </url>
-  <url>
+  </url>"""
+    ]
+    
+    for cat in categories:
+        import urllib.parse
+        cat_param = urllib.parse.quote_plus(cat['category'])
+        xml_entries.append(f"""  <url>
+    <loc>{base_url}/shop?category={cat_param}</loc>
+    <lastmod>{today}</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>""")
+        
+    xml_entries.append(f"""  <url>
     <loc>{base_url}/login</loc>
     <lastmod>{today}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
-  </url>
-  <url>
+  </url>""")
+    xml_entries.append(f"""  <url>
     <loc>{base_url}/privacy-policy</loc>
     <lastmod>{today}</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
-  </url>
+  </url>""")
+    
+    body = "\n".join(xml_entries)
+    xml_content = f"""<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+{body}
 </urlset>"""
     return Response(xml_content, mimetype='application/xml')
 
