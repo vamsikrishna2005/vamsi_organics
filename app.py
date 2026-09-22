@@ -93,13 +93,18 @@ def inject_global_data():
         'unread_notification_count': unread_count,
         'firebase_config': FIREBASE_CONFIG,
         'google_site_verification': os.environ.get('GOOGLE_SITE_VERIFICATION', '').strip(),
-        'site_url': get_site_url()
+        'site_url': get_site_url(),
+        'is_auth_page': (request.path in ['/login', '/register', '/admin/login']) or (request.path == '/' and not current_uid)
     }
 
 @app.route('/')
 def index():
-    """Public storefront homepage (200 OK) for customers & search engines (Googlebot)."""
-    return dashboard()
+    """Landing page: Sign In or Register (200 OK for visitors, redirects to dashboard if logged in)."""
+    uid = session.get('user_id')
+    role = session.get('role')
+    if uid and role == 'customer':
+        return redirect(url_for('dashboard'))
+    return login()
 
 @app.route('/privacy-policy')
 def privacy_policy():

@@ -2,49 +2,61 @@
 
 {% block content %}
 <style>
-    .auth-wrapper {
-        min-height: 88vh;
+    /* Full viewport centering container that gracefully scrolls on small screens & with soft keyboards */
+    .auth-page-wrapper {
+        min-height: calc(100dvh - 2rem);
+        min-height: calc(100vh - 2rem);
+        width: 100%;
         display: flex;
-        align-items: center;
+        flex-direction: column;
         justify-content: center;
-        padding: 2.5rem 1rem;
-        background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+        align-items: center;
+        padding: 1.5rem 1rem;
+        box-sizing: border-box;
     }
-    .auth-card-panel {
+    
+    .auth-card {
         width: 100%;
         max-width: 440px;
         background: #ffffff;
-        border-radius: 1.25rem;
+        border-radius: 1.5rem;
         border: 1px solid #e2e8f0;
-        box-shadow: 0 20px 25px -5px rgba(15, 23, 42, 0.05), 0 8px 10px -6px rgba(15, 23, 42, 0.02);
+        box-shadow: 0 20px 25px -5px rgba(15, 23, 42, 0.08), 0 8px 10px -6px rgba(15, 23, 42, 0.03);
         padding: 2.25rem 2rem;
         box-sizing: border-box;
+        margin: auto 0;
+        transition: transform 0.2s ease;
     }
+
     .brand-icon-box {
         width: 3.75rem;
         height: 3.75rem;
-        border-radius: 1rem;
-        background: linear-gradient(135deg, #047857 0%, #065f46 100%);
+        border-radius: 1.125rem;
+        background: linear-gradient(135deg, #059669 0%, #047857 100%);
         color: #ffffff;
         display: inline-flex;
         align-items: center;
         justify-content: center;
         margin: 0 auto 0.75rem auto;
-        box-shadow: 0 10px 15px -3px rgba(4, 120, 87, 0.25);
+        box-shadow: 0 10px 18px -3px rgba(5, 150, 105, 0.35);
     }
-    .segmented-control {
+
+    /* Segmented Tab Controls */
+    .segmented-tabs {
         display: flex;
         background: #f1f5f9;
         padding: 4px;
         border-radius: 0.875rem;
-        gap: 4px;
+        gap: 6px;
         border: 1px solid #e2e8f0;
         margin: 1.25rem 0;
     }
+
     .segmented-btn {
         flex: 1;
-        padding: 0.65rem 0.5rem;
-        font-size: 0.75rem;
+        min-height: 2.75rem;
+        padding: 0.5rem 0.65rem;
+        font-size: 0.78rem;
         font-weight: 700;
         border-radius: 0.65rem;
         border: none;
@@ -53,84 +65,120 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        gap: 0.35rem;
+        gap: 0.4rem;
+        text-align: center;
+        line-height: 1.25;
     }
+
     .segmented-btn.active {
-        background: #047857;
+        background: #059669;
         color: #ffffff;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
+
     .segmented-btn.inactive {
         background: transparent;
         color: #64748b;
     }
+
     .segmented-btn.inactive:hover {
         color: #0f172a;
+        background: rgba(255, 255, 255, 0.6);
     }
-    .input-field-group {
-        position: relative;
-        display: flex;
+
+    .bonus-pill {
+        display: inline-flex;
         align-items: center;
+        background: #fef3c7;
+        color: #92400e;
+        font-size: 0.65rem;
+        font-weight: 900;
+        padding: 0.15rem 0.35rem;
+        border-radius: 9999px;
+        border: 1px solid #fde68a;
+        white-space: nowrap;
     }
-    .phone-prefix-pill {
-        position: absolute;
-        left: 0.75rem;
+
+    .segmented-btn.active .bonus-pill {
+        background: #ffffff;
+        color: #047857;
+        border-color: #a7f3d0;
+    }
+
+    /* Input Field Container - Flexbox based, eliminates text collision with prefix */
+    .input-field-container {
+        display: flex;
+        align-items: stretch;
+        background: #f8fafc;
+        border: 1.5px solid #cbd5e1;
+        border-radius: 0.875rem;
+        overflow: hidden;
+        transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .input-field-container:focus-within {
+        background: #ffffff;
+        border-color: #059669;
+        box-shadow: 0 0 0 3.5px rgba(5, 150, 105, 0.15);
+    }
+
+    .phone-prefix-block {
         display: flex;
         align-items: center;
         gap: 0.35rem;
-        font-size: 0.8125rem;
+        padding: 0 0.85rem;
+        background: #f1f5f9;
+        border-right: 1.5px solid #cbd5e1;
+        font-size: 0.875rem;
         font-weight: 800;
-        color: #334155;
-        pointer-events: none;
-        z-index: 2;
+        color: #1e293b;
+        user-select: none;
+        flex-shrink: 0;
     }
-    .phone-prefix-pill .divider {
-        color: #cbd5e1;
-        margin-left: 0.15rem;
+
+    .input-icon-block {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 2.75rem;
+        color: #94a3b8;
+        font-size: 0.875rem;
+        flex-shrink: 0;
+        background: #f8fafc;
+        border-right: 1.5px solid #e2e8f0;
     }
-    .form-text-input {
+
+    .text-input-field {
+        flex: 1;
+        min-width: 0;
         width: 100%;
-        padding: 0.875rem 1rem 0.875rem 4.75rem;
-        font-size: 0.9375rem;
+        padding: 0.85rem 1rem;
+        font-size: 1rem; /* 16px to prevent automatic mobile Safari / Android browser zoom */
         font-weight: 700;
         color: #0f172a;
-        background-color: #f8fafc;
-        border: 1.5px solid #e2e8f0;
-        border-radius: 0.875rem;
+        background: transparent;
+        border: none;
         outline: none;
         box-sizing: border-box;
-        transition: all 0.15s ease;
     }
-    .form-text-input:focus {
-        background-color: #ffffff;
-        border-color: #047857;
-        box-shadow: 0 0 0 3px rgba(4, 120, 87, 0.12);
-    }
-    .standard-text-input {
-        width: 100%;
-        padding: 0.875rem 1rem 0.875rem 2.75rem;
+
+    .text-input-field::placeholder {
+        color: #94a3b8;
+        font-weight: 500;
         font-size: 0.875rem;
-        font-weight: 600;
-        color: #0f172a;
-        background-color: #f8fafc;
-        border: 1.5px solid #e2e8f0;
-        border-radius: 0.875rem;
-        outline: none;
-        box-sizing: border-box;
-        transition: all 0.15s ease;
     }
-    .standard-text-input:focus {
-        background-color: #ffffff;
-        border-color: #047857;
-        box-shadow: 0 0 0 3px rgba(4, 120, 87, 0.12);
-    }
+
+    /* Large Touch-friendly Submit Button */
     .btn-submit-action {
         width: 100%;
-        padding: 0.95rem 1.25rem;
-        font-size: 0.875rem;
+        min-height: 3.25rem;
+        padding: 0.85rem 1.25rem;
+        font-size: 0.9375rem;
         font-weight: 800;
         color: #ffffff;
-        background: linear-gradient(135deg, #047857 0%, #065f46 100%);
+        background: linear-gradient(135deg, #059669 0%, #047857 100%);
         border: 1px solid #047857;
         border-radius: 0.875rem;
         cursor: pointer;
@@ -138,76 +186,101 @@
         align-items: center;
         justify-content: center;
         gap: 0.5rem;
-        box-shadow: 0 4px 6px -1px rgba(4, 120, 87, 0.2);
+        box-shadow: 0 4px 6px -1px rgba(5, 150, 105, 0.25);
         transition: all 0.15s ease;
         margin-top: 1rem;
+        box-sizing: border-box;
     }
+
     .btn-submit-action:hover {
-        background: linear-gradient(135deg, #065f46 0%, #047857 100%);
-        box-shadow: 0 10px 15px -3px rgba(4, 120, 87, 0.25);
+        background: linear-gradient(135deg, #047857 0%, #065f46 100%);
+        box-shadow: 0 8px 12px -2px rgba(5, 150, 105, 0.35);
         transform: translateY(-1px);
     }
+
     .btn-submit-action:active {
-        transform: translateY(0);
+        transform: scale(0.99);
     }
+
+    /* Mobile specific adjustments (screens <= 480px) */
     @media (max-width: 480px) {
-        .auth-wrapper {
-            padding: 1.25rem 0.75rem;
-            min-height: 80vh;
+        .auth-page-wrapper {
+            padding: 1rem 0.75rem;
+            min-height: 100dvh;
         }
-        .auth-card-panel {
+
+        .auth-card {
             padding: 1.5rem 1.15rem;
-            border-radius: 1rem;
+            border-radius: 1.25rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
         }
-        .form-text-input {
-            padding: 0.85rem 0.75rem 0.85rem 4.5rem;
-            font-size: 0.875rem;
+
+        .brand-icon-box {
+            width: 3.25rem;
+            height: 3.25rem;
+            border-radius: 0.875rem;
+            margin-bottom: 0.5rem;
         }
-        .phone-prefix-pill {
-            left: 0.5rem;
-            font-size: 0.75rem;
-        }
+
         .segmented-btn {
-            padding: 0.55rem 0.35rem;
-            font-size: 0.7rem;
+            font-size: 0.72rem;
+            padding: 0.45rem 0.35rem;
+            min-height: 2.5rem;
+        }
+
+        .phone-prefix-block {
+            padding: 0 0.65rem;
+            font-size: 0.8125rem;
+        }
+
+        .text-input-field {
+            padding: 0.75rem 0.75rem;
+            font-size: 0.9375rem;
+        }
+
+        .btn-submit-action {
+            min-height: 3rem;
+            font-size: 0.875rem;
+            padding: 0.75rem 1rem;
         }
     }
 </style>
 
-<div class="auth-wrapper">
-    <div class="auth-card-panel">
+<div class="auth-page-wrapper">
+    <div class="auth-card">
         
         <!-- Brand Header -->
-        <div class="text-center" style="text-align: center;">
+        <div style="text-align: center;">
             <div class="brand-icon-box">
-                <svg style="width: 2rem; height: 2rem;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <svg style="width: 1.85rem; height: 1.85rem;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M12 2a10 10 0 0 1 10 10c0 5.523-4.477 10-10 10S2 17.523 2 12A10 10 0 0 1 12 2z" fill="rgba(255,255,255,0.15)"/>
                     <path d="M12 22C12 12 20 8 20 8s-4 8-8 14z" fill="white"/>
                     <path d="M12 22C12 14 6 10 6 10s3 6 6 12z" fill="rgba(255,255,255,0.85)"/>
                 </svg>
             </div>
-            <h1 class="text-xl font-extrabold text-slate-900 tracking-tight" style="margin: 0; font-size: 1.35rem; font-weight: 900; color: #0f172a;">
-                PPM <span style="color: #047857;">ORGANIC FARMS</span>
+            <h1 style="margin: 0; font-size: 1.35rem; font-weight: 900; color: #0f172a; letter-spacing: -0.02em;">
+                PPM <span style="color: #059669;">ORGANIC FARMS</span>
             </h1>
-            <p style="margin: 0.25rem 0 0 0; font-size: 0.75rem; font-weight: 600; color: #64748b;">
+            <p style="margin: 0.25rem 0 0 0; font-size: 0.75rem; font-weight: 600; color: #64748b; line-height: 1.4;">
                 100% Certified Farm-Fresh Mandi • Harvested at 5:00 AM Daily
             </p>
             
-            <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200/80 text-emerald-800 text-[10px] font-black uppercase tracking-wider" style="margin-top: 0.65rem;">
-                <span style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #10b981; margin-right: 4px;"></span>
+            <div style="display: inline-flex; align-items: center; gap: 0.35rem; margin-top: 0.5rem; padding: 0.25rem 0.65rem; border-radius: 9999px; background: #ecfdf5; border: 1px solid #a7f3d0; color: #065f46; font-size: 0.6875rem; font-weight: 800;">
+                <span style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #10b981;"></span>
                 <span>Zero Chemical Pesticides • Direct Soil Harvest</span>
             </div>
         </div>
 
-        <!-- Segmented Tab Switcher -->
-        <div class="segmented-control">
-            <button type="button" id="tab-btn-customer" onclick="switchLoginMode('customer')" class="segmented-btn active">
+        <!-- Segmented Tab Switcher (Customer Login vs Customer Register) -->
+        <div class="segmented-tabs" role="tablist">
+            <button type="button" id="tab-btn-customer" onclick="switchLoginMode('customer')" class="segmented-btn active" role="tab" aria-selected="true">
                 <i class="fa-solid fa-mobile-screen"></i>
                 <span>Customer Login</span>
             </button>
-            <button type="button" id="tab-btn-register" onclick="switchLoginMode('register')" class="segmented-btn inactive">
+            <button type="button" id="tab-btn-register" onclick="switchLoginMode('register')" class="segmented-btn inactive" role="tab" aria-selected="false">
                 <i class="fa-solid fa-gift" style="color: #f59e0b;"></i>
-                <span>New Customer Register (+₹100)</span>
+                <span>New Customer Register</span>
+                <span class="bonus-pill">+₹100</span>
             </button>
         </div>
 
@@ -216,12 +289,12 @@
             {% if messages %}
                 <div style="margin-bottom: 1rem; display: flex; flex-direction: column; gap: 0.5rem;">
                     {% for category, message in messages %}
-                        <div class="p-3 text-xs font-bold rounded-xl {% if category == 'error' %}bg-rose-50 text-rose-800 border border-rose-200{% else %}bg-emerald-50 text-emerald-800 border border-emerald-200{% endif %} flex items-center justify-between" style="padding: 0.65rem 0.85rem; border-radius: 0.65rem;">
-                            <span class="flex items-center gap-1.5">
+                        <div style="padding: 0.65rem 0.85rem; border-radius: 0.75rem; font-size: 0.75rem; font-weight: 700; display: flex; align-items: center; justify-content: space-between; {% if category == 'error' %}background: #fef2f2; color: #991b1b; border: 1px solid #fecaca;{% else %}background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0;{% endif %}">
+                            <span style="display: flex; align-items: center; gap: 0.4rem;">
                                 <i class="fa-solid {% if category == 'error' %}fa-triangle-exclamation text-rose-600{% else %}fa-circle-check text-emerald-600{% endif %}"></i>
                                 <span>{{ message }}</span>
                             </span>
-                            <button type="button" onclick="this.parentElement.remove()" style="background: none; border: none; cursor: pointer; color: #94a3b8;">
+                            <button type="button" onclick="this.parentElement.remove()" style="background: none; border: none; cursor: pointer; color: #94a3b8; padding: 0 0.25rem;">
                                 <i class="fa-solid fa-xmark"></i>
                             </button>
                         </div>
@@ -232,7 +305,7 @@
 
         <!-- 1. Customer Login Form -->
         <div id="customer-login-section" style="display: block;">
-            <form id="customer-login-form" action="/login" method="POST" autocomplete="off" style="display: flex; flex-direction: column; gap: 1rem;">
+            <form id="customer-login-form" action="/login" method="POST" autocomplete="off" style="display: flex; flex-direction: column; gap: 0.95rem;">
                 <input type="hidden" name="login_type" value="customer">
                 
                 <div>
@@ -243,15 +316,14 @@
                         <span id="digit-counter" style="font-size: 0.6875rem; font-weight: 700; color: #94a3b8;">0/10 Digits</span>
                     </div>
 
-                    <div class="input-field-group">
-                        <div class="phone-prefix-pill">
+                    <div class="input-field-container">
+                        <div class="phone-prefix-block">
                             <span>🇮🇳</span>
                             <span>+91</span>
-                            <span class="divider">|</span>
                         </div>
-                        <input type="tel" id="phone" name="phone" maxlength="10" placeholder="Enter 10-digit mobile number"
+                        <input type="tel" id="phone" name="phone" maxlength="10" placeholder="10-digit mobile number"
                                oninput="validatePhoneDigits(this)" required autofocus autocomplete="tel"
-                               class="form-text-input">
+                               class="text-input-field">
                     </div>
                     <p id="phone-hint" style="margin: 0.35rem 0 0 0; font-size: 0.6875rem; color: #94a3b8; font-weight: 600; display: flex; align-items: center; gap: 0.25rem;">
                         <i class="fa-solid fa-circle-info" style="font-size: 0.65rem;"></i>
@@ -270,53 +342,52 @@
         <div id="customer-register-section" style="display: none;" class="hidden">
             <form id="customer-register-form" action="/register" method="POST" autocomplete="off" style="display: flex; flex-direction: column; gap: 0.85rem;">
                 <div>
-                    <label for="reg-name" style="display: block; font-size: 0.6875rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: #334155; margin-bottom: 0.25rem;">
+                    <label for="reg-name" style="display: block; font-size: 0.6875rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: #334155; margin-bottom: 0.35rem;">
                         Full Name
                     </label>
-                    <div class="input-field-group">
-                        <span style="position: absolute; left: 0.85rem; color: #94a3b8; font-size: 0.75rem; pointer-events: none;">
+                    <div class="input-field-container">
+                        <div class="input-icon-block">
                             <i class="fa-solid fa-user"></i>
-                        </span>
-                        <input type="text" id="reg-name" name="name" required placeholder="e.g. Ramesh Kumar" class="standard-text-input">
+                        </div>
+                        <input type="text" id="reg-name" name="name" required placeholder="e.g. Ramesh Kumar" class="text-input-field">
                     </div>
                 </div>
 
                 <div>
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.25rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
                         <label for="reg-email" style="font-size: 0.6875rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: #334155;">
                             Email Address
                         </label>
-                        <span id="reg-email-status" style="font-size: 0.6875rem; font-weight: 700; color: #94a3b8;">Unique</span>
+                        <span id="reg-email-status" style="font-size: 0.6875rem; font-weight: 700; color: #94a3b8;">Required</span>
                     </div>
-                    <div class="input-field-group">
-                        <span style="position: absolute; left: 0.85rem; color: #94a3b8; font-size: 0.75rem; pointer-events: none;">
+                    <div class="input-field-container">
+                        <div class="input-icon-block">
                             <i class="fa-solid fa-envelope"></i>
-                        </span>
-                        <input type="email" id="reg-email" name="email" required placeholder="name@example.com" class="standard-text-input">
+                        </div>
+                        <input type="email" id="reg-email" name="email" required placeholder="name@example.com" class="text-input-field">
                     </div>
                 </div>
 
                 <div>
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.25rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
                         <label for="reg-phone" style="font-size: 0.6875rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: #334155;">
                             10-Digit Mobile Number
                         </label>
                         <span id="reg-digit-counter" style="font-size: 0.6875rem; font-weight: 700; color: #94a3b8;">0/10 Digits</span>
                     </div>
-                    <div class="input-field-group">
-                        <div class="phone-prefix-pill">
+                    <div class="input-field-container">
+                        <div class="phone-prefix-block">
                             <span>🇮🇳</span>
                             <span>+91</span>
-                            <span class="divider">|</span>
                         </div>
                         <input type="tel" id="reg-phone" name="phone" maxlength="10" placeholder="10-digit mobile"
-                               oninput="validateRegPhoneDigits(this)" required class="form-text-input">
+                               oninput="validateRegPhoneDigits(this)" required class="text-input-field">
                     </div>
                 </div>
 
                 <div style="background-color: #fffbeb; border: 1px solid #fef3c7; padding: 0.75rem; border-radius: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
                     <span style="font-size: 1.25rem;">🎁</span>
-                    <p style="margin: 0; font-size: 0.75rem; font-weight: 700; color: #92400e; line-height: 1.3;">
+                    <p style="margin: 0; font-size: 0.75rem; font-weight: 700; color: #92400e; line-height: 1.35;">
                         <strong>Instant ₹100 Welcome Coins</strong> credited automatically to your Farm Wallet on registration!
                     </p>
                 </div>
@@ -328,13 +399,21 @@
             </form>
         </div>
 
-        <!-- Trust & Security Badges -->
-        <div style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid #f1f5f9; display: flex; justify-content: space-between; font-size: 0.6875rem; font-weight: 700; color: #94a3b8;">
+        <!-- Guest Access Option -->
+        <div style="margin-top: 1rem; text-align: center;">
+            <a href="/shop" style="font-size: 0.78125rem; font-weight: 700; color: #059669; text-decoration: none; display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.35rem 0.5rem; border-radius: 0.5rem; transition: color 0.15s;">
+                <i class="fa-solid fa-basket-shopping" style="font-size: 0.75rem;"></i>
+                <span>Or browse vegetables as guest &rarr;</span>
+            </a>
+        </div>
+
+        <!-- Trust Badges -->
+        <div style="margin-top: 1.25rem; padding-top: 0.85rem; border-top: 1px solid #f1f5f9; display: flex; justify-content: space-between; font-size: 0.6875rem; font-weight: 700; color: #94a3b8;">
             <span style="display: flex; align-items: center; gap: 0.25rem;">
-                <i class="fa-solid fa-shield-halved" style="color: #047857;"></i> 256-Bit SSL
+                <i class="fa-solid fa-shield-halved" style="color: #059669;"></i> 256-Bit SSL
             </span>
             <span style="display: flex; align-items: center; gap: 0.25rem;">
-                <i class="fa-solid fa-seedling" style="color: #047857;"></i> 100% Organic
+                <i class="fa-solid fa-seedling" style="color: #059669;"></i> 100% Organic
             </span>
             <span style="display: flex; align-items: center; gap: 0.25rem;">
                 <i class="fa-solid fa-truck-fast" style="color: #f59e0b;"></i> Morning Dispatch
@@ -342,8 +421,8 @@
         </div>
 
         <!-- Dedicated Operations Sign-In Link -->
-        <div style="margin-top: 1rem; text-align: center;">
-            <a href="/admin/login" style="font-size: 0.75rem; font-weight: 700; color: #64748b; text-decoration: none; display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.4rem 0.75rem; border-radius: 0.5rem; transition: color 0.15s;">
+        <div style="margin-top: 0.85rem; text-align: center;">
+            <a href="/admin/login" style="font-size: 0.71875rem; font-weight: 700; color: #94a3b8; text-decoration: none; display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.35rem 0.65rem; border-radius: 0.5rem; transition: color 0.15s;">
                 <i class="fa-solid fa-lock" style="font-size: 0.65rem;"></i>
                 <span>Store Manager & Operations Portal &rarr;</span>
             </a>
@@ -361,14 +440,36 @@
 
         if (mode === 'register') {
             if (custSec) custSec.style.display = 'none';
-            if (regSec) { regSec.style.display = 'block'; regSec.classList.remove('hidden'); }
-            if (custBtn) { custBtn.className = 'segmented-btn inactive'; }
-            if (regBtn) { regBtn.className = 'segmented-btn active'; }
+            if (regSec) { 
+                regSec.style.display = 'block'; 
+                regSec.classList.remove('hidden'); 
+            }
+            if (custBtn) { 
+                custBtn.className = 'segmented-btn inactive'; 
+                custBtn.setAttribute('aria-selected', 'false');
+            }
+            if (regBtn) { 
+                regBtn.className = 'segmented-btn active'; 
+                regBtn.setAttribute('aria-selected', 'true');
+            }
+            const nameInput = document.getElementById('reg-name');
+            if (nameInput) nameInput.focus();
         } else {
-            if (regSec) { regSec.style.display = 'none'; regSec.classList.add('hidden'); }
+            if (regSec) { 
+                regSec.style.display = 'none'; 
+                regSec.classList.add('hidden'); 
+            }
             if (custSec) custSec.style.display = 'block';
-            if (regBtn) { regBtn.className = 'segmented-btn inactive'; }
-            if (custBtn) { custBtn.className = 'segmented-btn active'; }
+            if (regBtn) { 
+                regBtn.className = 'segmented-btn inactive'; 
+                regBtn.setAttribute('aria-selected', 'false');
+            }
+            if (custBtn) { 
+                custBtn.className = 'segmented-btn active'; 
+                custBtn.setAttribute('aria-selected', 'true');
+            }
+            const phoneInput = document.getElementById('phone');
+            if (phoneInput) phoneInput.focus();
         }
     }
 
@@ -380,11 +481,11 @@
         
         if (counter) {
             counter.innerText = len + "/10 Digits";
-            counter.style.color = len === 10 ? "#047857" : "#94a3b8";
+            counter.style.color = len === 10 ? "#059669" : "#94a3b8";
         }
         if (hint) {
             if (len === 10) {
-                hint.innerHTML = '<i class="fa-solid fa-circle-check" style="color: #047857;"></i> <span style="color: #047857; font-weight: 700;">✓ Valid 10-digit Indian phone number</span>';
+                hint.innerHTML = '<i class="fa-solid fa-circle-check" style="color: #059669;"></i> <span style="color: #059669; font-weight: 700;">✓ Ready to continue</span>';
             } else {
                 hint.innerHTML = '<i class="fa-solid fa-circle-info"></i> <span>Enter ' + (10 - len) + ' more digit' + (10 - len === 1 ? '' : 's') + '</span>';
             }
@@ -397,7 +498,7 @@
         const counter = document.getElementById('reg-digit-counter');
         if (counter) {
             counter.innerText = len + "/10 Digits";
-            counter.style.color = len === 10 ? "#047857" : "#94a3b8";
+            counter.style.color = len === 10 ? "#059669" : "#94a3b8";
         }
     }
 

@@ -208,7 +208,7 @@
 </head>
 <body class="bg-gray-50 flex flex-col min-h-screen text-gray-800">
 
-    {% if request.path not in ['/login', '/register', '/admin/login'] %}
+    {% if not is_auth_page %}
     <!-- Header Navbar -->
     <nav class="bg-white border-b border-gray-100 sticky top-0 z-40 shadow-xs">
         <!-- Full Unified Dashboard Navigation Bar -->
@@ -364,7 +364,7 @@
     {% endif %}
 
     <!-- Mobile-First Glassy Bottom Navigation Bar (Hidden on Auth and Admin Pages) -->
-    {% if request.path not in ['/login', '/register', '/admin/login'] and not request.path.startswith('/admin') %}
+    {% if not is_auth_page and not request.path.startswith('/admin') %}
         <div class="sm:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-gray-200/80 z-40 px-6 py-2 flex items-center justify-between shadow-xl" style="padding-bottom: max(0.5rem, env(safe-area-inset-bottom));">
             <a href="/dashboard#market" onclick="if (typeof switchDashboardTab === 'function') { switchDashboardTab('market'); return false; }" class="flex flex-col items-center text-emerald-700 font-extrabold">
                 <i class="fa-solid fa-store text-base"></i>
@@ -411,11 +411,11 @@
     {% endif %}
 
     <!-- Main Content Container -->
-    <main class="flex-grow max-w-7xl w-full mx-auto {% if request.path in ['/login', '/register', '/admin/login'] %}p-0 flex items-center justify-center{% else %}px-4 sm:px-6 lg:px-8 py-6 pb-28 sm:pb-8{% endif %}">
+    <main class="flex-grow max-w-7xl w-full mx-auto {% if is_auth_page %}p-0 flex items-center justify-center{% else %}px-4 sm:px-6 lg:px-8 py-6 pb-28 sm:pb-8{% endif %}">
         <!-- Toast Notification Container -->
         <div id="toast-container" class="fixed top-20 right-4 z-50 flex flex-col gap-2 max-w-sm pointer-events-none"></div>
 
-        {% if request.path not in ['/login', '/register', '/admin/login'] %}
+        {% if not is_auth_page %}
             {% with messages = get_flashed_messages(with_categories=true) %}
                 {% if messages %}
                     <div class="mb-5 space-y-2">
@@ -438,7 +438,7 @@
         {% block content %}{% endblock %}
     </main>
 
-    {% if request.path not in ['/login', '/register', '/admin/login'] and not request.path.startswith('/admin') %}
+    {% if not is_auth_page and not request.path.startswith('/admin') %}
     <!-- Floating Kisan AI Assistant Trigger -->
     <button onclick="toggleFarmAIChat()" 
             id="farm-ai-trigger"
