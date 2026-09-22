@@ -52,6 +52,22 @@ def get_db_connection():
     conn.row_factory = sqlite3.Row
     return conn
 
+# Helper to get dynamic site canonical URL
+def get_site_url():
+    """Return configured or auto-detected canonical site URL."""
+    custom = os.environ.get('SITE_URL', '').strip().rstrip('/')
+    if custom:
+        return custom
+    try:
+        from flask import has_request_context
+        if has_request_context() and request and request.host:
+            if '127.0.0.1' not in request.host and 'localhost' not in request.host:
+                scheme = 'https' if (request.is_secure or request.headers.get('X-Forwarded-Proto') == 'https') else request.scheme
+                return f"{scheme}://{request.host}"
+    except Exception:
+        pass
+    return "https://vamsi2005.pythonanywhere.com"
+
 # Inject global template variables
 @app.context_processor
 def inject_global_data():
@@ -76,7 +92,8 @@ def inject_global_data():
         'current_user': current_user,
         'unread_notification_count': unread_count,
         'firebase_config': FIREBASE_CONFIG,
-        'google_site_verification': os.environ.get('GOOGLE_SITE_VERIFICATION', '').strip()
+        'google_site_verification': os.environ.get('GOOGLE_SITE_VERIFICATION', '').strip(),
+        'site_url': get_site_url()
     }
 
 @app.route('/')
@@ -991,7 +1008,8 @@ def api_firebase_login():
 @app.route('/robots.txt')
 def robots_txt():
     """Dynamic robots.txt for search engines (Googlebot, Bingbot, etc.)."""
-    content = """User-agent: *
+    base_url = get_site_url()
+    content = f"""User-agent: *
 Allow: /
 Allow: /shop
 Allow: /privacy-policy
@@ -999,14 +1017,14 @@ Disallow: /admin
 Disallow: /admin/*
 Disallow: /api/admin/*
 
-Sitemap: https://vamsi2005.pythonanywhere.com/sitemap.xml
+Sitemap: {base_url}/sitemap.xml
 """
     return Response(content, mimetype='text/plain')
 
 @app.route('/sitemap.xml')
 def sitemap_xml():
     """XML sitemap for Google Search Console and SEO indexing."""
-    base_url = "https://vamsi2005.pythonanywhere.com"
+    base_url = get_site_url()
     today = datetime.now().strftime('%Y-%m-%d')
     xml_content = f"""<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">

@@ -13,10 +13,10 @@
     <meta name="author" content="PPM Organic Farms Puttur">
     {% if request.path in ['/login', '/register', '/admin/login'] or request.path.startswith('/admin') %}
     <meta name="robots" content="noindex, nofollow">
-    <link rel="canonical" href="https://vamsi2005.pythonanywhere.com{{ request.path }}">
+    <link rel="canonical" href="{{ site_url }}{{ request.path }}">
     {% else %}
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
-    <link rel="canonical" href="https://vamsi2005.pythonanywhere.com{{ '/shop' if request.path == '/shop' else '/' }}">
+    <link rel="canonical" href="{{ site_url }}{{ '/shop' if request.path == '/shop' else '/' }}">
     {% endif %}
 
     <!-- Local SEO Geo-Targeting Tags (Puttur 517583, Andhra Pradesh) -->
@@ -36,14 +36,14 @@
     <meta property="og:site_name" content="PPM Organic Farms Puttur 517583">
     <meta property="og:title" content="PPM Organic Farms - Fresh Vegetable Mandi in Puttur 517583">
     <meta property="og:description" content="100% pesticide-free vegetables harvested daily at 5:00 AM. 15-30 min express delivery across Puttur (517583) + ₹100 Welcome Farm Coins.">
-    <meta property="og:url" content="https://vamsi2005.pythonanywhere.com/">
-    <meta property="og:image" content="https://vamsi2005.pythonanywhere.com/static/icons/icon-512.png">
+    <meta property="og:url" content="{{ site_url }}/">
+    <meta property="og:image" content="{{ site_url }}/static/icons/icon-512.png">
 
     <!-- Twitter Card Meta Tags -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="PPM Organic Farms Puttur 517583">
     <meta name="twitter:description" content="100% Certified Farm-Fresh Vegetables Delivered Daily in Puttur 517583. Zero Pesticides.">
-    <meta name="twitter:image" content="https://vamsi2005.pythonanywhere.com/static/icons/icon-512.png">
+    <meta name="twitter:image" content="{{ site_url }}/static/icons/icon-512.png">
 
     <!-- Schema.org JSON-LD Structured Data: Local Organic Store + FAQ Rich Snippets -->
     <script type="application/ld+json">
@@ -52,12 +52,12 @@
       "@graph": [
         {
           "@type": "OrganicFoodStore",
-          "@id": "https://vamsi2005.pythonanywhere.com/#store",
+          "@id": "{{ site_url }}/#store",
           "name": "PPM Organic Farms",
           "description": "100% Certified Farm-Fresh Indian Vegetables Mandi serving Puttur (517583). Harvested daily at 5:00 AM with zero chemical pesticides.",
-          "url": "https://vamsi2005.pythonanywhere.com/",
-          "logo": "https://vamsi2005.pythonanywhere.com/static/icons/icon-512.png",
-          "image": "https://vamsi2005.pythonanywhere.com/static/icons/icon-512.png",
+          "url": "{{ site_url }}/",
+          "logo": "{{ site_url }}/static/icons/icon-512.png",
+          "image": "{{ site_url }}/static/icons/icon-512.png",
           "telephone": "+91-7675960440",
           "priceRange": "₹",
           "openingHours": "Mo-Su 05:00-21:00",
@@ -82,13 +82,13 @@
           },
           "potentialAction": {
             "@type": "SearchAction",
-            "target": "https://vamsi2005.pythonanywhere.com/shop?q={search_term_string}",
+            "target": "{{ site_url }}/shop?q={search_term_string}",
             "query-input": "required name=search_term_string"
           }
         },
         {
           "@type": "FAQPage",
-          "@id": "https://vamsi2005.pythonanywhere.com/#faq",
+          "@id": "{{ site_url }}/#faq",
           "mainEntity": [
             {
               "@type": "Question",
